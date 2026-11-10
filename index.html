@@ -76,6 +76,13 @@
   .bj-hand { border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 8px; margin-top: 10px; }
   .bj-hand.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
   .bj-hand .bj-label { font-size: .78rem; color: #94a3b8; }
+  #minesGrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; max-width: 320px; margin: 12px auto; }
+  .mine-tile { aspect-ratio: 1; border-radius: 10px; background: #1e293b; border: 1px solid rgba(255,255,255,.1); font-size: 1.4rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform .1s, background .15s; padding: 0; }
+  .mine-tile:hover:not(:disabled) { transform: translateY(-2px); background: #334155; }
+  .mine-tile.safe { background: #14532d; border-color: #22c55e; cursor: default; }
+  .mine-tile.boom { background: #7f1d1d; border-color: #ef4444; cursor: default; }
+  .mine-tile:disabled { cursor: default; }
+  #minesResult { min-height: 1.5em; font-weight: 700; margin-top: 12px; }
   .card-face.red { color: #dc2626; }
   .card-face.flip { animation: cardflip .4s ease; }
   @keyframes cardflip { 0% { transform: rotateY(0) scale(1); } 50% { transform: rotateY(90deg) scale(1.05); } 100% { transform: rotateY(0) scale(1); } }
@@ -217,21 +224,24 @@
     <div class="card">
       <strong>🎮 Spiele</strong>
       <div id="gameTabs">
-        <button class="gtab active" data-game="hl">🃏 Higher/Lower</button>
+        <button class="gtab active" data-game="mines">💣 Mines</button>
+        <button class="gtab" data-game="bj">🂡 Blackjack</button>
+        <button class="gtab" data-game="hl">🃏 Higher/Lower</button>
         <button class="gtab" data-game="wheel">🎡 Wheel</button>
         <button class="gtab" data-game="flip">🪙 Münzwurf</button>
         <button class="gtab" data-game="guess">🔢 Zahlen raten</button>
-        <button class="gtab" data-game="bj">🂡 Blackjack</button>
       </div>
 
-      <div class="game-panel" id="game-hl">
+      <div class="game-panel hidden" id="game-hl">
         <p class="hint">Tippe, ob die nächste Karte höher oder tiefer ist. Jeder Treffer erhöht den Gewinn (x1.1). Gleiche Karte zählt als Treffer. Jederzeit cashen, sonst bei Fehler alles weg.</p>
         <div id="hlStart">
-          <div class="bet-row">
-            <div class="field"><label>Einsatz (Coins)</label><input id="hlBet" type="number" min="1" value="10" style="width:140px;text-align:center;"></div>
+          <div class="field" style="align-items:center;margin:0 auto;"><label>Einsatz (Coins)</label><input id="hlBet" type="number" min="1" value="10" style="width:140px;text-align:center;"></div>
+          <div class="bet-row" style="margin-top:8px;">
+            <button class="betMul" data-target="hlBet" data-mul="half">÷2</button>
+            <button class="betMul" data-target="hlBet" data-mul="double">×2</button>
             <button class="maxBet" data-target="hlBet">Max</button>
           </div>
-          <button id="hlStartBtn" style="background:#0ea5e9;color:#fff;margin-top:10px;">Runde starten</button>
+          <button id="hlStartBtn" style="background:#0ea5e9;color:#fff;margin-top:6px;">Runde starten</button>
         </div>
         <div id="hlGame" class="hidden">
           <div id="hlCard" class="card-face">?</div>
@@ -295,11 +305,13 @@
       <div class="game-panel hidden" id="game-bj">
         <p class="hint">So nah wie möglich an 21, ohne drüber. Bildkarten zählen 10, Ass 1 oder 11. Der Compiler zieht bis 17 (Soft 17 steht). Blackjack (21 mit 2 Karten) zahlt 2.5x, normaler Gewinn 2x, Push gibt den Einsatz zurück. Double Down verdoppelt den Einsatz für genau eine Karte. Bei zwei gleichen Karten kannst du splitten. Bei 21 wird automatisch gehalten.</p>
         <div id="bjStart">
-          <div class="bet-row">
-            <div class="field"><label>Einsatz (Coins)</label><input id="bjBet" type="number" min="1" value="10" style="width:140px;text-align:center;"></div>
+          <div class="field" style="align-items:center;margin:0 auto;"><label>Einsatz (Coins)</label><input id="bjBet" type="number" min="1" value="10" style="width:140px;text-align:center;"></div>
+          <div class="bet-row" style="margin-top:8px;">
+            <button class="betMul" data-target="bjBet" data-mul="half">÷2</button>
+            <button class="betMul" data-target="bjBet" data-mul="double">×2</button>
             <button class="maxBet" data-target="bjBet">Max</button>
           </div>
-          <button id="bjDealBtn" style="background:#0ea5e9;color:#fff;margin-top:10px;">Austeilen</button>
+          <button id="bjDealBtn" style="background:#0ea5e9;color:#fff;margin-top:6px;">Austeilen</button>
         </div>
         <div id="bjTable" class="hidden">
           <div style="font-size:.8rem;color:#94a3b8;margin-top:8px;">Compiler <span id="bjDealerVal"></span></div>
@@ -313,6 +325,26 @@
           </div>
         </div>
         <div id="bjResult"></div>
+      </div>
+
+      <div class="game-panel" id="game-mines">
+        <p class="hint">25 Felder, du wählst die Anzahl Minen. Jedes sichere Feld erhöht den Multiplikator; mehr Minen = größerer Zuwachs. Triffst du eine Mine, ist der Einsatz weg. Jederzeit cashen.</p>
+        <div id="minesStart">
+          <div class="bet-row">
+            <div class="field"><label>Einsatz (Coins)</label><input id="minesBet" type="number" min="1" value="10" style="width:130px;text-align:center;"></div>
+            <button class="maxBet" data-target="minesBet">Max</button>
+          </div>
+          <div class="bet-row">
+            <div class="field"><label>Minen (1-24)</label><input id="minesCount" type="number" min="1" max="24" value="3" style="width:130px;text-align:center;"></div>
+          </div>
+          <button id="minesStartBtn" style="background:#0ea5e9;color:#fff;margin-top:6px;">Spiel starten</button>
+        </div>
+        <div id="minesGame" class="hidden">
+          <div id="minesInfo" style="font-weight:700;margin:6px 0;"></div>
+          <div id="minesGrid"></div>
+          <button id="minesCash" style="background:#f59e0b;color:#1f1300;margin-top:10px;">💰 Cashen</button>
+        </div>
+        <div id="minesResult"></div>
       </div>
     </div>
 
@@ -473,7 +505,7 @@
     document.querySelectorAll(".gtab").forEach((x) => x.classList.remove("active"));
     t.classList.add("active");
     const g = t.dataset.game;
-    ["hl", "wheel", "flip", "guess", "bj"].forEach((name) => $("game-" + name).classList.toggle("hidden", name !== g));
+    ["hl", "wheel", "flip", "guess", "bj", "mines"].forEach((name) => $("game-" + name).classList.toggle("hidden", name !== g));
   }));
 
   // Max-Einsatz: setzt die volle aktuelle Balance ins Einsatzfeld
@@ -867,9 +899,10 @@
 
   // Münzwurf
   document.querySelectorAll(".betMul").forEach((b) => b.addEventListener("click", () => {
-    let v = Math.floor(Number($("betInput").value)) || 1;
+    const target = b.dataset.target || "betInput";
+    let v = Math.floor(Number($(target).value)) || 1;
     v = b.dataset.mul === "double" ? v * 2 : Math.max(1, Math.floor(v / 2));
-    $("betInput").value = v; sfx.click();
+    $(target).value = v; sfx.click();
   }));
   let flipping = false;
   const loseTexts = ["Das Haus gewinnt immer. Wie die PLF.", "Genauso viel Glück wie bei Java.", "Vielleicht doch lieber lernen?", "Die Münze hat auch nicht an dich geglaubt.", "Statistisch gesehen warst du eh chancenlos."];
@@ -1166,6 +1199,92 @@
     bump("bjPlayed");
   }
 
+  // ---------- Mines ----------
+  const MINES_TOTAL = 25;
+  const MINES_HOUSE = 0.97; // 3% Hausvorteil
+  let minesActive = false, minesBet = 0, minesN = 0, minesField = [], minesRevealed = 0, minesMult = 1;
+  // Fairer Multiplikator nach k sicheren Feldern: Produkt der Kehrwerte der Sicher-Wahrscheinlichkeiten, mal Hausfaktor
+  function minesMultiplier(n, revealed) {
+    let m = 1;
+    for (let i = 0; i < revealed; i++) {
+      const safeLeft = (MINES_TOTAL - n) - i;
+      const tilesLeft = MINES_TOTAL - i;
+      m *= tilesLeft / safeLeft; // Kehrwert der Wahrscheinlichkeit, ein sicheres Feld zu treffen
+    }
+    return m * MINES_HOUSE;
+  }
+  function minesUpdateInfo() {
+    const cur = minesMultiplier(minesN, minesRevealed);
+    const next = minesMultiplier(minesN, minesRevealed + 1);
+    $("minesInfo").textContent = `Aufgedeckt: ${minesRevealed} · Multiplikator: ${cur.toFixed(2)}x · nächstes Feld: ${next.toFixed(2)}x`;
+    $("minesCash").textContent = `💰 Cashen (${fmt(Math.round(minesBet * cur))} Coins)`;
+    $("minesCash").disabled = minesRevealed < 1;
+  }
+  function minesRenderGrid(revealAll) {
+    const grid = $("minesGrid"); grid.innerHTML = "";
+    for (let i = 0; i < MINES_TOTAL; i++) {
+      const b = document.createElement("button"); b.className = "mine-tile";
+      const isMine = minesField[i] === 1;
+      if (minesField[i] === 2) { b.classList.add("safe"); b.textContent = "💎"; b.disabled = true; }
+      else if (revealAll && isMine) { b.classList.add("boom"); b.textContent = "💣"; b.disabled = true; }
+      else if (revealAll) { b.textContent = "💎"; b.disabled = true; b.style.opacity = ".5"; }
+      else { b.addEventListener("click", () => minesClick(i)); }
+      grid.appendChild(b);
+    }
+  }
+  function minesClick(i) {
+    if (!minesActive || minesField[i] === 2) return;
+    sfx.click();
+    if (minesField[i] === 1) {
+      // Mine getroffen
+      minesActive = false;
+      minesRenderGrid(true);
+      $("minesCash").disabled = true;
+      $("minesGame").classList.add("hidden"); $("minesStart").classList.remove("hidden");
+      stats.totalLost = (stats.totalLost || 0) + minesBet; saveStats(); checkAch();
+      sfx.lose();
+      $("minesResult").style.color = "#ef4444";
+      $("minesResult").textContent = `💥 Mine! Einsatz ${fmt(minesBet)} verloren. Wie dein Lernplan: explodiert.`;
+      bump("minesPlayed");
+      return;
+    }
+    // sicheres Feld
+    minesField[i] = 2; minesRevealed++;
+    minesRenderGrid(false); minesUpdateInfo(); addXP(2);
+    // Alle sicheren Felder aufgedeckt -> automatischer Gewinn
+    if (minesRevealed >= MINES_TOTAL - minesN) minesCashOut(true);
+  }
+  function minesCashOut(auto) {
+    if (!minesActive) return;
+    const mult = minesMultiplier(minesN, minesRevealed);
+    const won = addWin(Math.round(minesBet * mult));
+    minesActive = false;
+    minesRenderGrid(true);
+    $("minesGame").classList.add("hidden"); $("minesStart").classList.remove("hidden");
+    sfx.coin(); rain("💎", "#22d3ee", 20);
+    $("minesResult").style.color = "#22c55e";
+    $("minesResult").textContent = auto ? `Alles aufgedeckt! +${fmt(won)} Coins (${mult.toFixed(2)}x).` : `Gecasht bei ${mult.toFixed(2)}x! +${fmt(won)} Coins.`;
+    bump("minesPlayed");
+  }
+  $("minesStartBtn").addEventListener("click", () => {
+    if (minesActive) return;
+    const bet = Math.floor(Number($("minesBet").value));
+    let n = Math.floor(Number($("minesCount").value));
+    if (!bet || bet < 1) { $("minesResult").style.color = ""; $("minesResult").textContent = "Einsatz eingeben."; return; }
+    if (bet > coins) { $("minesResult").style.color = ""; $("minesResult").textContent = "So viele Coins hast du nicht."; return; }
+    if (!n || n < 1) n = 1; if (n > 24) n = 24;
+    setCoins(coins - bet); sfx.click();
+    minesBet = bet; minesN = n; minesActive = true; minesRevealed = 0;
+    // Minenfeld aufbauen: 0 = verdeckt sicher, 1 = Mine, 2 = aufgedeckt sicher
+    minesField = new Array(MINES_TOTAL).fill(0);
+    let placed = 0;
+    while (placed < n) { const idx = rnd(0, MINES_TOTAL - 1); if (minesField[idx] !== 1) { minesField[idx] = 1; placed++; } }
+    $("minesStart").classList.add("hidden"); $("minesGame").classList.remove("hidden");
+    $("minesResult").textContent = "";
+    minesRenderGrid(false); minesUpdateInfo();
+  });
+  $("minesCash").addEventListener("click", () => minesCashOut(false));
+
   // Skins + Lootbox
   const RARITIES = {
     common: { name: "Gewöhnlich", color: "#9ca3af", weight: 55, sell: 5 },
@@ -1403,6 +1522,7 @@
       ["Münzwürfe", stats.flips || 0],
       ["Blackjack gespielt", stats.bjPlayed || 0],
       ["Echte Blackjacks", stats.bjBlackjack || 0],
+      ["Mines gespielt", stats.minesPlayed || 0],
       ["Aktuelles Level", level]
     ];
     $("statList").innerHTML = rows.map((r) => `<div class="stat-row"><span>${r[0]}</span><b>${r[1]}</b></div>`).join("");
