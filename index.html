@@ -6,12 +6,7 @@
 <title>Maxi Timer</title>
 <style>
   * { box-sizing: border-box; }
-  body {
-    margin: 0; min-height: 100vh; padding: 24px 16px 120px;
-    font-family: system-ui, sans-serif; background: #111827; color: #f9fafb;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    text-align: center; overflow-x: hidden; transition: background .5s;
-  }
+  body { margin: 0; min-height: 100vh; padding: 70px 16px 120px; font-family: system-ui, sans-serif; background: #111827; color: #f9fafb; display: flex; flex-direction: column; align-items: center; text-align: center; overflow-x: hidden; transition: background .5s; }
   h1 { font-size: clamp(1.4rem, 4vw, 2.4rem); margin: 0 0 8px; }
   .sub { color: #9ca3af; margin-bottom: 24px; }
   #countdown { font-variant-numeric: tabular-nums; font-size: clamp(1.8rem, 8vw, 4.5rem); font-weight: 800; }
@@ -20,31 +15,74 @@
   .bar { height: 18px; background: #374151; border-radius: 9px; overflow: hidden; margin-top: 8px; }
   #barFill { height: 100%; width: 3%; background: #22c55e; transition: width 1s, background 1s; }
   button { font: inherit; font-weight: 700; border: 0; border-radius: 10px; padding: 12px 20px; cursor: pointer; }
+  button:disabled { opacity: .6; cursor: not-allowed; }
   #readyBtn { background: #22c55e; color: #052e16; position: fixed; transition: left .15s, top .15s; z-index: 10; }
   #excuseBtn { background: #6366f1; color: #fff; margin-top: 10px; }
+  #learnBtn { background: #0ea5e9; color: #fff; margin-top: 10px; }
+  #spinBtn { background: #f59e0b; color: #1f1300; margin-top: 10px; }
+  #chestBtn { background: #a855f7; color: #fff; margin-top: 10px; font-size: 1.1rem; }
+  #chestTimer { color: #9ca3af; font-size: .9rem; margin-top: 6px; }
+  .opening { animation: wobble .15s infinite; }
+  @keyframes wobble { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-8deg); } 75% { transform: rotate(8deg); } }
+  #chance { font-size: 1.6rem; font-weight: 800; color: #ef4444; font-variant-numeric: tabular-nums; }
+  #ticker { font-family: monospace; color: #fbbf24; min-height: 1.4em; }
+  #coins { position: fixed; top: 12px; right: 12px; z-index: 20; background: #f59e0b; color: #1f1300; font-weight: 800; padding: 8px 14px; border-radius: 999px; }
   body.panic { background: #7f1d1d; animation: shake .25s infinite; }
-  @keyframes shake {
-    0%, 100% { transform: translate(0, 0); }
-    25% { transform: translate(-3px, 2px); }
-    75% { transform: translate(3px, -2px); }
-  }
+  @keyframes shake { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-3px, 2px); } 75% { transform: translate(3px, -2px); } }
+  .wheel-wrap { position: relative; width: 300px; max-width: 100%; margin: 16px auto 0; }
+  #wheel { width: 100%; height: auto; display: block; transition: transform 5s cubic-bezier(.17,.67,.12,.99); }
+  .pointer { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); z-index: 2; border-left: 14px solid transparent; border-right: 14px solid transparent; border-top: 26px solid #f9fafb; }
+  #spinResult { min-height: 1.5em; font-weight: 700; margin-top: 10px; }
+  .drop { position: fixed; top: -40px; pointer-events: none; font-family: monospace; font-weight: 700; white-space: nowrap; z-index: 30; animation: fall linear forwards; }
+  @keyframes fall { to { transform: translateY(110vh) rotate(20deg); } }
+  #loader { position: fixed; inset: 0; background: #000; z-index: 100; padding: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; font-family: monospace; }
+  #loader .bar { width: min(400px, 90vw); }
+  #loadFill { height: 100%; width: 0; background: #22c55e; }
+  .modal { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 16px; }
+  .hidden { display: none; }
+  .modal-box { background: #1f2937; border: 2px solid #ef4444; border-radius: 12px; padding: 20px; max-width: 340px; }
+  #nagYes { background: #22c55e; color: #052e16; }
+  #nagLater { background: #374151; color: #fff; }
 </style>
 </head>
 <body>
+  <div id="loader">
+    <div>Lade Maxis Java-Kenntnisse...</div>
+    <div class="bar"><div id="loadFill"></div></div>
+    <div id="loadText">0 %</div>
+  </div>
+
+  <div id="coins">🪙 0</div>
+
   <h1>⏳ Maxi, die POS-PLF kommt</h1>
   <div class="sub">13.01.2027, 10:45 Uhr. Kein Entkommen.</div>
-
   <div id="countdown">...</div>
+
+  <div class="card"><strong>📡 Live-Ticker</strong><p id="ticker">...</p></div>
+
+  <div class="card"><strong>Wahrscheinlichkeit zu bestehen:</strong><div id="chance">7.3 %</div></div>
 
   <div class="card">
     <strong>Maxis Lernfortschritt:</strong> <span id="barLabel">3.0 %</span>
     <div class="bar"><div id="barFill"></div></div>
+    <button id="learnBtn">Ich hab heute gelernt</button>
   </div>
 
   <div class="card">
-    <strong>📚 Java-Fakt des Tages</strong>
-    <p id="fact"></p>
+    <strong>🎁 Daily Chest</strong>
+    <p id="chestText">Einmal am Tag gratis Coins. Vielleicht.</p>
+    <button id="chestBtn">🎁 Truhe öffnen</button>
+    <div id="chestTimer"></div>
   </div>
+
+  <div class="card">
+    <strong>🎡 PLF-Glücksrad</strong> (10 Coins pro Dreh)
+    <div class="wheel-wrap"><div class="pointer"></div><canvas id="wheel" width="600" height="600"></canvas></div>
+    <button id="spinBtn">Drehen</button>
+    <div id="spinResult"></div>
+  </div>
+
+  <div class="card"><strong>📚 Java-Fakt des Tages</strong><p id="fact"></p></div>
 
   <div class="card">
     <strong>🛋️ Ausreden-Generator</strong>
@@ -54,43 +92,177 @@
 
   <button id="readyBtn">Ich bin bereit</button>
 
-<script>
+  <div id="nag" class="modal hidden">
+    <div class="modal-box">
+      <strong>⚠️ Warnung</strong>
+      <p id="nagText">Maxi lernt gerade nicht. Jetzt starten?</p>
+      <button id="nagYes">Ja</button> <button id="nagLater">Später</button>
+    </div>
+  </div>
+  <script>
+  const $ = (id) => document.getElementById(id);
   const PLF = new Date("2027-01-13T10:45:00+01:00");
   const pad = (n, l = 2) => String(n).padStart(l, "0");
+  const rnd = (a, b) => Math.floor(a + Math.random() * (b - a + 1));
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+  };
+  const todayKey = () => { const d = new Date(); return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`; };
 
-  // Countdown mit Millisekunden + Tab-Titel + Panikmodus
-  const cd = document.getElementById("countdown");
+  // Fake-Ladebildschirm
+  let lp = 0;
+  const li = setInterval(() => {
+    lp = Math.min(99, lp + Math.random() * 8);
+    $("loadFill").style.width = lp + "%";
+    $("loadText").textContent = Math.floor(lp) + " %";
+    if (lp >= 99) {
+      clearInterval(li);
+      setTimeout(() => {
+        $("loadText").textContent = "Fehler: Keine Daten gefunden";
+        $("loadText").style.color = "#ef4444";
+        setTimeout(() => $("loader").remove(), 1800);
+      }, 1500);
+    }
+  }, 120);
+
+  // Coins
+  let coins = store.get("coins", 100);
+  function setCoins(v) { coins = v; store.set("coins", v); $("coins").textContent = "🪙 " + coins; }
+  setCoins(coins);
+
+  // Regen-Effekt
+  function rain(text, color, count = 40) {
+    for (let i = 0; i < count; i++) {
+      const el = document.createElement("span");
+      el.className = "drop";
+      el.textContent = text;
+      el.style.left = Math.random() * 100 + "vw";
+      el.style.color = color;
+      el.style.fontSize = 12 + Math.random() * 10 + "px";
+      el.style.animationDuration = 2 + Math.random() * 2 + "s";
+      el.style.animationDelay = Math.random() * 1.5 + "s";
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 6000);
+    }
+  }
+
+  // Countdown + Tab-Titel + Panikmodus
   function tick() {
     const diff = PLF - Date.now();
-    if (diff <= 0) {
-      cd.textContent = "Vorbei. Hoffentlich hast du gelernt.";
-      document.title = "PLF vorbei";
-      document.body.classList.remove("panic");
-      return;
-    }
-    const d = Math.floor(diff / 86400000);
-    const h = Math.floor(diff / 3600000) % 24;
-    const m = Math.floor(diff / 60000) % 60;
-    const s = Math.floor(diff / 1000) % 60;
-    const ms = diff % 1000;
-    cd.innerHTML = `${d}<small>T</small> ${pad(h)}<small>h</small> ${pad(m)}<small>m</small> ${pad(s)}<small>s</small> ${pad(ms, 3)}<small>ms</small>`;
+    if (diff <= 0) { $("countdown").textContent = "Vorbei. Hoffentlich hast du gelernt."; document.title = "PLF vorbei"; document.body.classList.remove("panic"); return; }
+    const d = Math.floor(diff / 86400000), h = Math.floor(diff / 3600000) % 24, m = Math.floor(diff / 60000) % 60, s = Math.floor(diff / 1000) % 60;
+    $("countdown").innerHTML = `${d}<small>T</small> ${pad(h)}<small>h</small> ${pad(m)}<small>m</small> ${pad(s)}<small>s</small> ${pad(diff % 1000, 3)}<small>ms</small>`;
     document.title = `${d}T ${pad(h)}:${pad(m)}:${pad(s)} bis zur PLF`;
     document.body.classList.toggle("panic", diff < 86400000);
     requestAnimationFrame(tick);
   }
   tick();
 
-  // Fortschrittsbalken, der eher sinkt als steigt
+  // Tab verlassen
+  document.addEventListener("visibilitychange", () => { if (document.hidden) document.title = "Komm zurück und lern!"; });
+
+  // Live-Ticker
+  const tickerLines = [
+    () => `Maxi hat vor ${rnd(2, 9)} Stunden zuletzt IntelliJ geöffnet`,
+    () => `Maxi hat heute ${rnd(4, 30)} Mal YouTube statt Java geöffnet`,
+    () => `Letzter erfolgreicher Compile: vor ${rnd(3, 40)} Tagen`,
+    () => `Maxi hat heute ${rnd(10, 99)} Semikolons vergessen`,
+    () => `Maxi googelt gerade: "Was ist eine Klasse"`,
+    () => `Maxi hat ${rnd(0, 2)} von 47 Übungsaufgaben gemacht`
+  ];
+  const showTicker = () => { $("ticker").textContent = tickerLines[rnd(0, tickerLines.length - 1)](); };
+  showTicker(); setInterval(showTicker, 4000);
+
+  // Wahrscheinlichkeit zu bestehen
+  setInterval(() => { $("chance").textContent = (0.1 + Math.random() * 11.9).toFixed(1) + " %"; }, 1000);
+
+  // Lernfortschritt
   let progress = 3;
-  const fill = document.getElementById("barFill");
-  const label = document.getElementById("barLabel");
   setInterval(() => {
     progress += Math.random() < 0.6 ? -Math.random() * 2 : Math.random() * 1.5;
     progress = Math.min(7, Math.max(0.5, progress));
-    fill.style.width = progress + "%";
-    fill.style.background = progress < 2 ? "#ef4444" : "#22c55e";
-    label.textContent = progress.toFixed(1) + " %";
+    $("barFill").style.width = progress + "%";
+    $("barFill").style.background = progress < 2 ? "#ef4444" : "#22c55e";
+    $("barLabel").textContent = progress.toFixed(1) + " %";
   }, 1500);
+
+  // Ich hab heute gelernt: NullPointerException-Regen, 1x pro Tag +20 Coins
+  $("learnBtn").addEventListener("click", () => {
+    rain("NullPointerException", "#ef4444");
+    if (store.get("learnDay", "") !== todayKey()) {
+      store.set("learnDay", todayKey()); setCoins(coins + 20);
+      $("learnBtn").textContent = "+20 Coins. Glaub ich dir trotzdem nicht.";
+    } else {
+      $("learnBtn").textContent = "Schon wieder? Sicher nicht.";
+    }
+  });
+
+  // Daily Chest
+  function updateChest() {
+    if (store.get("chestDay", "") === todayKey()) {
+      $("chestBtn").disabled = true; $("chestBtn").textContent = "🔒 Schon geöffnet";
+      const now = new Date(), mid = new Date(now); mid.setHours(24, 0, 0, 0);
+      const ms = mid - now;
+      $("chestTimer").textContent = `Nächste Truhe in ${pad(Math.floor(ms / 3600000))}:${pad(Math.floor(ms / 60000) % 60)}:${pad(Math.floor(ms / 1000) % 60)}`;
+    } else {
+      $("chestBtn").disabled = false; $("chestBtn").textContent = "🎁 Truhe öffnen"; $("chestTimer").textContent = "";
+    }
+  }
+  updateChest(); setInterval(updateChest, 1000);
+  $("chestBtn").addEventListener("click", () => {
+    if (store.get("chestDay", "") === todayKey()) return;
+    $("chestBtn").disabled = true; $("chestBtn").classList.add("opening");
+    setTimeout(() => {
+      $("chestBtn").classList.remove("opening");
+      const r = Math.random(); let win, msg;
+      if (r < 0.10) { win = 0; msg = "Die Truhe war leer. Wie dein Kopf vor der PLF."; }
+      else if (r < 0.13) { win = 200; msg = "JACKPOT! +200 Coins. Bestanden hast du trotzdem nicht."; }
+      else { win = rnd(10, 50); msg = `+${win} Coins. Kauf dir davon ein Java-Buch.`; }
+      setCoins(coins + win); store.set("chestDay", todayKey());
+      $("chestText").textContent = msg;
+      if (win > 0) rain("🪙", "#f59e0b", 30);
+      updateChest();
+    }, 1200);
+  });
+
+  // Glücksrad: 1 % Bestanden, 99 % nicht
+  const cv = $("wheel"), ctx = cv.getContext("2d"), C = 300, rad = (d) => d * Math.PI / 180;
+  const failLabels = ["Nicht bestanden", "5er", "Nochmal lernen", "Sitzen bleiben", "Nachprüfung", "Nicht bestanden", "Durchgefallen", "Java hasst dich", "Nicht bestanden"];
+  const segs = [{ label: "Bestanden", start: 0, end: 3.6, pass: true, color: "#22c55e" }];
+  const failDeg = (360 - 3.6) / failLabels.length;
+  failLabels.forEach((l, i) => segs.push({ label: l, start: 3.6 + i * failDeg, end: 3.6 + (i + 1) * failDeg, pass: false, color: i % 2 ? "#ef4444" : "#b91c1c" }));
+  segs.forEach((s) => {
+    ctx.beginPath(); ctx.moveTo(C, C); ctx.arc(C, C, C - 6, rad(s.start), rad(s.end)); ctx.closePath();
+    ctx.fillStyle = s.color; ctx.fill(); ctx.strokeStyle = "#111827"; ctx.lineWidth = 3; ctx.stroke();
+    if (!s.pass) {
+      ctx.save(); ctx.translate(C, C); ctx.rotate(rad((s.start + s.end) / 2));
+      ctx.textAlign = "right"; ctx.fillStyle = "#fff"; ctx.font = "bold 26px system-ui";
+      ctx.fillText(s.label, C - 24, 9); ctx.restore();
+    }
+  });
+  ctx.beginPath(); ctx.arc(C, C, 40, 0, Math.PI * 2); ctx.fillStyle = "#111827"; ctx.fill();
+
+  let rotation = 0, spinning = false;
+  $("spinBtn").addEventListener("click", () => {
+    if (spinning) return;
+    if (coins < 10) { $("spinResult").textContent = "Pleite. Wie deine Java-Kenntnisse. Öffne die Daily Chest."; return; }
+    setCoins(coins - 10);
+    const win = Math.random() < 0.01;
+    const pool = segs.filter((s) => s.pass === win);
+    const s = pool[rnd(0, pool.length - 1)];
+    const target = s.start + (s.end - s.start) * (0.2 + Math.random() * 0.6);
+    const current = ((rotation % 360) + 360) % 360;
+    let delta = (270 - target - current) % 360; if (delta < 0) delta += 360;
+    rotation += 1800 + delta;
+    spinning = true; $("spinResult").textContent = "Dreht sich...";
+    cv.style.transform = `rotate(${rotation}deg)`;
+    setTimeout(() => {
+      spinning = false;
+      if (win) { setCoins(coins + 500); rain("🎉", "#22c55e", 60); $("spinResult").textContent = "BESTANDEN?! Statistisch unmöglich. Screenshot machen! +500 Coins"; }
+      else { $("spinResult").textContent = `${s.label}. War ja klar.`; }
+    }, 5100);
+  });
 
   // Java-Fakt des Tages
   const facts = [
@@ -101,41 +273,35 @@
     "Wie viele Semikolons wirst du bei der PLF vergessen? Ja.",
     "Der Garbage Collector räumt mehr auf als du in deinem Zimmer.",
     "while(true) beschreibt, wie lange du das Lernen schon aufschiebst.",
-    "public static void main(String[] args) ist länger als deine Lernzeit diese Woche.",
     "ChatGPT darf nicht mit zur PLF. Nur damit du es weißt.",
     "Fun Fact: Auch IntelliJ glaubt nicht an dich."
   ];
-  const dayNr = Math.floor(Date.now() / 86400000);
-  document.getElementById("fact").textContent = facts[dayNr % facts.length];
+  $("fact").textContent = facts[Math.floor(Date.now() / 86400000) % facts.length];
 
   // Ausreden-Generator
-  const excuses = [
-    "mein IntelliJ gerade indexiert.",
-    "die PLF eh noch ewig weg ist.",
-    "ich zuerst noch FIFA spielen muss.",
-    "mein Laptop ein Update macht.",
-    "ich das morgen eh in einer Stunde schaffe.",
-    "Java mich emotional verletzt hat.",
-    "ich zuerst meinen Schreibtisch aufräumen muss.",
-    "Merkur rückläufig ist."
-  ];
-  document.getElementById("excuseBtn").addEventListener("click", () => {
-    const e = excuses[Math.floor(Math.random() * excuses.length)];
-    document.getElementById("excuse").textContent = "Heute kann ich nicht lernen, weil " + e;
-  });
+  const excuses = ["mein IntelliJ gerade indexiert.", "die PLF eh noch ewig weg ist.", "ich zuerst noch FIFA spielen muss.", "mein Laptop ein Update macht.", "ich das morgen eh in einer Stunde schaffe.", "Java mich emotional verletzt hat.", "ich zuerst meinen Schreibtisch aufräumen muss.", "Merkur rückläufig ist."];
+  $("excuseBtn").addEventListener("click", () => { $("excuse").textContent = "Heute kann ich nicht lernen, weil " + excuses[rnd(0, excuses.length - 1)]; });
 
   // Button, der davonläuft
-  const btn = document.getElementById("readyBtn");
+  const btn = $("readyBtn");
   const fleeTexts = ["Ich bin bereit", "Sicher?", "Nö", "Lern lieber", "Fang mich doch", "Java > du"];
   const place = (x, y) => { btn.style.left = x + "px"; btn.style.top = y + "px"; };
   place(innerWidth / 2 - btn.offsetWidth / 2, innerHeight - btn.offsetHeight - 24);
-  function flee() {
-    place(Math.random() * (innerWidth - btn.offsetWidth), Math.random() * (innerHeight - btn.offsetHeight));
-    btn.textContent = fleeTexts[Math.floor(Math.random() * fleeTexts.length)];
-  }
+  function flee() { place(Math.random() * (innerWidth - btn.offsetWidth), Math.random() * (innerHeight - btn.offsetHeight)); btn.textContent = fleeTexts[rnd(0, fleeTexts.length - 1)]; }
   btn.addEventListener("mouseenter", flee);
   btn.addEventListener("touchstart", (e) => { e.preventDefault(); flee(); }, { passive: false });
   btn.addEventListener("click", () => alert("Nein. Bist du nicht."));
+
+  // Nerv-Popup: bei "Später" kommt es immer schneller
+  let nagDelay = 120000, nagTimer;
+  const scheduleNag = () => { clearTimeout(nagTimer); nagTimer = setTimeout(() => { $("nagText").textContent = "Maxi lernt gerade nicht. Jetzt starten?"; $("nag").classList.remove("hidden"); }, nagDelay); };
+  $("nagYes").addEventListener("click", () => {
+    $("nagText").textContent = "Gute Wahl. Wir wissen beide, dass das gelogen ist.";
+    setTimeout(() => $("nag").classList.add("hidden"), 1500);
+    nagDelay = 120000; scheduleNag();
+  });
+  $("nagLater").addEventListener("click", () => { $("nag").classList.add("hidden"); nagDelay = Math.max(15000, nagDelay / 2); scheduleNag(); });
+  scheduleNag();
 </script>
 </body>
 </html>
