@@ -79,6 +79,7 @@
   .field label { font-size: .78rem; color: #94a3b8; }
   #betInput { width: 130px; text-align: center; }
   .betMul { background: #334155; color: #fff; padding: 11px 15px; }
+  .maxBet { background: #f59e0b; color: #1f1300; padding: 11px 15px; }
   #flipHeads, #flipTails { background: var(--accent); color: #1f1300; }
   #caseBtn { background: #eab308; color: #1f1300; margin-top: 12px; }
   .case-window { position: relative; overflow: hidden; height: 112px; margin-top: 16px; border-radius: 12px; background: #060a14; border: 1px solid rgba(255,255,255,.06); }
@@ -203,9 +204,12 @@
       </div>
 
       <div class="game-panel" id="game-hl">
-        <p class="hint">Tippe, ob die nächste Karte höher oder tiefer ist. Jeder Treffer erhöht den Gewinn (x1.9). Gleiche Karte zählt als Treffer. Ass zählt als höchste UND niedrigste Karte, bei einem Ass gewinnt also jeder Tipp. Jederzeit cashen, sonst bei Fehler alles weg.</p>
+        <p class="hint">Tippe, ob die nächste Karte höher oder tiefer ist. Jeder Treffer erhöht den Gewinn (x1.25). Gleiche Karte zählt als Treffer. Ass zählt als höchste UND niedrigste Karte, bei einem Ass gewinnt also jeder Tipp. Jederzeit cashen, sonst bei Fehler alles weg.</p>
         <div id="hlStart">
-          <div class="field" style="align-items:center;margin:0 auto;"><label>Einsatz (Coins)</label><input id="hlBet" type="number" min="1" value="10" style="width:140px;text-align:center;"></div>
+          <div class="bet-row">
+            <div class="field"><label>Einsatz (Coins)</label><input id="hlBet" type="number" min="1" value="10" style="width:140px;text-align:center;"></div>
+            <button class="maxBet" data-target="hlBet">Max</button>
+          </div>
           <button id="hlStartBtn" style="background:#0ea5e9;color:#fff;margin-top:10px;">Runde starten</button>
         </div>
         <div id="hlGame" class="hidden">
@@ -234,6 +238,7 @@
           <button class="betMul" data-mul="half">÷2</button>
           <input id="betInput" type="number" min="1" value="10" placeholder="Einsatz">
           <button class="betMul" data-mul="double">×2</button>
+          <button class="maxBet" data-target="betInput">Max</button>
         </div>
         <button id="flipHeads">Kopf</button> <button id="flipTails">Zahl</button>
         <div id="flipResult"></div>
@@ -258,6 +263,7 @@
         </div>
         <div class="bet-row">
           <div class="field"><label>Einsatz (Coins)</label><input id="guessBet" type="number" min="1" value="10"></div>
+          <button class="maxBet" data-target="guessBet">Max</button>
           <div class="field"><label>Deine Zahl</label><input id="guessInput" type="number" min="1"></div>
         </div>
         <div id="guessCalc"></div>
@@ -387,6 +393,11 @@
     t.classList.add("active");
     const g = t.dataset.game;
     ["hl", "wheel", "flip", "guess"].forEach((name) => $("game-" + name).classList.toggle("hidden", name !== g));
+  }));
+
+  // Max-Einsatz: setzt die volle aktuelle Balance ins Einsatzfeld
+  document.querySelectorAll(".maxBet").forEach((b) => b.addEventListener("click", () => {
+    sfx.click(); $(b.dataset.target).value = coins;
   }));
 
   // Ladebildschirm
@@ -788,7 +799,7 @@
   // Rang 1 = Ass (niedrig) ... 13 = König (hoch)
   const HL_RANKS = ["", "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
   const HL_SUITS = ["♠", "♥", "♦", "♣"];
-  const HL_MULT = 1.25; // pro Treffer, leicht unter fair -> Haus gewinnt
+  const HL_MULT = 1.25; // pro Treffer, unter der echten Trefferchance -> Haus gewinnt
   let hlActive = false, hlRank = 0, hlSuit = 0, hlPot = 0, hlStreak = 0;
   function drawHlCard(rank, suit) {
     const el = $("hlCard");
@@ -799,6 +810,7 @@
   function hlUpdatePot() {
     $("hlPot").textContent = `Serie: ${hlStreak}`;
     $("hlCash").textContent = `💰 Cashen (${fmt(Math.round(hlPot))} Coins)`;
+    $("hlCash").disabled = hlStreak < 1; // cashen erst nach dem ersten Tipp
   }
   $("hlStartBtn").addEventListener("click", () => {
     if (hlActive) return;
