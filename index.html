@@ -6,15 +6,15 @@
 <title>Maxi Timer</title>
 <style>
   * { box-sizing: border-box; }
-  body { margin: 0; min-height: 100vh; padding: 70px 16px 120px; font-family: system-ui, sans-serif; background: var(--bg, #111827); color: var(--text, #f9fafb); display: flex; flex-direction: column; align-items: center; text-align: center; overflow-x: hidden; transition: background .5s; }
+  body { margin: 0; min-height: 100vh; padding: 70px 16px 120px; font-family: var(--font, system-ui, sans-serif); background: var(--bg, #111827); color: var(--text, #f9fafb); display: flex; flex-direction: column; align-items: var(--align, center); text-align: var(--talign, center); overflow-x: hidden; transition: background .5s; }
   h1 { font-size: clamp(1.4rem, 4vw, 2.4rem); margin: 0 0 8px; }
   .sub { color: #9ca3af; margin-bottom: 24px; }
   #countdown { font-variant-numeric: tabular-nums; font-size: clamp(1.8rem, 8vw, 4.5rem); font-weight: 800; }
   #countdown small { font-size: .35em; color: #9ca3af; }
-  .card { background: var(--card, #1f2937); border-radius: 12px; padding: 16px 20px; margin-top: 20px; width: 100%; max-width: 560px; }
+  .card { background: var(--card, #1f2937); border-radius: var(--radius, 12px); padding: 16px 20px; margin-top: 20px; width: 100%; max-width: 560px; }
   .bar { height: 18px; background: #374151; border-radius: 9px; overflow: hidden; margin-top: 8px; }
   #barFill { height: 100%; width: 3%; background: #22c55e; transition: width 1s, background 1s; }
-  button { font: inherit; font-weight: 700; border: 0; border-radius: 10px; padding: 12px 20px; cursor: pointer; }
+  button { font: inherit; font-weight: 700; border: 0; border-radius: var(--radius, 10px); padding: 12px 20px; cursor: pointer; }
   button:disabled { opacity: .6; cursor: not-allowed; }
   #readyBtn { background: #22c55e; color: #052e16; position: fixed; transition: left .15s, top .15s; z-index: 10; }
   #excuseBtn { background: #6366f1; color: #fff; margin-top: 10px; }
@@ -34,7 +34,7 @@
   .wheel-wrap { position: relative; width: 300px; max-width: 100%; margin: 16px auto 0; }
   #wheel { width: 100%; height: auto; display: block; transition: transform 5s cubic-bezier(.17,.67,.12,.99); }
   .pointer { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); z-index: 2; border-left: 14px solid transparent; border-right: 14px solid transparent; border-top: 26px solid #f9fafb; }
-  #spinResult, #flipResult, #caseResult { min-height: 1.5em; font-weight: 700; margin-top: 10px; }
+  #spinResult, #flipResult, #caseResult, #tradeResult { min-height: 1.5em; font-weight: 700; margin-top: 10px; }
   #flipCoin { width: 90px; height: 90px; margin: 14px auto; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #fde68a, #f59e0b 60%, #b45309); color: #1f1300; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.1rem; box-shadow: 0 4px 12px rgba(0,0,0,.4); }
   #flipCoin.flipping { animation: flip .3s linear infinite; }
   @keyframes flip { to { transform: rotateY(360deg); } }
@@ -44,11 +44,21 @@
   .case-window { position: relative; overflow: hidden; height: 110px; margin-top: 14px; border-radius: 10px; background: #0b0f19; }
   .case-window::after { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; width: 3px; background: #facc15; transform: translateX(-50%); z-index: 2; }
   #caseStrip { display: flex; gap: 8px; padding: 10px; will-change: transform; }
-  .case-item { flex: 0 0 92px; height: 90px; border-radius: 8px; background: #1f2937; color: #f9fafb; border-bottom: 5px solid; display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 700; padding: 6px; }
+  .case-item { flex: 0 0 92px; height: 90px; border-radius: 8px; background: #1f2937; color: #f9fafb; border-bottom: 5px solid; display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 700; padding: 6px; text-align: center; }
   .rarity-info { font-size: .8rem; margin-top: 8px; }
   #inventory { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 10px; }
-  .inv-item { background: #111827; color: #f9fafb; border: 2px solid; padding: 8px 12px; font-size: .85rem; }
+  .inv-item { background: #111827; color: #f9fafb; border: 2px solid; border-radius: 8px; padding: 8px 10px; font-size: .8rem; display: flex; flex-direction: column; gap: 6px; align-items: center; min-width: 120px; }
   .inv-item.equipped { outline: 3px solid #facc15; }
+  .inv-item .count { font-size: .7rem; color: #9ca3af; }
+  .inv-btns { display: flex; gap: 6px; }
+  .inv-btns button { padding: 5px 9px; font-size: .72rem; border-radius: 6px; }
+  .equipBtn { background: #22c55e; color: #052e16; }
+  .sellBtn { background: #ef4444; color: #fff; }
+  #trader { border: 2px solid #eab308; }
+  #traderMsg { font-style: italic; color: #fbbf24; min-height: 1.4em; }
+  #tradeOffer { margin: 10px 0; font-weight: 700; }
+  #tradeAccept { background: #22c55e; color: #052e16; }
+  #tradeDecline { background: #374151; color: #fff; }
   .drop { position: fixed; top: -40px; pointer-events: none; font-family: monospace; font-weight: 700; white-space: nowrap; z-index: 30; animation: fall linear forwards; }
   @keyframes fall { to { transform: translateY(110vh) rotate(20deg); } }
   #loader { position: fixed; inset: 0; background: #000; color: #f9fafb; z-index: 100; padding: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; font-family: monospace; }
@@ -112,8 +122,17 @@
     <div class="case-window"><div id="caseStrip"></div></div>
     <button id="caseBtn">Lootbox öffnen</button>
     <div id="caseResult"></div>
-    <p style="margin: 14px 0 0;"><strong>🎒 Inventar</strong> (<span id="invCount"></span>)</p>
+    <p style="margin: 14px 0 4px;"><strong>🎒 Inventar</strong> (<span id="invCount"></span>)</p>
+    <p style="margin: 0 0 6px; font-size: .78rem; color: #9ca3af;">Equippen oder für Coins verkaufen</p>
     <div id="inventory"></div>
+  </div>
+
+  <div class="card" id="trader">
+    <strong>🧕 Der Händler</strong>
+    <p id="traderMsg">Psst. Komm her, ich hab ein Angebot für dich...</p>
+    <div id="tradeOffer">...</div>
+    <button id="tradeAccept">Annehmen</button> <button id="tradeDecline">Ablehnen</button>
+    <div id="tradeResult"></div>
   </div>
 
   <div class="card"><strong>📚 Java-Fakt des Tages</strong><p id="fact"></p></div>
@@ -338,41 +357,57 @@
   $("flipHeads").addEventListener("click", () => flip("Kopf"));
   $("flipTails").addEventListener("click", () => flip("Zahl"));
 
-  // Skins + Lootbox
+  // ---------- Skins + Lootbox ----------
   const RARITIES = {
-    common:    { name: "Gewöhnlich", color: "#9ca3af", weight: 55 },
-    rare:      { name: "Selten",     color: "#3b82f6", weight: 27 },
-    epic:      { name: "Episch",     color: "#a855f7", weight: 12 },
-    legendary: { name: "Legendär",   color: "#f59e0b", weight: 5 },
-    mythic:    { name: "Mythisch",   color: "#ef4444", weight: 1 }
+    common:    { name: "Gewöhnlich", color: "#9ca3af", weight: 55, sell: 5 },
+    rare:      { name: "Selten",     color: "#3b82f6", weight: 27, sell: 15 },
+    epic:      { name: "Episch",     color: "#a855f7", weight: 12, sell: 40 },
+    legendary: { name: "Legendär",   color: "#f59e0b", weight: 5,  sell: 120 },
+    mythic:    { name: "Mythisch",   color: "#ef4444", weight: 1,  sell: 400 }
   };
+  // layout: font, radius, align (left/center), talign
   const SKINS = [
     { id: "standard", name: "Standard", rarity: "common", bg: "#111827", card: "#1f2937", text: "#f9fafb", start: true },
     { id: "grau", name: "Grau wie deine Zukunft", rarity: "common", bg: "#4b5563", card: "#374151", text: "#f9fafb" },
-    { id: "kaffee", name: "Kaffeefleck", rarity: "common", bg: "#3b2a1a", card: "#5c4130", text: "#fef3c7" },
-    { id: "notepad", name: "Notepad Classic", rarity: "common", bg: "#e5e7eb", card: "#ffffff", text: "#111827" },
-    { id: "darcula", name: "IntelliJ Darcula", rarity: "rare", bg: "#2b2b2b", card: "#3c3f41", text: "#a9b7c6" },
-    { id: "matrix", name: "Matrix", rarity: "rare", bg: "#000000", card: "#052e16", text: "#22c55e" },
-    { id: "bluescreen", name: "Blue Screen", rarity: "rare", bg: "#0078d7", card: "#005a9e", text: "#ffffff" },
-    { id: "pink", name: "Pink Panic", rarity: "epic", bg: "#831843", card: "#be185d", text: "#fdf2f8" },
-    { id: "sunset", name: "Sonnenuntergang", rarity: "epic", bg: "linear-gradient(135deg, #f97316, #db2777, #7c3aed)", card: "rgba(0,0,0,.35)", text: "#ffffff" },
-    { id: "vapor", name: "Vaporwave", rarity: "epic", bg: "linear-gradient(135deg, #22d3ee, #a855f7, #f472b6)", card: "rgba(17,24,39,.6)", text: "#ffffff" },
-    { id: "gold", name: "Gold Edition", rarity: "legendary", bg: "linear-gradient(135deg, #78350f, #f59e0b, #78350f)", card: "rgba(0,0,0,.45)", text: "#fef3c7" },
-    { id: "rainbow", name: "Regenbogen", rarity: "legendary", bg: "linear-gradient(90deg, #ef4444, #f59e0b, #eab308, #22c55e, #3b82f6, #a855f7, #ef4444)", card: "rgba(0,0,0,.5)", text: "#ffffff", anim: true },
-    { id: "bestanden", name: "Bestanden (fühlt sich falsch an)", rarity: "mythic", bg: "linear-gradient(135deg, #14532d, #22c55e, #14532d)", card: "rgba(0,0,0,.4)", text: "#f0fdf4", anim: true }
+    { id: "kaffee", name: "Kaffeefleck", rarity: "common", bg: "#3b2a1a", card: "#5c4130", text: "#fef3c7", font: "Georgia, serif" },
+    { id: "notepad", name: "Notepad Classic", rarity: "common", bg: "#e5e7eb", card: "#ffffff", text: "#111827", font: "'Courier New', monospace", radius: "0px", align: "flex-start", talign: "left" },
+    { id: "darcula", name: "IntelliJ Darcula", rarity: "rare", bg: "#2b2b2b", card: "#3c3f41", text: "#a9b7c6", font: "'Courier New', monospace", radius: "4px" },
+    { id: "matrix", name: "Matrix", rarity: "rare", bg: "#000000", card: "#052e16", text: "#22c55e", font: "'Courier New', monospace", radius: "0px", align: "flex-start", talign: "left" },
+    { id: "bluescreen", name: "Blue Screen", rarity: "rare", bg: "#0078d7", card: "#005a9e", text: "#ffffff", font: "'Segoe UI', sans-serif", radius: "0px", align: "flex-start", talign: "left" },
+    { id: "pink", name: "Pink Panic", rarity: "epic", bg: "#831843", card: "#be185d", text: "#fdf2f8", radius: "24px" },
+    { id: "sunset", name: "Sonnenuntergang", rarity: "epic", bg: "linear-gradient(135deg, #f97316, #db2777, #7c3aed)", card: "rgba(0,0,0,.35)", text: "#ffffff", radius: "20px" },
+    { id: "vapor", name: "Vaporwave", rarity: "epic", bg: "linear-gradient(135deg, #22d3ee, #a855f7, #f472b6)", card: "rgba(17,24,39,.6)", text: "#ffffff", font: "'Comic Sans MS', cursive", radius: "18px" },
+    { id: "gold", name: "Gold Edition", rarity: "legendary", bg: "linear-gradient(135deg, #78350f, #f59e0b, #78350f)", card: "rgba(0,0,0,.45)", text: "#fef3c7", font: "Georgia, serif", radius: "16px" },
+    { id: "rainbow", name: "Regenbogen", rarity: "legendary", bg: "linear-gradient(90deg, #ef4444, #f59e0b, #eab308, #22c55e, #3b82f6, #a855f7, #ef4444)", card: "rgba(0,0,0,.5)", text: "#ffffff", anim: true, radius: "22px" },
+    { id: "bestanden", name: "Bestanden (fühlt sich falsch an)", rarity: "mythic", bg: "linear-gradient(135deg, #14532d, #22c55e, #14532d)", card: "rgba(0,0,0,.4)", text: "#f0fdf4", anim: true, font: "Georgia, serif", radius: "16px" }
   ];
-  let owned = store.get("skins", ["standard"]);
+  const skinById = (id) => SKINS.find((s) => s.id === id) || SKINS[0];
+
+  // inv: { skinId: count }
+  let inv = store.get("inv", null);
+  if (!inv) {
+    const legacy = store.get("skins", ["standard"]);
+    inv = {}; legacy.forEach((id) => inv[id] = 1);
+    if (!inv.standard) inv.standard = 1;
+    store.set("inv", inv);
+  }
   let equipped = store.get("equipped", "standard");
+  const saveInv = () => store.set("inv", inv);
+  const ownedIds = () => Object.keys(inv).filter((id) => inv[id] > 0);
 
   $("rarityInfo").innerHTML = Object.values(RARITIES)
-    .map((r) => `<span style="color:${r.color}">${r.name} ${r.weight} %</span>`).join(" · ");
+    .map((r) => `<span style="color:${r.color}">${r.name} ${r.weight} % · Verkauf ${r.sell}</span>`).join(" · ");
 
   function applySkin(id) {
-    const s = SKINS.find((x) => x.id === id) || SKINS[0];
+    const s = skinById(id);
     const root = document.documentElement.style;
     root.setProperty("--bg", s.bg);
     root.setProperty("--card", s.card);
     root.setProperty("--text", s.text);
+    root.setProperty("--font", s.font || "system-ui, sans-serif");
+    root.setProperty("--radius", s.radius || "12px");
+    root.setProperty("--align", s.align || "center");
+    root.setProperty("--talign", s.talign || "center");
     document.body.classList.toggle("skin-anim", !!s.anim);
     equipped = s.id; store.set("equipped", s.id);
     renderInventory();
@@ -380,16 +415,48 @@
 
   function renderInventory() {
     $("inventory").innerHTML = "";
-    SKINS.filter((s) => owned.includes(s.id)).forEach((s) => {
-      const b = document.createElement("button");
-      b.className = "inv-item" + (s.id === equipped ? " equipped" : "");
-      b.style.borderColor = RARITIES[s.rarity].color;
-      b.textContent = s.name;
-      b.title = RARITIES[s.rarity].name;
-      b.addEventListener("click", () => applySkin(s.id));
-      $("inventory").appendChild(b);
+    SKINS.filter((s) => (inv[s.id] || 0) > 0).forEach((s) => {
+      const r = RARITIES[s.rarity];
+      const wrap = document.createElement("div");
+      wrap.className = "inv-item" + (s.id === equipped ? " equipped" : "");
+      wrap.style.borderColor = r.color;
+      const title = document.createElement("div");
+      title.textContent = s.name;
+      const cnt = document.createElement("div");
+      cnt.className = "count";
+      cnt.textContent = `x${inv[s.id]} · ${r.name} · Verkauf ${r.sell}`;
+      const btns = document.createElement("div");
+      btns.className = "inv-btns";
+      const eq = document.createElement("button");
+      eq.className = "equipBtn"; eq.textContent = s.id === equipped ? "Aktiv" : "Equip";
+      eq.disabled = s.id === equipped;
+      eq.addEventListener("click", () => applySkin(s.id));
+      btns.appendChild(eq);
+      if (s.id !== "standard") {
+        const sell = document.createElement("button");
+        sell.className = "sellBtn"; sell.textContent = `Verkauf +${r.sell}`;
+        sell.addEventListener("click", () => sellSkin(s.id));
+        btns.appendChild(sell);
+      }
+      wrap.append(title, cnt, btns);
+      $("inventory").appendChild(wrap);
     });
-    $("invCount").textContent = `${owned.length} von ${SKINS.length}`;
+    $("invCount").textContent = `${ownedIds().length} Arten`;
+  }
+
+  function sellSkin(id) {
+    if ((inv[id] || 0) <= 0) return;
+    const r = RARITIES[skinById(id).rarity];
+    inv[id]--;
+    if (inv[id] <= 0) {
+      delete inv[id];
+      if (equipped === id) { applySkin("standard"); } // war equippt -> zurück auf Standard
+    }
+    saveInv();
+    setCoins(coins + r.sell);
+    $("caseResult").style.color = r.color;
+    $("caseResult").textContent = `Verkauft für +${r.sell} Coins. Der Händler lacht sich ins Fäustchen.`;
+    renderInventory();
   }
 
   // Zufälligen Skin nach Rarity-Gewichtung ziehen
@@ -427,29 +494,87 @@
     strip.style.transform = "translateX(0)";
     for (let i = 0; i < 40; i++) strip.appendChild(caseItem(i === WIN_IDX ? winner : rollSkin()));
 
-    // Gewinn-Feld unter die gelbe Linie schieben
     const offset = 10 + WIN_IDX * 100 + 46 - strip.parentElement.clientWidth / 2 + rnd(-30, 30);
     $("caseResult").style.color = "";
     $("caseResult").textContent = "Lootbox öffnet sich...";
-    strip.offsetWidth; // Neu berechnen, damit die Animation startet
+    strip.offsetWidth;
     strip.style.transition = "transform 4.5s cubic-bezier(.12,.8,.2,1)";
     strip.style.transform = `translateX(-${offset}px)`;
 
     setTimeout(() => {
       caseOpening = false;
       const r = RARITIES[winner.rarity];
-      if (owned.includes(winner.id)) {
-        setCoins(coins + 10);
-        $("caseResult").textContent = `${winner.name} (${r.name}). Hast du schon. +10 Coins zurück.`;
-      } else {
-        owned.push(winner.id);
-        store.set("skins", owned);
-        renderInventory();
-        $("caseResult").textContent = `NEU: ${winner.name} (${r.name})! Im Inventar anklicken zum Ausrüsten.`;
-      }
+      const had = (inv[winner.id] || 0) > 0;
+      inv[winner.id] = (inv[winner.id] || 0) + 1;
+      saveInv();
+      renderInventory();
       $("caseResult").style.color = r.color;
+      $("caseResult").textContent = had
+        ? `${winner.name} (${r.name}) - schon wieder. Jetzt x${inv[winner.id]}. Verkaufen für ${r.sell}?`
+        : `NEU: ${winner.name} (${r.name})! Equippen oder verkaufen.`;
       if (winner.rarity === "legendary" || winner.rarity === "mythic") rain("✨", r.color, 50);
     }, 4700);
+  });
+
+  // ---------- Händler (immer schlecht für Maxi) ----------
+  let currentOffer = null;
+  const traderLines = [
+    "Vertrau mir, ich bin fast ehrlich.",
+    "Nur für dich, mein Freund. Normal nehm ich mehr.",
+    "Ein Angebot wie im Lehrbuch. Im BWM-Lehrbuch unter Betrug.",
+    "Schnell, bevor ich es mir anders überlege.",
+    "Das ist ein Freundschaftspreis. Für meine Freunde."
+  ];
+  const declineLines = [
+    "Dein Verlust. Im wahrsten Sinne.",
+    "Zu schlau für mich? Das bezweifle ich.",
+    "Schon gut, ich find einen Dümmeren. Moment, da bist ja du.",
+    "Abgelehnt? Mutig für jemanden mit deinen Noten.",
+    "Komm wieder, wenn du pleite bist. Also morgen."
+  ];
+  function newOffer() {
+    const owned = ownedIds().filter((id) => id !== "standard");
+    // Typ 1: Händler will wertvollen Skin für wenig Coins
+    // Typ 2: Händler gibt billigen Skin, will viele Coins
+    const type = (owned.length > 0 && Math.random() < 0.6) ? "buyLow" : "sellHigh";
+    if (type === "buyLow") {
+      const id = owned[rnd(0, owned.length - 1)];
+      const r = RARITIES[skinById(id).rarity];
+      const pay = Math.max(1, Math.floor(r.sell * 0.3)); // deutlich unter Verkaufswert
+      currentOffer = { type, id, pay };
+      $("tradeOffer").textContent = `Ich geb dir ${pay} Coins für deinen "${skinById(id).name}" (${r.name}). Deal?`;
+    } else {
+      const cheap = SKINS.filter((s) => !s.start && (s.rarity === "common" || s.rarity === "rare"));
+      const s = cheap[rnd(0, cheap.length - 1)];
+      const r = RARITIES[s.rarity];
+      const price = r.sell * rnd(5, 9); // viel zu teuer
+      currentOffer = { type, id: s.id, price };
+      $("tradeOffer").textContent = `Seltenes Einzelstück! "${s.name}" (${r.name}) für nur ${price} Coins. Zugreifen!`;
+    }
+    $("traderMsg").textContent = traderLines[rnd(0, traderLines.length - 1)];
+  }
+  newOffer();
+  setInterval(newOffer, 12000);
+
+  $("tradeAccept").addEventListener("click", () => {
+    if (!currentOffer) return;
+    const o = currentOffer;
+    if (o.type === "buyLow") {
+      if ((inv[o.id] || 0) <= 0) { $("tradeResult").textContent = "Den Skin hast du gar nicht mehr. Nice try."; return; }
+      inv[o.id]--; if (inv[o.id] <= 0) { delete inv[o.id]; if (equipped === o.id) applySkin("standard"); }
+      saveInv(); setCoins(coins + o.pay); renderInventory();
+      $("tradeResult").textContent = `Verkauft für ${o.pay}. Der war viel mehr wert. Der Händler grinst.`;
+    } else {
+      if (coins < o.price) { $("tradeResult").textContent = "Kein Geld. Peinlich."; return; }
+      setCoins(coins - o.price);
+      inv[o.id] = (inv[o.id] || 0) + 1; saveInv(); renderInventory();
+      $("tradeResult").textContent = `Gekauft für ${o.price}. Im Shop wäre es ein Zehntel gewesen. Autsch.`;
+    }
+    setTimeout(newOffer, 800);
+  });
+  $("tradeDecline").addEventListener("click", () => {
+    $("tradeResult").textContent = declineLines[rnd(0, declineLines.length - 1)];
+    setTimeout(newOffer, 800);
   });
 
   applySkin(equipped);
