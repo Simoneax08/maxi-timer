@@ -157,6 +157,15 @@
   #claimBurst.show { animation: burst 1.1s cubic-bezier(.2,1.2,.3,1) forwards; }
   #claimBurst .amt { font-size: 2.6rem; color: #facc15; text-shadow: 0 2px 16px rgba(250,204,21,.6), 0 2px 4px rgba(0,0,0,.5); }
   #claimBurst .lbl { font-size: 1rem; color: #fff; margin-top: 4px; }
+  #rewardSpinWrap { margin: 12px 0 4px; }
+  #rewardSpinWrap.hidden { display: none; }
+  .rs-window { position: relative; overflow: hidden; height: 90px; border-radius: 12px; background: #060a14; border: 1px solid rgba(255,255,255,.07); }
+  .rs-window::after { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; width: 3px; background: #facc15; transform: translateX(-50%); z-index: 2; box-shadow: 0 0 10px #facc15; }
+  #rsStrip { display: flex; gap: 8px; padding: 9px; will-change: transform; }
+  .rs-item { flex: 0 0 96px; height: 72px; border-radius: 9px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 800; color: #fff; border-bottom: 4px solid rgba(0,0,0,.35); }
+  .rs-item .rs-mult { font-size: 1.1rem; }
+  .rs-item .rs-amt { font-size: .72rem; opacity: .85; }
+  #rsResult { min-height: 1.3em; font-weight: 800; margin-top: 10px; text-align: center; }
   @keyframes burst { 0% { opacity: 0; transform: translate(-50%,-50%) scale(.4); } 25% { opacity: 1; transform: translate(-50%,-50%) scale(1.15); } 70% { opacity: 1; transform: translate(-50%,-60%) scale(1); } 100% { opacity: 0; transform: translate(-50%,-85%) scale(.95); } }
 </style>
 </head>
@@ -411,6 +420,10 @@
       <div id="lmProgress" style="color:#94a3b8;font-size:.9rem;"></div>
       <div class="big-xp"><div id="lmBar"></div></div>
       <div id="lmNeed" style="color:#94a3b8;font-size:.85rem;"></div>
+      <div id="rewardSpinWrap" class="hidden">
+        <div class="rs-window"><div id="rsStrip"></div></div>
+        <div id="rsResult"></div>
+      </div>
       <p style="margin:16px 0 4px;font-weight:700;">Nächste Belohnungen</p>
       <div id="lmRewards"></div>
       <button id="levelClose">Schließen</button>
@@ -584,7 +597,7 @@
   const bonusPerMin = () => perks.bonus ? 20 : 10;
   // Gewinn-Coins gutschreiben: Perk (+10%) immer, nextWinX2 einmalig verdoppelnd
   function addWin(base) {
-    let total = Math.round(base * (perks.coins ? 1.1 : 1) * (allAchBonus ? 1.02 : 1));
+    let total = Math.floor(base * (perks.coins ? 1.1 : 1) * (allAchBonus ? 1.02 : 1));
     if (nextWinX2) { total *= 2; nextWinX2 = false; store.set("nextWinX2", false); toast("Coins-Booster: Gewinn verdoppelt!"); }
     setCoins(coins + total);
     if (total > (stats.biggestWin || 0)) { stats.biggestWin = total; saveStats(); }
@@ -614,14 +627,6 @@
   function addXPbet(base, bet) { addXP(base + Math.min(20, Math.floor((bet || 0) / 500))); }
 
   // Belohnungs-Lotterie beim Abholen
-  function rollReward(lvl) {
-    const base = levelReward(lvl);
-    const r = Math.random();
-    if (r < 0.02) return { coins: base * 20, label: "JACKPOT", jackpot: true };   // 2 %
-    if (r < 0.10) return { coins: base * 5, label: "5x Glück", big: true };         // 8 %
-    if (r < 0.30) return { coins: base * 2, label: "2x" };                          // 20 %
-    return { coins: base, label: "Basis" };                                         // 70 %
-  }
   function claimBurst(amount, label, color) {
     const el = $("claimBurst");
     el.querySelector(".amt").textContent = `+${fmt(amount)} 🪙`;
@@ -629,21 +634,68 @@
     el.querySelector(".lbl").textContent = label;
     el.classList.remove("show"); void el.offsetWidth; el.classList.add("show");
   }
+
+  // ---------- Belohnungs-Spin (CS-Case-Style Band, beim Level-Abholen) ----------
+  // Felder: Faktor, Gewicht (Chance), Farbe, Label
+  const REWARD_SEGS = [
+    { mult: 1,  weight: 70, color: "#f59e0b", label: "x1" },
+    { mult: 2,  weight: 20, color: "#22c55e", label: "x2" },
+    { mult: 5,  weight: 8,  color: "#3b82f6", label: "x5" },
+    { mult: 20, weight: 2,  color: "#a855f7", label: "JACKPOT" }
+  ];
+  const rwTotalW = REWARD_SEGS.reduce((a, s) => a + s.weight, 0);
+  function rwPick() { let x = Math.random() * rwTotalW; for (const s of REWARD_SEGS) { if (x < s.weight) return s; x -= s.weight; } return REWARD_SEGS[0]; }
+  function rwItem(seg, base) {
+    const d = document.createElement("div");
+    d.className = "rs-item";
+    d.style.background = seg.color;
+    d.style.borderBottomColor = "rgba(0,0,0,.4)";
+    d.innerHTML = `<span class="rs-mult">${seg.label}</span><span class="rs-amt">${fmt(Math.floor(base * seg.mult))}</span>`;
+    return d;
+  }
+  let rwSpinning = false;
+
   function claimLevel(lvl) {
-    if (lvl > level || lvl <= claimedLevel) return;
-    const res = rollReward(lvl);
-    setCoins(coins + res.coins);
-    claimedLevel = lvl; store.set("claimedLevel", claimedLevel);
-    if (res.jackpot) { rain("✨", "#facc15", 55); sfx.win(); claimBurst(res.coins, `Level ${lvl} · JACKPOT!`, "#facc15"); toast(`Level ${lvl}: JACKPOT!`); }
-    else if (res.big) { rain("🪙", "#22c55e", 30); sfx.win(); claimBurst(res.coins, `Level ${lvl} · ${res.label}`, "#22c55e"); toast(`Level ${lvl}: ${res.label}!`); }
-    else { rain("🪙", "#f59e0b", 18); sfx.coin(); claimBurst(res.coins, `Level ${lvl} · ${res.label}`, "#f59e0b"); }
-    renderLevel(); renderLevelModal();
+    if (lvl > level || lvl <= claimedLevel || rwSpinning) return;
+    const chosen = rwPick();
+    const base = levelReward(lvl);
+    const coinsWon = Math.floor(base * chosen.mult);
+    rwSpinning = true;
+
+    // Band aufbauen: viele zufällige Felder, Gewinnfeld an fester Position
+    const strip = $("rsStrip");
+    const WIN_IDX = 40;
+    strip.style.transition = "none"; strip.style.transform = "translateX(0)";
+    strip.innerHTML = "";
+    for (let i = 0; i < 48; i++) strip.appendChild(rwItem(i === WIN_IDX ? chosen : rwPick(), base));
+    $("rewardSpinWrap").classList.remove("hidden");
+    $("rsResult").textContent = "Spinnt...";
+    $("rsResult").style.color = "";
+    // auf das Gewinnfeld unter die gelbe Linie schieben (Item 96px + 8px gap = 104)
+    const ITEM = 104;
+    const winRow = $("rsStrip").parentElement;
+    const offset = 9 + WIN_IDX * ITEM + 48 - winRow.clientWidth / 2 + rnd(-24, 24);
+    strip.offsetWidth; // reflow
+    strip.style.transition = "transform 3.4s cubic-bezier(.12,.75,.15,1)";
+    strip.style.transform = `translateX(-${offset}px)`;
+
+    setTimeout(() => {
+      rwSpinning = false;
+      setCoins(coins + coinsWon);
+      claimedLevel = lvl; store.set("claimedLevel", claimedLevel);
+      $("rsResult").style.color = chosen.color;
+      $("rsResult").textContent = `Level ${lvl}: ${chosen.label} → +${fmt(coinsWon)} Coins!`;
+      if (chosen.mult >= 5) { rain("✨", chosen.color, 50); sfx.win(); } else { rain("🪙", "#f59e0b", 20); sfx.coin(); }
+      claimBurst(coinsWon, `Level ${lvl} · ${chosen.label}`, chosen.color);
+      renderLevel(); renderLevelModal();
+    }, 3600);
   }
   function claimAll() {
-    let next = claimedLevel + 1;
+    if (rwSpinning) return;
+    const next = claimedLevel + 1;
     if (next > level) return;
     claimLevel(next);
-    if (claimedLevel < level) setTimeout(claimAll, 650);
+    if (claimedLevel < level) setTimeout(claimAll, 3900);
   }
 
   function renderLevelModal() {
@@ -658,7 +710,7 @@
     // Abholbare Level
     if (u > 0) {
       const head = document.createElement("p"); head.style.fontWeight = "700"; head.style.margin = "4px 0";
-      head.innerHTML = `🎁 Abholbar (${u}) <span style="color:#94a3b8;font-weight:400;font-size:.8rem;">Zufallsbelohnung: 70% Basis · 20% x2 · 8% x5 · 2% Jackpot x20</span>`;
+      head.innerHTML = `🎁 Abholbar (${u}) <span style="color:#94a3b8;font-weight:400;font-size:.8rem;">Spin entscheidet: x1, x2, x5 oder Jackpot</span>`;
       $("lmRewards").appendChild(head);
       const allBtn = document.createElement("button"); allBtn.textContent = "Alle abholen"; allBtn.style.background = "#22c55e"; allBtn.style.color = "#052e16"; allBtn.style.width = "100%"; allBtn.style.marginBottom = "8px";
       allBtn.addEventListener("click", claimAll); $("lmRewards").appendChild(allBtn);
@@ -931,7 +983,7 @@
   function updateGuessCalc() {
     const range = Number($("guessRange").value);
     const bet = Math.floor(Number($("guessBet").value)) || 0;
-    const payout = Math.round(bet * range * HOUSE);
+    const payout = Math.floor(bet * range * HOUSE);
     $("guessCalc").innerHTML = `Trefferchance: <b>1 zu ${fmt(range)}</b> · Multiplikator: <b>${fmt(range)}x</b> · Gewinn bei Treffer: <b style="color:#22c55e">${fmt(payout)} Coins</b>`;
     $("guessInput").max = range; $("guessInput").placeholder = `1 - ${fmt(range)}`;
   }
@@ -973,7 +1025,7 @@
   }
   function hlUpdatePot() {
     $("hlPot").textContent = `Serie: ${hlStreak}`;
-    $("hlCash").textContent = `💰 Cashen (${fmt(Math.round(hlPot))} Coins)`;
+    $("hlCash").textContent = `💰 Cashen (${fmt(Math.floor(hlPot))} Coins)`;
     $("hlCash").disabled = hlStreak < 1; // cashen erst nach dem ersten Tipp
   }
   $("hlStartBtn").addEventListener("click", () => {
@@ -1002,17 +1054,17 @@
       $("hlResult").textContent = `${HL_RANKS[hlRank]} nach ${prev}. Richtig! Weiter oder cashen?`;
     } else {
       hlActive = false; sfx.lose();
-      stats.totalLost = (stats.totalLost || 0) + Math.round(hlPot); saveStats(); checkAch();
+      stats.totalLost = (stats.totalLost || 0) + Math.floor(hlPot); saveStats(); checkAch();
       $("hlGame").classList.add("hidden"); $("hlStart").classList.remove("hidden");
       $("hlResult").style.color = "#ef4444";
-      $("hlResult").textContent = `${HL_RANKS[hlRank]} nach ${prev}. Daneben. Topf von ${fmt(Math.round(hlPot))} verloren. Wie bei der PLF.`;
+      $("hlResult").textContent = `${HL_RANKS[hlRank]} nach ${prev}. Daneben. Topf von ${fmt(Math.floor(hlPot))} verloren. Wie bei der PLF.`;
     }
   }
   $("hlHigher").addEventListener("click", () => hlGuess(true));
   $("hlLower").addEventListener("click", () => hlGuess(false));
   $("hlCash").addEventListener("click", () => {
     if (!hlActive) return;
-    const won = addWin(Math.round(hlPot));
+    const won = addWin(Math.floor(hlPot));
     hlActive = false; sfx.coin(); rain("🪙", "#f59e0b", 20);
     $("hlGame").classList.add("hidden"); $("hlStart").classList.remove("hidden");
     $("hlResult").style.color = "#22c55e";
@@ -1217,7 +1269,7 @@
     const cur = minesMultiplier(minesN, minesRevealed);
     const next = minesMultiplier(minesN, minesRevealed + 1);
     $("minesInfo").textContent = `Aufgedeckt: ${minesRevealed} · Multiplikator: ${cur.toFixed(2)}x · nächstes Feld: ${next.toFixed(2)}x`;
-    $("minesCash").textContent = `💰 Cashen (${fmt(Math.round(minesBet * cur))} Coins)`;
+    $("minesCash").textContent = `💰 Cashen (${fmt(Math.floor(minesBet * cur))} Coins)`;
     $("minesCash").disabled = minesRevealed < 1;
   }
   function minesRenderGrid(revealAll) {
@@ -1257,7 +1309,7 @@
   function minesCashOut(auto) {
     if (!minesActive) return;
     const mult = minesMultiplier(minesN, minesRevealed);
-    const won = addWin(Math.round(minesBet * mult));
+    const won = addWin(Math.floor(minesBet * mult));
     minesActive = false;
     minesRenderGrid(true);
     $("minesGame").classList.add("hidden"); $("minesStart").classList.remove("hidden");
