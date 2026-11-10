@@ -6,12 +6,12 @@
 <title>Maxi Timer</title>
 <style>
   * { box-sizing: border-box; }
-  body { margin: 0; min-height: 100vh; padding: 70px 16px 120px; font-family: system-ui, sans-serif; background: #111827; color: #f9fafb; display: flex; flex-direction: column; align-items: center; text-align: center; overflow-x: hidden; transition: background .5s; }
+  body { margin: 0; min-height: 100vh; padding: 70px 16px 120px; font-family: system-ui, sans-serif; background: var(--bg, #111827); color: var(--text, #f9fafb); display: flex; flex-direction: column; align-items: center; text-align: center; overflow-x: hidden; transition: background .5s; }
   h1 { font-size: clamp(1.4rem, 4vw, 2.4rem); margin: 0 0 8px; }
   .sub { color: #9ca3af; margin-bottom: 24px; }
   #countdown { font-variant-numeric: tabular-nums; font-size: clamp(1.8rem, 8vw, 4.5rem); font-weight: 800; }
   #countdown small { font-size: .35em; color: #9ca3af; }
-  .card { background: #1f2937; border-radius: 12px; padding: 16px 20px; margin-top: 20px; width: 100%; max-width: 560px; }
+  .card { background: var(--card, #1f2937); border-radius: 12px; padding: 16px 20px; margin-top: 20px; width: 100%; max-width: 560px; }
   .bar { height: 18px; background: #374151; border-radius: 9px; overflow: hidden; margin-top: 8px; }
   #barFill { height: 100%; width: 3%; background: #22c55e; transition: width 1s, background 1s; }
   button { font: inherit; font-weight: 700; border: 0; border-radius: 10px; padding: 12px 20px; cursor: pointer; }
@@ -27,20 +27,36 @@
   #chance { font-size: 1.6rem; font-weight: 800; color: #ef4444; font-variant-numeric: tabular-nums; }
   #ticker { font-family: monospace; color: #fbbf24; min-height: 1.4em; }
   #coins { position: fixed; top: 12px; right: 12px; z-index: 20; background: #f59e0b; color: #1f1300; font-weight: 800; padding: 8px 14px; border-radius: 999px; }
+  body.skin-anim { background-size: 400% 400%; animation: bgmove 8s ease infinite; }
+  @keyframes bgmove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
   body.panic { background: #7f1d1d; animation: shake .25s infinite; }
   @keyframes shake { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-3px, 2px); } 75% { transform: translate(3px, -2px); } }
   .wheel-wrap { position: relative; width: 300px; max-width: 100%; margin: 16px auto 0; }
   #wheel { width: 100%; height: auto; display: block; transition: transform 5s cubic-bezier(.17,.67,.12,.99); }
   .pointer { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); z-index: 2; border-left: 14px solid transparent; border-right: 14px solid transparent; border-top: 26px solid #f9fafb; }
-  #spinResult { min-height: 1.5em; font-weight: 700; margin-top: 10px; }
+  #spinResult, #flipResult, #caseResult { min-height: 1.5em; font-weight: 700; margin-top: 10px; }
+  #flipCoin { width: 90px; height: 90px; margin: 14px auto; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #fde68a, #f59e0b 60%, #b45309); color: #1f1300; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.1rem; box-shadow: 0 4px 12px rgba(0,0,0,.4); }
+  #flipCoin.flipping { animation: flip .3s linear infinite; }
+  @keyframes flip { to { transform: rotateY(360deg); } }
+  #betInput { width: 140px; font: inherit; padding: 10px; border-radius: 10px; border: 0; text-align: center; margin-bottom: 10px; }
+  #flipHeads, #flipTails { background: #f59e0b; color: #1f1300; }
+  #caseBtn { background: #eab308; color: #1f1300; margin-top: 10px; }
+  .case-window { position: relative; overflow: hidden; height: 110px; margin-top: 14px; border-radius: 10px; background: #0b0f19; }
+  .case-window::after { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; width: 3px; background: #facc15; transform: translateX(-50%); z-index: 2; }
+  #caseStrip { display: flex; gap: 8px; padding: 10px; will-change: transform; }
+  .case-item { flex: 0 0 92px; height: 90px; border-radius: 8px; background: #1f2937; color: #f9fafb; border-bottom: 5px solid; display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 700; padding: 6px; }
+  .rarity-info { font-size: .8rem; margin-top: 8px; }
+  #inventory { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 10px; }
+  .inv-item { background: #111827; color: #f9fafb; border: 2px solid; padding: 8px 12px; font-size: .85rem; }
+  .inv-item.equipped { outline: 3px solid #facc15; }
   .drop { position: fixed; top: -40px; pointer-events: none; font-family: monospace; font-weight: 700; white-space: nowrap; z-index: 30; animation: fall linear forwards; }
   @keyframes fall { to { transform: translateY(110vh) rotate(20deg); } }
-  #loader { position: fixed; inset: 0; background: #000; z-index: 100; padding: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; font-family: monospace; }
+  #loader { position: fixed; inset: 0; background: #000; color: #f9fafb; z-index: 100; padding: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; font-family: monospace; }
   #loader .bar { width: min(400px, 90vw); }
   #loadFill { height: 100%; width: 0; background: #22c55e; }
   .modal { position: fixed; inset: 0; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 16px; }
   .hidden { display: none; }
-  .modal-box { background: #1f2937; border: 2px solid #ef4444; border-radius: 12px; padding: 20px; max-width: 340px; }
+  .modal-box { background: #1f2937; color: #f9fafb; border: 2px solid #ef4444; border-radius: 12px; padding: 20px; max-width: 340px; }
   #nagYes { background: #22c55e; color: #052e16; }
   #nagLater { background: #374151; color: #fff; }
 </style>
@@ -82,6 +98,24 @@
     <div id="spinResult"></div>
   </div>
 
+  <div class="card">
+    <strong>🪙 Münzwurf: Doppelt oder nichts</strong>
+    <div id="flipCoin">?</div>
+    <input id="betInput" type="number" min="1" value="10" placeholder="Einsatz"><br>
+    <button id="flipHeads">Kopf</button> <button id="flipTails">Zahl</button>
+    <div id="flipResult"></div>
+  </div>
+
+  <div class="card">
+    <strong>📦 Skin-Lootbox</strong> (50 Coins)
+    <div id="rarityInfo" class="rarity-info"></div>
+    <div class="case-window"><div id="caseStrip"></div></div>
+    <button id="caseBtn">Lootbox öffnen</button>
+    <div id="caseResult"></div>
+    <p style="margin: 14px 0 0;"><strong>🎒 Inventar</strong> (<span id="invCount"></span>)</p>
+    <div id="inventory"></div>
+  </div>
+
   <div class="card"><strong>📚 Java-Fakt des Tages</strong><p id="fact"></p></div>
 
   <div class="card">
@@ -99,7 +133,8 @@
       <button id="nagYes">Ja</button> <button id="nagLater">Später</button>
     </div>
   </div>
-  <script>
+
+<script>
   const $ = (id) => document.getElementById(id);
   const PLF = new Date("2027-01-13T10:45:00+01:00");
   const pad = (n, l = 2) => String(n).padStart(l, "0");
@@ -263,6 +298,161 @@
       else { $("spinResult").textContent = `${s.label}. War ja klar.`; }
     }, 5100);
   });
+
+  // Münzwurf: Doppelt oder nichts (45 % Gewinnchance)
+  let flipping = false;
+  const loseTexts = [
+    "Das Haus gewinnt immer. Wie die PLF.",
+    "Genauso viel Glück wie bei Java.",
+    "Vielleicht doch lieber lernen?",
+    "Die Münze hat auch nicht an dich geglaubt.",
+    "Statistisch gesehen warst du eh chancenlos."
+  ];
+  function flip(choice) {
+    if (flipping) return;
+    const bet = Math.floor(Number($("betInput").value));
+    if (!bet || bet < 1) { $("flipResult").textContent = "Einsatz eingeben. So schwer ist das nicht."; return; }
+    if (bet > coins) { $("flipResult").textContent = "So viele Coins hast du nicht. Rechnen ist auch nicht deine Stärke."; return; }
+    setCoins(coins - bet);
+    flipping = true;
+    $("flipCoin").textContent = "?";
+    $("flipCoin").classList.add("flipping");
+    $("flipResult").textContent = "Die Münze fliegt...";
+    const win = Math.random() < 0.45;
+    const other = choice === "Kopf" ? "Zahl" : "Kopf";
+    setTimeout(() => {
+      $("flipCoin").classList.remove("flipping");
+      $("flipCoin").textContent = win ? choice : other;
+      flipping = false;
+      if (win) {
+        setCoins(coins + bet * 2);
+        rain("🪙", "#f59e0b", 20);
+        $("flipResult").textContent = `${choice}! +${bet} Coins. Glück gehabt, Können war es nicht.`;
+      } else if (coins === 0) {
+        $("flipResult").textContent = `${other}. Alles weg. Pleite wie nach der PLF. Morgen gibt es eine neue Daily Chest.`;
+      } else {
+        $("flipResult").textContent = `${other}. -${bet} Coins. ${loseTexts[rnd(0, loseTexts.length - 1)]}`;
+      }
+    }, 1500);
+  }
+  $("flipHeads").addEventListener("click", () => flip("Kopf"));
+  $("flipTails").addEventListener("click", () => flip("Zahl"));
+
+  // Skins + Lootbox
+  const RARITIES = {
+    common:    { name: "Gewöhnlich", color: "#9ca3af", weight: 55 },
+    rare:      { name: "Selten",     color: "#3b82f6", weight: 27 },
+    epic:      { name: "Episch",     color: "#a855f7", weight: 12 },
+    legendary: { name: "Legendär",   color: "#f59e0b", weight: 5 },
+    mythic:    { name: "Mythisch",   color: "#ef4444", weight: 1 }
+  };
+  const SKINS = [
+    { id: "standard", name: "Standard", rarity: "common", bg: "#111827", card: "#1f2937", text: "#f9fafb", start: true },
+    { id: "grau", name: "Grau wie deine Zukunft", rarity: "common", bg: "#4b5563", card: "#374151", text: "#f9fafb" },
+    { id: "kaffee", name: "Kaffeefleck", rarity: "common", bg: "#3b2a1a", card: "#5c4130", text: "#fef3c7" },
+    { id: "notepad", name: "Notepad Classic", rarity: "common", bg: "#e5e7eb", card: "#ffffff", text: "#111827" },
+    { id: "darcula", name: "IntelliJ Darcula", rarity: "rare", bg: "#2b2b2b", card: "#3c3f41", text: "#a9b7c6" },
+    { id: "matrix", name: "Matrix", rarity: "rare", bg: "#000000", card: "#052e16", text: "#22c55e" },
+    { id: "bluescreen", name: "Blue Screen", rarity: "rare", bg: "#0078d7", card: "#005a9e", text: "#ffffff" },
+    { id: "pink", name: "Pink Panic", rarity: "epic", bg: "#831843", card: "#be185d", text: "#fdf2f8" },
+    { id: "sunset", name: "Sonnenuntergang", rarity: "epic", bg: "linear-gradient(135deg, #f97316, #db2777, #7c3aed)", card: "rgba(0,0,0,.35)", text: "#ffffff" },
+    { id: "vapor", name: "Vaporwave", rarity: "epic", bg: "linear-gradient(135deg, #22d3ee, #a855f7, #f472b6)", card: "rgba(17,24,39,.6)", text: "#ffffff" },
+    { id: "gold", name: "Gold Edition", rarity: "legendary", bg: "linear-gradient(135deg, #78350f, #f59e0b, #78350f)", card: "rgba(0,0,0,.45)", text: "#fef3c7" },
+    { id: "rainbow", name: "Regenbogen", rarity: "legendary", bg: "linear-gradient(90deg, #ef4444, #f59e0b, #eab308, #22c55e, #3b82f6, #a855f7, #ef4444)", card: "rgba(0,0,0,.5)", text: "#ffffff", anim: true },
+    { id: "bestanden", name: "Bestanden (fühlt sich falsch an)", rarity: "mythic", bg: "linear-gradient(135deg, #14532d, #22c55e, #14532d)", card: "rgba(0,0,0,.4)", text: "#f0fdf4", anim: true }
+  ];
+  let owned = store.get("skins", ["standard"]);
+  let equipped = store.get("equipped", "standard");
+
+  $("rarityInfo").innerHTML = Object.values(RARITIES)
+    .map((r) => `<span style="color:${r.color}">${r.name} ${r.weight} %</span>`).join(" · ");
+
+  function applySkin(id) {
+    const s = SKINS.find((x) => x.id === id) || SKINS[0];
+    const root = document.documentElement.style;
+    root.setProperty("--bg", s.bg);
+    root.setProperty("--card", s.card);
+    root.setProperty("--text", s.text);
+    document.body.classList.toggle("skin-anim", !!s.anim);
+    equipped = s.id; store.set("equipped", s.id);
+    renderInventory();
+  }
+
+  function renderInventory() {
+    $("inventory").innerHTML = "";
+    SKINS.filter((s) => owned.includes(s.id)).forEach((s) => {
+      const b = document.createElement("button");
+      b.className = "inv-item" + (s.id === equipped ? " equipped" : "");
+      b.style.borderColor = RARITIES[s.rarity].color;
+      b.textContent = s.name;
+      b.title = RARITIES[s.rarity].name;
+      b.addEventListener("click", () => applySkin(s.id));
+      $("inventory").appendChild(b);
+    });
+    $("invCount").textContent = `${owned.length} von ${SKINS.length}`;
+  }
+
+  // Zufälligen Skin nach Rarity-Gewichtung ziehen
+  function rollSkin() {
+    let x = Math.random() * 100, rarity = "common";
+    for (const [key, r] of Object.entries(RARITIES)) {
+      if (x < r.weight) { rarity = key; break; }
+      x -= r.weight;
+    }
+    const options = SKINS.filter((s) => !s.start && s.rarity === rarity);
+    return options[rnd(0, options.length - 1)];
+  }
+
+  function caseItem(s) {
+    const d = document.createElement("div");
+    d.className = "case-item";
+    d.style.borderBottomColor = RARITIES[s.rarity].color;
+    d.textContent = s.name;
+    return d;
+  }
+  for (let i = 0; i < 8; i++) $("caseStrip").appendChild(caseItem(rollSkin()));
+
+  let caseOpening = false;
+  $("caseBtn").addEventListener("click", () => {
+    if (caseOpening) return;
+    if (coins < 50) { $("caseResult").style.color = ""; $("caseResult").textContent = "50 Coins nötig. Arm wie deine Java-Skills."; return; }
+    setCoins(coins - 50);
+    caseOpening = true;
+
+    const winner = rollSkin();
+    const strip = $("caseStrip");
+    const WIN_IDX = 35;
+    strip.innerHTML = "";
+    strip.style.transition = "none";
+    strip.style.transform = "translateX(0)";
+    for (let i = 0; i < 40; i++) strip.appendChild(caseItem(i === WIN_IDX ? winner : rollSkin()));
+
+    // Gewinn-Feld unter die gelbe Linie schieben
+    const offset = 10 + WIN_IDX * 100 + 46 - strip.parentElement.clientWidth / 2 + rnd(-30, 30);
+    $("caseResult").style.color = "";
+    $("caseResult").textContent = "Lootbox öffnet sich...";
+    strip.offsetWidth; // Neu berechnen, damit die Animation startet
+    strip.style.transition = "transform 4.5s cubic-bezier(.12,.8,.2,1)";
+    strip.style.transform = `translateX(-${offset}px)`;
+
+    setTimeout(() => {
+      caseOpening = false;
+      const r = RARITIES[winner.rarity];
+      if (owned.includes(winner.id)) {
+        setCoins(coins + 10);
+        $("caseResult").textContent = `${winner.name} (${r.name}). Hast du schon. +10 Coins zurück.`;
+      } else {
+        owned.push(winner.id);
+        store.set("skins", owned);
+        renderInventory();
+        $("caseResult").textContent = `NEU: ${winner.name} (${r.name})! Im Inventar anklicken zum Ausrüsten.`;
+      }
+      $("caseResult").style.color = r.color;
+      if (winner.rarity === "legendary" || winner.rarity === "mythic") rain("✨", r.color, 50);
+    }, 4700);
+  });
+
+  applySkin(equipped);
 
   // Java-Fakt des Tages
   const facts = [
