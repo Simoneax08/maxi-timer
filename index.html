@@ -14,30 +14,47 @@
   #countdown small { font-size: .35em; color: #94a3b8; font-weight: 600; }
   .card { background: var(--card, #111a2e); border: 1px solid var(--border, rgba(255,255,255,.07)); border-radius: var(--radius, 16px); padding: 20px 22px; margin-top: 18px; width: 100%; max-width: 560px; box-shadow: 0 8px 30px rgba(0,0,0,.25); }
   .card strong { font-size: 1.05rem; }
+  .hint { font-size: .85rem; color: #94a3b8; margin: 6px 0 12px; }
   .bar { height: 18px; background: #1e293b; border-radius: 9px; overflow: hidden; margin-top: 10px; }
   #barFill { height: 100%; width: 3%; background: #22c55e; transition: width 1s, background 1s; }
   button { font: inherit; font-weight: 700; border: 0; border-radius: 12px; padding: 12px 20px; cursor: pointer; transition: transform .12s, filter .12s, box-shadow .12s; }
   button:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.08); }
   button:active:not(:disabled) { transform: translateY(0); }
   button:disabled { opacity: .55; cursor: not-allowed; }
+  input, select { font: inherit; padding: 11px; border-radius: 10px; border: 1px solid rgba(255,255,255,.12); background: #0b1120; color: var(--text, #fff); }
   #readyBtn { background: #22c55e; color: #052e16; position: fixed; transition: left .15s, top .15s; z-index: 10; box-shadow: 0 6px 20px rgba(34,197,94,.4); }
   #excuseBtn { background: #6366f1; color: #fff; margin-top: 12px; }
   #learnBtn { background: #0ea5e9; color: #fff; margin-top: 12px; }
   #spinBtn { background: var(--accent); color: #1f1300; margin-top: 12px; }
   #chestBtn { background: #a855f7; color: #fff; margin-top: 12px; font-size: 1.1rem; }
   #chestTimer { color: #94a3b8; font-size: .9rem; margin-top: 8px; }
-  #farmBtn { background: #22c55e; color: #052e16; font-size: 1.25rem; padding: 20px 30px; box-shadow: 0 6px 20px rgba(34,197,94,.3); }
-  #farmInfo { color: #94a3b8; font-size: .85rem; margin-top: 10px; min-height: 1.2em; }
+  #collectBtn { background: #22c55e; color: #052e16; font-size: 1.25rem; padding: 20px 30px; box-shadow: 0 6px 20px rgba(34,197,94,.3); }
+  #collectInfo { color: #94a3b8; font-size: .85rem; margin-top: 10px; min-height: 1.2em; }
   .opening { animation: wobble .15s infinite; }
   @keyframes wobble { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-8deg); } 75% { transform: rotate(8deg); } }
   #chance { font-size: 1.7rem; font-weight: 800; color: #ef4444; font-variant-numeric: tabular-nums; margin-top: 4px; }
   #ticker { font-family: ui-monospace, monospace; color: #fbbf24; min-height: 1.4em; margin-top: 6px; }
-  #coins { position: fixed; top: 14px; right: 14px; z-index: 20; background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #1f1300; font-weight: 800; padding: 9px 16px; border-radius: 999px; box-shadow: 0 4px 16px rgba(245,158,11,.45); }
-  /* Tabs */
+  #topbar { position: fixed; top: 14px; right: 14px; z-index: 20; display: flex; gap: 8px; align-items: center; }
+  #coins { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #1f1300; font-weight: 800; padding: 9px 16px; border-radius: 999px; box-shadow: 0 4px 16px rgba(245,158,11,.45); }
+  #soundToggle { background: rgba(15,23,42,.7); color: #f9fafb; border: 1px solid rgba(255,255,255,.1); padding: 9px 12px; border-radius: 999px; }
+  #levelBox { background: rgba(15,23,42,.7); color: #f9fafb; border: 1px solid rgba(255,255,255,.1); padding: 7px 14px; border-radius: 999px; font-size: .85rem; font-weight: 700; display: flex; flex-direction: column; gap: 4px; min-width: 120px; cursor: pointer; }
+  #xpbar { height: 6px; background: #1e293b; border-radius: 3px; overflow: hidden; }
+  #xpFill { height: 100%; width: 0; background: #22c55e; transition: width .4s; }
+  #boostWrap { margin-top: 5px; display: flex; flex-direction: column; gap: 3px; }
+  #boostWrap.hidden { display: none; }
+  #boostLabel { font-size: .68rem; color: #c084fc; font-weight: 700; }
+  #boostBar { height: 5px; background: #1e293b; border-radius: 3px; overflow: hidden; }
+  #boostFill { height: 100%; width: 100%; background: linear-gradient(90deg, #a855f7, #c084fc); transition: width .9s linear; }
   #tabs { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); z-index: 20; display: flex; gap: 4px; background: rgba(15,23,42,.7); backdrop-filter: blur(8px); padding: 5px; border-radius: 999px; border: 1px solid rgba(255,255,255,.08); box-shadow: 0 4px 20px rgba(0,0,0,.35); }
   .tab { background: transparent; color: #cbd5e1; padding: 9px 18px; border-radius: 999px; font-size: .95rem; }
   .tab:hover:not(.active) { transform: none; background: rgba(255,255,255,.06); }
   .tab.active { background: var(--accent); color: #1f1300; box-shadow: 0 2px 10px rgba(245,158,11,.4); }
+  #gameTabs { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin: 14px 0 4px; }
+  .gtab { background: #0b1120; color: #cbd5e1; border: 1px solid rgba(255,255,255,.1); padding: 8px 14px; border-radius: 999px; font-size: .85rem; }
+  .gtab:hover:not(.active) { transform: none; background: rgba(255,255,255,.06); }
+  .gtab.active { background: var(--accent); color: #1f1300; border-color: transparent; }
+  .game-panel { margin-top: 12px; animation: fadein .3s ease; }
+  .game-panel.hidden { display: none; }
   .page { width: 100%; display: flex; flex-direction: column; align-items: inherit; animation: fadein .35s ease; }
   .page.hidden { display: none; }
   @keyframes fadein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
@@ -45,14 +62,23 @@
   @keyframes bgmove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
   body.panic { background: #7f1d1d; animation: shake .25s infinite; }
   @keyframes shake { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-3px, 2px); } 75% { transform: translate(3px, -2px); } }
-  .wheel-wrap { position: relative; width: 300px; max-width: 100%; margin: 18px auto 0; }
-  #wheel { width: 100%; height: auto; display: block; transition: transform 5s cubic-bezier(.17,.67,.12,.99); filter: drop-shadow(0 8px 24px rgba(0,0,0,.4)); }
-  .pointer { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); z-index: 2; border-left: 14px solid transparent; border-right: 14px solid transparent; border-top: 26px solid #f9fafb; filter: drop-shadow(0 2px 3px rgba(0,0,0,.5)); }
-  #spinResult, #flipResult, #caseResult, #tradeResult { min-height: 1.5em; font-weight: 700; margin-top: 12px; }
-  #flipCoin { width: 94px; height: 94px; margin: 16px auto; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #fde68a, #f59e0b 60%, #b45309); color: #1f1300; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.1rem; box-shadow: 0 6px 18px rgba(0,0,0,.45), inset 0 2px 6px rgba(255,255,255,.4); }
+  .wheel-wrap { position: relative; width: 320px; max-width: 100%; margin: 18px auto 0; }
+  #wheel { width: 100%; height: auto; display: block; transition: transform 5.5s cubic-bezier(.15,.66,.1,1); filter: drop-shadow(0 8px 24px rgba(0,0,0,.45)); }
+  .pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); z-index: 2; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 28px solid #facc15; filter: drop-shadow(0 2px 3px rgba(0,0,0,.5)); }
+  #spinResult, #flipResult, #caseResult, #tradeResult, #guessResult { min-height: 1.5em; font-weight: 700; margin-top: 12px; }
+  #flipCoin { width: 100px; height: 100px; margin: 16px auto; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.6rem; box-shadow: 0 6px 18px rgba(0,0,0,.45), inset 0 2px 6px rgba(255,255,255,.4); }
+  .card-face { width: 90px; height: 128px; margin: 14px auto; border-radius: 12px; background: #f8fafc; color: #0f172a; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 2.1rem; box-shadow: 0 6px 18px rgba(0,0,0,.45); border: 2px solid #e2e8f0; position: relative; }
+  .card-face.red { color: #dc2626; }
+  .card-face.flip { animation: cardflip .4s ease; }
+  @keyframes cardflip { 0% { transform: rotateY(0) scale(1); } 50% { transform: rotateY(90deg) scale(1.05); } 100% { transform: rotateY(0) scale(1); } }
+  #hlResult { min-height: 1.5em; font-weight: 700; margin-top: 12px; }
   #flipCoin.flipping { animation: flip .3s linear infinite; }
   @keyframes flip { to { transform: rotateY(360deg); } }
-  #betInput { width: 150px; font: inherit; padding: 11px; border-radius: 10px; border: 1px solid rgba(255,255,255,.12); background: #0b1120; color: var(--text, #fff); text-align: center; margin-bottom: 12px; }
+  .bet-row { display: flex; gap: 8px; justify-content: center; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+  .field { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+  .field label { font-size: .78rem; color: #94a3b8; }
+  #betInput { width: 130px; text-align: center; }
+  .betMul { background: #334155; color: #fff; padding: 11px 15px; }
   #flipHeads, #flipTails { background: var(--accent); color: #1f1300; }
   #caseBtn { background: #eab308; color: #1f1300; margin-top: 12px; }
   .case-window { position: relative; overflow: hidden; height: 112px; margin-top: 16px; border-radius: 12px; background: #060a14; border: 1px solid rgba(255,255,255,.06); }
@@ -60,7 +86,7 @@
   #caseStrip { display: flex; gap: 8px; padding: 11px; will-change: transform; }
   .case-item { flex: 0 0 92px; height: 90px; border-radius: 10px; background: #0f1627; color: #f9fafb; border-bottom: 5px solid; display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 700; padding: 6px; text-align: center; }
   .rarity-info { font-size: .8rem; margin-top: 10px; line-height: 1.7; }
-  #inventory { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 12px; }
+  #inventory, #coinSkinShop, #shopGrid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 12px; }
   .inv-item { background: #0b1120; color: #f9fafb; border: 2px solid; border-radius: 12px; padding: 10px 12px; font-size: .8rem; display: flex; flex-direction: column; gap: 7px; align-items: center; min-width: 130px; }
   .inv-item.equipped { outline: 3px solid #facc15; outline-offset: 1px; }
   .inv-item .count { font-size: .7rem; color: #94a3b8; }
@@ -68,22 +94,43 @@
   .inv-btns button { padding: 6px 10px; font-size: .72rem; border-radius: 8px; }
   .equipBtn { background: #22c55e; color: #052e16; }
   .sellBtn { background: #ef4444; color: #fff; }
+  .coinSkinCard { background: #0b1120; border: 2px solid rgba(255,255,255,.12); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 110px; }
+  .coinSkinCard.active { outline: 3px solid #facc15; }
+  .coinPreview { width: 54px; height: 54px; border-radius: 50%; box-shadow: inset 0 2px 6px rgba(255,255,255,.4); }
+  /* Shop */
+  .shop-item { background: #0b1120; border: 1px solid rgba(255,255,255,.12); border-radius: 14px; padding: 14px; width: 168px; display: flex; flex-direction: column; gap: 8px; align-items: center; text-align: center; }
+  .shop-item .icon { font-size: 1.8rem; }
+  .shop-item .title { font-weight: 800; font-size: .92rem; }
+  .shop-item .desc { font-size: .74rem; color: #94a3b8; min-height: 2.6em; }
+  .shop-item button { width: 100%; padding: 9px; font-size: .82rem; background: #eab308; color: #1f1300; }
+  .shop-item button.owned { background: #22c55e; color: #052e16; }
+  .shop-cat { width: 100%; max-width: 560px; text-align: left; margin-top: 18px; font-weight: 800; color: var(--accent); font-size: .95rem; }
   #trader { border: 1px solid rgba(234,179,8,.5); background: linear-gradient(180deg, rgba(234,179,8,.06), var(--card, #111a2e)); }
   #traderMsg { font-style: italic; color: #fbbf24; min-height: 1.4em; margin-top: 6px; }
-  #tradeOffer { margin: 12px 0; font-weight: 700; font-size: 1.02rem; }
-  #tradeAccept { background: #22c55e; color: #052e16; }
-  #tradeDecline { background: #334155; color: #fff; }
+  #guessStart { background: #0ea5e9; color: #fff; }
+  #guessGo { background: var(--accent); color: #1f1300; margin-top: 4px; }
+  #guessCalc { font-size: .85rem; color: #cbd5e1; margin: 6px 0 2px; }
   .drop { position: fixed; top: -40px; pointer-events: none; font-family: ui-monospace, monospace; font-weight: 700; white-space: nowrap; z-index: 30; animation: fall linear forwards; }
   @keyframes fall { to { transform: translateY(110vh) rotate(20deg); } }
   #loader { position: fixed; inset: 0; background: #000; color: #f9fafb; z-index: 100; padding: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; font-family: ui-monospace, monospace; }
   #loader .bar { width: min(400px, 90vw); }
   #loadFill { height: 100%; width: 0; background: #22c55e; }
-  .modal { position: fixed; inset: 0; background: rgba(0,0,0,.65); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 16px; backdrop-filter: blur(3px); }
-  .hidden { display: none; }
-  .modal-box { background: #111a2e; color: #f9fafb; border: 2px solid #ef4444; border-radius: 16px; padding: 24px; max-width: 350px; box-shadow: 0 20px 50px rgba(0,0,0,.5); }
-  .modal-box button { margin-top: 6px; }
-  #nagYes { background: #22c55e; color: #052e16; }
-  #nagLater { background: #334155; color: #fff; }
+  #toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(40px); background: #111a2e; border: 1px solid var(--accent); color: #f9fafb; padding: 14px 22px; border-radius: 12px; font-weight: 700; z-index: 80; opacity: 0; transition: opacity .3s, transform .3s; box-shadow: 0 10px 30px rgba(0,0,0,.5); }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .modal { position: fixed; inset: 0; background: rgba(0,0,0,.65); display: flex; align-items: center; justify-content: center; z-index: 70; padding: 16px; backdrop-filter: blur(3px); }
+  .modal.hidden { display: none; }
+  .modal-box { background: #111a2e; color: #f9fafb; border: 1px solid rgba(255,255,255,.14); border-radius: 18px; padding: 24px; max-width: 420px; width: 100%; box-shadow: 0 20px 50px rgba(0,0,0,.5); text-align: left; }
+  .modal-box h2 { margin: 0 0 4px; }
+  .modal-box .big-xp { height: 14px; background: #1e293b; border-radius: 7px; overflow: hidden; margin: 12px 0 6px; }
+  .modal-box .big-xp > div { height: 100%; background: #22c55e; transition: width .4s; }
+  .reward-row { display: flex; justify-content: space-between; padding: 9px 12px; border-radius: 10px; background: #0b1120; margin-top: 8px; border: 1px solid rgba(255,255,255,.07); }
+  .reward-row .lv { font-weight: 800; color: var(--accent); }
+  #levelClose { background: var(--accent); color: #1f1300; width: 100%; margin-top: 18px; }
+  #claimBurst { position: fixed; left: 50%; top: 38%; transform: translate(-50%,-50%) scale(.4); z-index: 90; pointer-events: none; font-weight: 900; text-align: center; opacity: 0; }
+  #claimBurst.show { animation: burst 1.1s cubic-bezier(.2,1.2,.3,1) forwards; }
+  #claimBurst .amt { font-size: 2.6rem; color: #facc15; text-shadow: 0 2px 16px rgba(250,204,21,.6), 0 2px 4px rgba(0,0,0,.5); }
+  #claimBurst .lbl { font-size: 1rem; color: #fff; margin-top: 4px; }
+  @keyframes burst { 0% { opacity: 0; transform: translate(-50%,-50%) scale(.4); } 25% { opacity: 1; transform: translate(-50%,-50%) scale(1.15); } 70% { opacity: 1; transform: translate(-50%,-60%) scale(1); } 100% { opacity: 0; transform: translate(-50%,-85%) scale(.95); } }
 </style>
 </head>
 <body>
@@ -97,26 +144,29 @@
     <button class="tab active" data-tab="timer">⏳ Countdown</button>
     <button class="tab" data-tab="market">🛒 Handelsplatz</button>
   </div>
-  <div id="coins">🪙 0</div>
+  <div id="topbar">
+    <div id="levelBox">
+      <span id="levelText">Lvl 1</span>
+      <div id="xpbar"><div id="xpFill"></div></div>
+      <div id="boostWrap" class="hidden"><span id="boostLabel">⚡ XP x2</span><div id="boostBar"><div id="boostFill"></div></div></div>
+    </div>
+    <button id="soundToggle">🔊</button>
+    <div id="coins">🪙 0</div>
+  </div>
 
   <!-- ===== TAB 1: TIMER ===== -->
   <div class="page" id="page-timer">
     <h1>⏳ Maxi, die POS-PLF kommt</h1>
     <div class="sub">13.01.2027, 10:45 Uhr. Kein Entkommen.</div>
     <div id="countdown">...</div>
-
     <div class="card"><strong>📡 Live-Ticker</strong><p id="ticker">...</p></div>
-
     <div class="card"><strong>Wahrscheinlichkeit zu bestehen</strong><div id="chance">7.3 %</div></div>
-
     <div class="card">
       <strong>Maxis Lernfortschritt:</strong> <span id="barLabel">3.0 %</span>
       <div class="bar"><div id="barFill"></div></div>
       <button id="learnBtn">Ich hab heute gelernt</button>
     </div>
-
     <div class="card"><strong>📚 Java-Fakt des Tages</strong><p id="fact"></p></div>
-
     <div class="card">
       <strong>🛋️ Ausreden-Generator</strong>
       <p id="excuse">Drück den Knopf, Maxi.</p>
@@ -127,13 +177,13 @@
   <!-- ===== TAB 2: HANDELSPLATZ ===== -->
   <div class="page hidden" id="page-market">
     <h1>🛒 Maxis Handelsplatz</h1>
-    <div class="sub">Farmen, drehen, handeln. Verlieren inklusive.</div>
+    <div class="sub">Abholen, drehen, handeln. Verlieren inklusive.</div>
 
     <div class="card">
-      <strong>⛏️ Coins farmen: Java kompilieren</strong>
-      <p style="font-size:.85rem;color:#94a3b8;margin:6px 0 12px;">Jeder erfolgreiche Compile gibt 1 Coin. Manchmal crasht es.</p>
-      <button id="farmBtn">☕ Kompilieren (+1)</button>
-      <div id="farmInfo"></div>
+      <strong>⏰ Minuten-Bonus</strong>
+      <p class="hint">Jede Minute 10 Coins zum Abholen. Sammelt sich an, bis du kommst.</p>
+      <button id="collectBtn">🪙 Abholen</button>
+      <div id="collectInfo"></div>
     </div>
 
     <div class="card">
@@ -144,18 +194,76 @@
     </div>
 
     <div class="card">
-      <strong>🎡 PLF-Glücksrad</strong> (10 Coins pro Dreh)
-      <div class="wheel-wrap"><div class="pointer"></div><canvas id="wheel" width="600" height="600"></canvas></div>
-      <button id="spinBtn">Drehen</button>
-      <div id="spinResult"></div>
-    </div>
+      <strong>🎮 Spiele</strong>
+      <div id="gameTabs">
+        <button class="gtab active" data-game="hl">🃏 Higher/Lower</button>
+        <button class="gtab" data-game="wheel">🎡 Wheel</button>
+        <button class="gtab" data-game="flip">🪙 Münzwurf</button>
+        <button class="gtab" data-game="guess">🔢 Zahlen raten</button>
+      </div>
 
-    <div class="card">
-      <strong>🪙 Münzwurf: Doppelt oder nichts</strong>
-      <div id="flipCoin">?</div>
-      <input id="betInput" type="number" min="1" value="10" placeholder="Einsatz"><br>
-      <button id="flipHeads">Kopf</button> <button id="flipTails">Zahl</button>
-      <div id="flipResult"></div>
+      <div class="game-panel" id="game-hl">
+        <p class="hint">Tippe, ob die nächste Karte höher oder tiefer ist. Jeder Treffer erhöht den Gewinn (x1.9). Gleiche Karte zählt als Treffer. Ass zählt als höchste UND niedrigste Karte, bei einem Ass gewinnt also jeder Tipp. Jederzeit cashen, sonst bei Fehler alles weg.</p>
+        <div id="hlStart">
+          <div class="field" style="align-items:center;margin:0 auto;"><label>Einsatz (Coins)</label><input id="hlBet" type="number" min="1" value="10" style="width:140px;text-align:center;"></div>
+          <button id="hlStartBtn" style="background:#0ea5e9;color:#fff;margin-top:10px;">Runde starten</button>
+        </div>
+        <div id="hlGame" class="hidden">
+          <div id="hlCard" class="card-face">?</div>
+          <div id="hlPot" style="font-weight:700;margin:6px 0;"></div>
+          <div class="bet-row">
+            <button id="hlHigher" style="background:#22c55e;color:#052e16;">⬆️ Höher</button>
+            <button id="hlLower" style="background:#ef4444;color:#fff;">⬇️ Tiefer</button>
+          </div>
+          <button id="hlCash" style="background:#f59e0b;color:#1f1300;">💰 Cashen</button>
+        </div>
+        <div id="hlResult"></div>
+      </div>
+
+      <div class="game-panel hidden" id="game-wheel">
+        <p class="hint">10 Coins pro Dreh.</p>
+        <div class="wheel-wrap"><div class="pointer"></div><canvas id="wheel" width="640" height="640"></canvas></div>
+        <button id="spinBtn">Drehen</button>
+        <div id="spinResult"></div>
+      </div>
+
+      <div class="game-panel hidden" id="game-flip">
+        <p class="hint">Doppelt oder nichts: tippe Kopf oder Zahl.</p>
+        <div id="flipCoin">?</div>
+        <div class="bet-row">
+          <button class="betMul" data-mul="half">÷2</button>
+          <input id="betInput" type="number" min="1" value="10" placeholder="Einsatz">
+          <button class="betMul" data-mul="double">×2</button>
+        </div>
+        <button id="flipHeads">Kopf</button> <button id="flipTails">Zahl</button>
+        <div id="flipResult"></div>
+        <p style="margin:16px 0 4px;"><strong>🎨 Münz-Skins</strong></p>
+        <div id="coinSkinShop"></div>
+      </div>
+
+      <div class="game-panel hidden" id="game-guess">
+        <p class="hint">Je größer die Range, desto kleiner die Trefferchance und desto größer der Gewinn. Triffst du die Zahl genau, bekommst du Einsatz × Range.</p>
+        <div class="bet-row">
+          <div class="field">
+            <label>Range: Zahl von 1 bis</label>
+            <select id="guessRange">
+              <option value="10">10 (Chance 1 zu 10)</option>
+              <option value="100" selected>100 (Chance 1 zu 100)</option>
+              <option value="1000">1.000 (Chance 1 zu 1.000)</option>
+              <option value="10000">10.000</option>
+              <option value="100000">100.000</option>
+              <option value="1000000">1.000.000</option>
+            </select>
+          </div>
+        </div>
+        <div class="bet-row">
+          <div class="field"><label>Einsatz (Coins)</label><input id="guessBet" type="number" min="1" value="10"></div>
+          <div class="field"><label>Deine Zahl</label><input id="guessInput" type="number" min="1"></div>
+        </div>
+        <div id="guessCalc"></div>
+        <button id="guessGo">Raten</button>
+        <div id="guessResult"></div>
+      </div>
     </div>
 
     <div class="card">
@@ -165,26 +273,43 @@
       <button id="caseBtn">Lootbox öffnen</button>
       <div id="caseResult"></div>
       <p style="margin: 16px 0 4px;"><strong>🎒 Inventar</strong> (<span id="invCount"></span>)</p>
-      <p style="margin: 0 0 6px; font-size: .78rem; color: #94a3b8;">Equippen oder für Coins verkaufen</p>
+      <p class="hint" style="margin-top:0;">Equippen oder für Coins verkaufen</p>
       <div id="inventory"></div>
     </div>
 
+    <div class="card">
+      <strong>🏪 Shop</strong>
+      <p class="hint">Direkt kaufen statt auf Glück hoffen. Booster, Titel und garantierte Skins.</p>
+      <div id="shopCats"></div>
+    </div>
+
     <div class="card" id="trader">
-      <strong>🧕 Der Händler</strong>
-      <p id="traderMsg">Psst. Komm her, ich hab ein Angebot für dich...</p>
-      <div id="tradeOffer">...</div>
-      <button id="tradeAccept">Annehmen</button> <button id="tradeDecline">Ablehnen</button>
+      <strong>🧑‍💼 Der Händler</strong>
+      <p id="traderMsg">Willkommen. Faire Preise, keine Tricks.</p>
+
+      <p style="margin:14px 0 4px;font-weight:700;">💱 Skins ankaufen (voller Verkaufswert)</p>
+      <p class="hint" style="margin-top:0;">Der Händler zahlt dir den vollen Wert für deine Skins.</p>
+      <div id="traderBuy"></div>
+
+      <p style="margin:16px 0 4px;font-weight:700;">⭐ Deal des Tages</p>
+      <div id="dailyDeal"></div>
       <div id="tradeResult"></div>
     </div>
   </div>
 
   <button id="readyBtn">Ich bin bereit</button>
+  <div id="toast"></div>
+  <div id="claimBurst"><div class="amt"></div><div class="lbl"></div></div>
 
-  <div id="nag" class="modal hidden">
+  <div id="levelModal" class="modal hidden">
     <div class="modal-box">
-      <strong>⚠️ Warnung</strong>
-      <p id="nagText">Maxi lernt gerade nicht. Jetzt starten?</p>
-      <button id="nagYes">Ja</button> <button id="nagLater">Später</button>
+      <h2 id="lmTitle">Level 1</h2>
+      <div id="lmProgress" style="color:#94a3b8;font-size:.9rem;"></div>
+      <div class="big-xp"><div id="lmBar"></div></div>
+      <div id="lmNeed" style="color:#94a3b8;font-size:.85rem;"></div>
+      <p style="margin:16px 0 4px;font-weight:700;">Nächste Belohnungen</p>
+      <div id="lmRewards"></div>
+      <button id="levelClose">Schließen</button>
     </div>
   </div>
 
@@ -193,56 +318,221 @@
   const PLF = new Date("2027-01-13T10:45:00+01:00");
   const pad = (n, l = 2) => String(n).padStart(l, "0");
   const rnd = (a, b) => Math.floor(a + Math.random() * (b - a + 1));
+  const fmt = (n) => n.toLocaleString("de-DE");
+  // Leichte Manipulationssperre: jeder Wert bekommt eine Prüfsumme.
+  // Wird der Wert im localStorage direkt geändert, stimmt die Prüfsumme nicht
+  // mehr und der Wert fällt auf den Standard zurück. Kein echter Schutz,
+  // aber stoppt schnelles Herumtippen in den DevTools.
+  const SALT = "mx27_v1";
+  function sig(str) { let h = 2166136261 >>> 0; const s = str + SALT; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; } return h.toString(36); }
   const store = {
-    get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch { return d; } },
-    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+    get(k, d) {
+      try {
+        const raw = localStorage.getItem(k);
+        if (raw === null) return d;
+        const obj = JSON.parse(raw);
+        // Altes Format ohne Signatur: einmalig akzeptieren und neu signieren
+        if (!obj || typeof obj !== "object" || !("v" in obj) || !("s" in obj)) { store.set(k, obj); return obj; }
+        const payload = JSON.stringify(obj.v);
+        if (obj.s !== sig(payload)) return d; // manipuliert -> Standard
+        return obj.v;
+      } catch { return d; }
+    },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify({ v, s: sig(JSON.stringify(v)) })); } catch {} }
   };
   const todayKey = () => { const d = new Date(); return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`; };
 
-  // Tabs
+  let toastT;
+  function toast(msg) { $("toast").textContent = msg; $("toast").classList.add("show"); clearTimeout(toastT); toastT = setTimeout(() => $("toast").classList.remove("show"), 2500); }
+
+  // Sounds
+  let soundOn = store.get("soundOn", true);
+  let actx = null;
+  function beep(freq, dur = 0.12, type = "square", vol = 0.08) {
+    if (!soundOn) return;
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      const o = actx.createOscillator(), g = actx.createGain();
+      o.type = type; o.frequency.value = freq; g.gain.value = vol;
+      o.connect(g); g.connect(actx.destination); o.start();
+      g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + dur); o.stop(actx.currentTime + dur);
+    } catch {}
+  }
+  const sfx = {
+    click: () => beep(440, 0.06, "square", 0.05),
+    win: () => { beep(660, 0.1); setTimeout(() => beep(880, 0.14), 90); },
+    lose: () => beep(200, 0.18, "sawtooth", 0.07),
+    coin: () => beep(1040, 0.08, "triangle", 0.06),
+    level: () => { beep(523,0.1); setTimeout(()=>beep(659,0.1),100); setTimeout(()=>beep(784,0.16),200); }
+  };
+  function updateSoundBtn() { $("soundToggle").textContent = soundOn ? "🔊" : "🔇"; }
+  updateSoundBtn();
+  $("soundToggle").addEventListener("click", () => { soundOn = !soundOn; store.set("soundOn", soundOn); updateSoundBtn(); if (soundOn) sfx.click(); });
+
+  function setReadyVisible(show) { $("readyBtn").style.display = show ? "" : "none"; }
   document.querySelectorAll(".tab").forEach((t) => t.addEventListener("click", () => {
+    sfx.click();
     document.querySelectorAll(".tab").forEach((x) => x.classList.remove("active"));
     t.classList.add("active");
-    $("page-timer").classList.toggle("hidden", t.dataset.tab !== "timer");
-    $("page-market").classList.toggle("hidden", t.dataset.tab !== "market");
+    const timer = t.dataset.tab === "timer";
+    $("page-timer").classList.toggle("hidden", !timer);
+    $("page-market").classList.toggle("hidden", timer);
+    setReadyVisible(timer);
   }));
 
-  // Fake-Ladebildschirm
+  // Spiele-Unterreiter
+  document.querySelectorAll(".gtab").forEach((t) => t.addEventListener("click", () => {
+    sfx.click();
+    document.querySelectorAll(".gtab").forEach((x) => x.classList.remove("active"));
+    t.classList.add("active");
+    const g = t.dataset.game;
+    ["hl", "wheel", "flip", "guess"].forEach((name) => $("game-" + name).classList.toggle("hidden", name !== g));
+  }));
+
+  // Ladebildschirm
   let lp = 0;
   const li = setInterval(() => {
     lp = Math.min(99, lp + Math.random() * 8);
-    $("loadFill").style.width = lp + "%";
-    $("loadText").textContent = Math.floor(lp) + " %";
-    if (lp >= 99) {
-      clearInterval(li);
-      setTimeout(() => {
-        $("loadText").textContent = "Fehler: Keine Daten gefunden";
-        $("loadText").style.color = "#ef4444";
-        setTimeout(() => $("loader").remove(), 1800);
-      }, 1500);
-    }
+    $("loadFill").style.width = lp + "%"; $("loadText").textContent = Math.floor(lp) + " %";
+    if (lp >= 99) { clearInterval(li); setTimeout(() => { $("loadText").textContent = "Fehler: Keine Daten gefunden"; $("loadText").style.color = "#ef4444"; setTimeout(() => $("loader").remove(), 1800); }, 1500); }
   }, 120);
 
   // Coins
   let coins = store.get("coins", 100);
-  function setCoins(v) { coins = v; store.set("coins", v); $("coins").textContent = "🪙 " + coins; }
+  function setCoins(v) { coins = v; store.set("coins", v); $("coins").textContent = "🪙 " + fmt(coins); }
   setCoins(coins);
 
-  // Regen-Effekt
+  // Level
+  // Shop-/Booster-State früh deklariert (von Level & addXP genutzt)
+  let xpBoostUntil = store.get("xpBoostUntil", 0);
+  let nextWinX2 = store.get("nextWinX2", false); // einmaliger Coins-Booster: nächster Gewinn x2
+  let perks = store.get("perks", {});
+  let ownedTitles = store.get("titles", []);
+  let activeTitle = store.get("activeTitle", "");
+  // Hilfsfunktionen für Boni
+  const boxPrice = () => perks.box ? 40 : 50;
+  const bonusPerMin = () => perks.bonus ? 20 : 10;
+  // Gewinn-Coins gutschreiben: Perk (+10%) immer, nextWinX2 einmalig verdoppelnd
+  function addWin(base) {
+    let total = Math.round(base * (perks.coins ? 1.1 : 1));
+    if (nextWinX2) { total *= 2; nextWinX2 = false; store.set("nextWinX2", false); toast("Coins-Booster: Gewinn verdoppelt!"); }
+    setCoins(coins + total); return total;
+  }
+
+  let level = store.get("level", 1), xp = store.get("xp", 0);
+  let claimedLevel = store.get("claimedLevel", 1); // bis zu diesem Level ist alles abgeholt
+  const xpNeeded = (lvl) => 50 + (lvl - 1) * 40;
+  // Bessere Level-Belohnungen: wachsen deutlich mit dem Level
+  const levelReward = (lvl) => 100 + lvl * 50 + lvl * lvl * 5;
+  const unclaimedCount = () => Math.max(0, level - claimedLevel);
+  function renderLevel() {
+    $("xpFill").style.width = Math.min(100, (xp / xpNeeded(level)) * 100) + "%";
+    applyTitle();
+  }
+  function addXP(amount) {
+    xp += Math.round(amount * (xpBoostUntil > Date.now() ? 2 : 1));
+    let gained = false;
+    while (xp >= xpNeeded(level)) { xp -= xpNeeded(level); level++; gained = true; }
+    if (gained) { sfx.level(); rain("⭐", "#facc15", 25); toast(`Level ${level}! Belohnung im Level-Menü abholen 🎁`); }
+    store.set("level", level); store.set("xp", xp); renderLevel();
+    if (!$("levelModal").classList.contains("hidden")) renderLevelModal();
+  }
+  // Einsatzabhängige XP: Grund-XP + 1 XP pro 50 gesetzten Coins (gedeckelt bei +40)
+  function addXPbet(base, bet) { addXP(base + Math.min(20, Math.floor((bet || 0) / 500))); }
+
+  // Belohnungs-Lotterie beim Abholen
+  function rollReward(lvl) {
+    const base = levelReward(lvl);
+    const r = Math.random();
+    if (r < 0.02) return { coins: base * 20, label: "JACKPOT", jackpot: true };   // 2 %
+    if (r < 0.10) return { coins: base * 5, label: "5x Glück", big: true };         // 8 %
+    if (r < 0.30) return { coins: base * 2, label: "2x" };                          // 20 %
+    return { coins: base, label: "Basis" };                                         // 70 %
+  }
+  function claimBurst(amount, label, color) {
+    const el = $("claimBurst");
+    el.querySelector(".amt").textContent = `+${fmt(amount)} 🪙`;
+    el.querySelector(".amt").style.color = color || "#facc15";
+    el.querySelector(".lbl").textContent = label;
+    el.classList.remove("show"); void el.offsetWidth; el.classList.add("show");
+  }
+  function claimLevel(lvl) {
+    if (lvl > level || lvl <= claimedLevel) return;
+    const res = rollReward(lvl);
+    setCoins(coins + res.coins);
+    claimedLevel = lvl; store.set("claimedLevel", claimedLevel);
+    if (res.jackpot) { rain("✨", "#facc15", 55); sfx.win(); claimBurst(res.coins, `Level ${lvl} · JACKPOT!`, "#facc15"); toast(`Level ${lvl}: JACKPOT!`); }
+    else if (res.big) { rain("🪙", "#22c55e", 30); sfx.win(); claimBurst(res.coins, `Level ${lvl} · ${res.label}`, "#22c55e"); toast(`Level ${lvl}: ${res.label}!`); }
+    else { rain("🪙", "#f59e0b", 18); sfx.coin(); claimBurst(res.coins, `Level ${lvl} · ${res.label}`, "#f59e0b"); }
+    renderLevel(); renderLevelModal();
+  }
+  function claimAll() {
+    let next = claimedLevel + 1;
+    if (next > level) return;
+    claimLevel(next);
+    if (claimedLevel < level) setTimeout(claimAll, 650);
+  }
+
+  function renderLevelModal() {
+    $("lmTitle").textContent = "Level " + level;
+    const need = xpNeeded(level);
+    $("lmProgress").textContent = `${xp} / ${need} XP`;
+    $("lmBar").style.width = Math.min(100, (xp / need) * 100) + "%";
+    $("lmNeed").textContent = `Noch ${Math.max(0, need - xp)} XP bis Level ${level + 1}.`;
+    $("lmRewards").innerHTML = "";
+
+    const u = unclaimedCount();
+    // Abholbare Level
+    if (u > 0) {
+      const head = document.createElement("p"); head.style.fontWeight = "700"; head.style.margin = "4px 0";
+      head.innerHTML = `🎁 Abholbar (${u}) <span style="color:#94a3b8;font-weight:400;font-size:.8rem;">Zufallsbelohnung: 70% Basis · 20% x2 · 8% x5 · 2% Jackpot x20</span>`;
+      $("lmRewards").appendChild(head);
+      const allBtn = document.createElement("button"); allBtn.textContent = "Alle abholen"; allBtn.style.background = "#22c55e"; allBtn.style.color = "#052e16"; allBtn.style.width = "100%"; allBtn.style.marginBottom = "8px";
+      allBtn.addEventListener("click", claimAll); $("lmRewards").appendChild(allBtn);
+      for (let lv = claimedLevel + 1; lv <= level; lv++) {
+        const row = document.createElement("div"); row.className = "reward-row";
+        const label = document.createElement("span"); label.className = "lv"; label.textContent = `Level ${lv}`;
+        const b = document.createElement("button"); b.textContent = `Abholen (~${fmt(levelReward(lv))})`; b.style.padding = "6px 12px"; b.style.fontSize = ".78rem"; b.style.background = "#eab308"; b.style.color = "#1f1300";
+        b.addEventListener("click", () => claimLevel(lv));
+        row.append(label, b); $("lmRewards").appendChild(row);
+      }
+    }
+    // Vorschau nächste Level
+    const head2 = document.createElement("p"); head2.style.fontWeight = "700"; head2.style.margin = "14px 0 4px";
+    head2.textContent = "Kommende Level";
+    $("lmRewards").appendChild(head2);
+    for (let i = 1; i <= 5; i++) { const lv = level + i; const row = document.createElement("div"); row.className = "reward-row"; row.innerHTML = `<span class="lv">Level ${lv}</span><span>~${fmt(levelReward(lv))} 🪙</span>`; $("lmRewards").appendChild(row); }
+  }
+  $("levelBox").addEventListener("click", () => { sfx.click(); renderLevelModal(); $("levelModal").classList.remove("hidden"); });
+  $("levelClose").addEventListener("click", () => { sfx.click(); $("levelModal").classList.add("hidden"); });
+  $("levelModal").addEventListener("click", (e) => { if (e.target === $("levelModal")) $("levelModal").classList.add("hidden"); });
+  renderLevel();
+
+  // XP-Booster-Leiste (5 Min Laufzeit)
+  const XP_BOOST_MS = 5 * 60000;
+  function updateBoostBar() {
+    const left = xpBoostUntil - Date.now();
+    if (left > 0) {
+      $("boostWrap").classList.remove("hidden");
+      const secs = Math.ceil(left / 1000);
+      $("boostLabel").textContent = `⚡ XP x2 · ${Math.floor(secs/60)}:${pad(secs%60)}`;
+      $("boostFill").style.width = Math.min(100, (left / XP_BOOST_MS) * 100) + "%";
+    } else {
+      $("boostWrap").classList.add("hidden");
+    }
+  }
+  updateBoostBar(); setInterval(updateBoostBar, 1000);
+
   function rain(text, color, count = 40) {
     for (let i = 0; i < count; i++) {
-      const el = document.createElement("span");
-      el.className = "drop"; el.textContent = text;
+      const el = document.createElement("span"); el.className = "drop"; el.textContent = text;
       el.style.left = Math.random() * 100 + "vw"; el.style.color = color;
       el.style.fontSize = 12 + Math.random() * 10 + "px";
-      el.style.animationDuration = 2 + Math.random() * 2 + "s";
-      el.style.animationDelay = Math.random() * 1.5 + "s";
-      document.body.appendChild(el);
-      setTimeout(() => el.remove(), 6000);
+      el.style.animationDuration = 2 + Math.random() * 2 + "s"; el.style.animationDelay = Math.random() * 1.5 + "s";
+      document.body.appendChild(el); setTimeout(() => el.remove(), 6000);
     }
   }
 
-  // Countdown
   function tick() {
     const diff = PLF - Date.now();
     if (diff <= 0) { $("countdown").textContent = "Vorbei. Hoffentlich hast du gelernt."; document.title = "PLF vorbei"; document.body.classList.remove("panic"); return; }
@@ -253,10 +543,8 @@
     requestAnimationFrame(tick);
   }
   tick();
-
   document.addEventListener("visibilitychange", () => { if (document.hidden) document.title = "Komm zurück und lern!"; });
 
-  // Live-Ticker
   const tickerLines = [
     () => `Maxi hat vor ${rnd(2, 9)} Stunden zuletzt IntelliJ geöffnet`,
     () => `Maxi hat heute ${rnd(4, 30)} Mal YouTube statt Java geöffnet`,
@@ -267,41 +555,41 @@
   ];
   const showTicker = () => { $("ticker").textContent = tickerLines[rnd(0, tickerLines.length - 1)](); };
   showTicker(); setInterval(showTicker, 4000);
-
   setInterval(() => { $("chance").textContent = (0.1 + Math.random() * 11.9).toFixed(1) + " %"; }, 1000);
 
   let progress = 3;
   setInterval(() => {
     progress += Math.random() < 0.6 ? -Math.random() * 2 : Math.random() * 1.5;
     progress = Math.min(7, Math.max(0.5, progress));
-    $("barFill").style.width = progress + "%";
-    $("barFill").style.background = progress < 2 ? "#ef4444" : "#22c55e";
+    $("barFill").style.width = progress + "%"; $("barFill").style.background = progress < 2 ? "#ef4444" : "#22c55e";
     $("barLabel").textContent = progress.toFixed(1) + " %";
   }, 1500);
 
   $("learnBtn").addEventListener("click", () => {
     rain("NullPointerException", "#ef4444");
-    if (store.get("learnDay", "") !== todayKey()) {
-      store.set("learnDay", todayKey()); setCoins(coins + 20);
-      $("learnBtn").textContent = "+20 Coins. Glaub ich dir trotzdem nicht.";
-    } else { $("learnBtn").textContent = "Schon wieder? Sicher nicht."; }
+    if (store.get("learnDay", "") !== todayKey()) { store.set("learnDay", todayKey()); setCoins(coins + 20); addXP(15); sfx.coin(); $("learnBtn").textContent = "+20 Coins. Glaub ich dir trotzdem nicht."; }
+    else { $("learnBtn").textContent = "Schon wieder? Sicher nicht."; }
   });
 
-  // Coins farmen
-  let lastFarm = 0, combo = 0;
-  $("farmBtn").addEventListener("click", () => {
-    const now = Date.now();
-    if (now - lastFarm < 300) { $("farmInfo").textContent = "Langsam! Der Compiler kommt nicht hinterher."; return; }
-    lastFarm = now;
-    if (Math.random() < 0.15) {
-      combo = 0;
-      $("farmInfo").textContent = "❌ Compiler-Error. 0 Coins. Selbst schuld.";
-      return;
+  // Minuten-Bonus: einmal pro Minute abholbar, sammelt sich NICHT an
+  if (!store.get("lastBonus", null)) store.set("lastBonus", Date.now() - 60000);
+  function bonusReady() { return Date.now() - store.get("lastBonus", Date.now()) >= 60000; }
+  function updateCollect() {
+    if (bonusReady()) {
+      $("collectBtn").disabled = false; $("collectBtn").textContent = `🪙 ${bonusPerMin()} Coins abholen`;
+      $("collectInfo").textContent = "Jetzt abholen, sonst verfällt die Minute.";
+    } else {
+      $("collectBtn").disabled = true;
+      const secs = 60 - Math.floor((Date.now() - store.get("lastBonus", Date.now())) / 1000);
+      $("collectBtn").textContent = `🪙 Nächste in ${secs}s`;
+      $("collectInfo").textContent = "Pro Minute gibt es genau einmal. Verpasst ist verpasst.";
     }
-    combo++; setCoins(coins + 1);
-    const jokes = ["BUILD SUCCESSFUL", "Kompiliert. Ausnahmsweise.", "+1 Coin, +0 Wissen", "Es läuft. Warum auch immer."];
-    $("farmInfo").textContent = `${jokes[rnd(0, jokes.length - 1)]} (Combo: ${combo})`;
-    if (combo % 25 === 0) { setCoins(coins + 10); rain("🪙", "#22c55e", 10); $("farmInfo").textContent = `25er-Combo! Bonus +10 Coins.`; }
+  }
+  updateCollect(); setInterval(updateCollect, 1000);
+  $("collectBtn").addEventListener("click", () => {
+    if (!bonusReady()) return;
+    setCoins(coins + bonusPerMin()); addXP(1); sfx.coin(); rain("🪙", "#22c55e", 12);
+    store.set("lastBonus", Date.now()); updateCollect();
   });
 
   // Daily Chest
@@ -316,59 +604,131 @@
   updateChest(); setInterval(updateChest, 1000);
   $("chestBtn").addEventListener("click", () => {
     if (store.get("chestDay", "") === todayKey()) return;
-    $("chestBtn").disabled = true; $("chestBtn").classList.add("opening");
+    $("chestBtn").disabled = true; $("chestBtn").classList.add("opening"); sfx.click();
     setTimeout(() => {
       $("chestBtn").classList.remove("opening");
       const r = Math.random(); let win, msg;
       if (r < 0.10) { win = 0; msg = "Die Truhe war leer. Wie dein Kopf vor der PLF."; }
       else if (r < 0.13) { win = 200; msg = "JACKPOT! +200 Coins. Bestanden hast du trotzdem nicht."; }
       else { win = rnd(10, 50); msg = `+${win} Coins. Kauf dir davon ein Java-Buch.`; }
-      setCoins(coins + win); store.set("chestDay", todayKey());
-      $("chestText").textContent = msg;
-      if (win > 0) rain("🪙", "#f59e0b", 30);
+      setCoins(coins + win); store.set("chestDay", todayKey()); $("chestText").textContent = msg;
+      if (win > 0) { rain("🪙", "#f59e0b", 30); addXP(20); sfx.coin(); } else sfx.lose();
       updateChest();
     }, 1200);
   });
 
-  // Glücksrad
-  const cv = $("wheel"), ctx = cv.getContext("2d"), C = 300, rad = (d) => d * Math.PI / 180;
-  const failLabels = ["Nicht bestanden", "5er", "Nochmal lernen", "Sitzen bleiben", "Nachprüfung", "Nicht bestanden", "Durchgefallen", "Java hasst dich", "Nicht bestanden"];
-  const segs = [{ label: "Bestanden", start: 0, end: 3.6, pass: true, color: "#22c55e" }];
-  const failDeg = (360 - 3.6) / failLabels.length;
-  failLabels.forEach((l, i) => segs.push({ label: l, start: 3.6 + i * failDeg, end: 3.6 + (i + 1) * failDeg, pass: false, color: i % 2 ? "#ef4444" : "#b91c1c" }));
-  segs.forEach((s) => {
-    ctx.beginPath(); ctx.moveTo(C, C); ctx.arc(C, C, C - 6, rad(s.start), rad(s.end)); ctx.closePath();
-    ctx.fillStyle = s.color; ctx.fill(); ctx.strokeStyle = "#0b1120"; ctx.lineWidth = 3; ctx.stroke();
-    if (!s.pass) {
-      ctx.save(); ctx.translate(C, C); ctx.rotate(rad((s.start + s.end) / 2));
-      ctx.textAlign = "right"; ctx.fillStyle = "#fff"; ctx.font = "bold 26px system-ui";
-      ctx.fillText(s.label, C - 24, 9); ctx.restore();
-    }
-  });
-  ctx.beginPath(); ctx.arc(C, C, 40, 0, Math.PI * 2); ctx.fillStyle = "#0b1120"; ctx.fill();
+  // Wheel of Fortune
+  const cv = $("wheel"), ctx = cv.getContext("2d"), C = 320, rad = (d) => d * Math.PI / 180;
+  const wheelSegs = [
+    { label: "BESTANDEN", weight: 0.5, coins: 500, color: "#22c55e", pass: true },
+    { label: "+100", weight: 1, coins: 100, color: "#16a34a" },
+    { label: "Niete", weight: 27, coins: 0, color: "#b91c1c" },
+    { label: "+20", weight: 5, coins: 20, color: "#15803d" },
+    { label: "5er", weight: 26, coins: 0, color: "#ef4444" },
+    { label: "+50", weight: 2.5, coins: 50, color: "#16a34a" },
+    { label: "Durchgefallen", weight: 26.5, coins: 0, color: "#991b1b" },
+    { label: "+10", weight: 11, coins: 10, color: "#15803d" }
+  ];
+  // gleich große Segmente fürs Zeichnen, Gewicht nur fürs Ergebnis
+  const totalW = wheelSegs.reduce((a, s) => a + s.weight, 0);
+  const segAngle = 360 / wheelSegs.length;
+  wheelSegs.forEach((s, i) => { s.drawStart = i * segAngle; s.drawEnd = (i + 1) * segAngle; });
+  function drawWheel() {
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    wheelSegs.forEach((s) => {
+      ctx.beginPath(); ctx.moveTo(C, C); ctx.arc(C, C, C - 8, rad(s.drawStart - 90), rad(s.drawEnd - 90)); ctx.closePath();
+      ctx.fillStyle = s.color; ctx.fill(); ctx.strokeStyle = "rgba(255,255,255,.15)"; ctx.lineWidth = 2; ctx.stroke();
+      // Label gerade lesbar, entlang des Radius
+      ctx.save();
+      ctx.translate(C, C);
+      ctx.rotate(rad((s.drawStart + s.drawEnd) / 2 - 90));
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillStyle = "#fff";
+      ctx.font = s.pass ? "800 20px system-ui" : "700 18px system-ui";
+      ctx.shadowColor = "rgba(0,0,0,.6)"; ctx.shadowBlur = 3;
+      ctx.translate(C * 0.62, 0);
+      ctx.rotate(rad(90)); // Text aufrecht stellen
+      ctx.fillText(s.label, 0, 0);
+      ctx.restore();
+    });
+    // Nabe
+    ctx.beginPath(); ctx.arc(C, C, 46, 0, Math.PI * 2); ctx.fillStyle = "#0b1120"; ctx.fill();
+    ctx.strokeStyle = "#facc15"; ctx.lineWidth = 5; ctx.stroke();
+    ctx.shadowBlur = 0; ctx.fillStyle = "#facc15"; ctx.font = "800 22px system-ui"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText("🎡", C, C);
+  }
+  drawWheel();
 
   let rotation = 0, spinning = false;
   $("spinBtn").addEventListener("click", () => {
     if (spinning) return;
-    if (coins < 10) { $("spinResult").textContent = "Pleite. Wie deine Java-Kenntnisse. Farm ein paar Coins."; return; }
-    setCoins(coins - 10);
-    const win = Math.random() < 0.01;
-    const pool = segs.filter((s) => s.pass === win);
-    const s = pool[rnd(0, pool.length - 1)];
-    const target = s.start + (s.end - s.start) * (0.2 + Math.random() * 0.6);
+    if (coins < 10) { $("spinResult").textContent = "Pleite. Hol dir den Minuten-Bonus."; return; }
+    setCoins(coins - 10); sfx.click();
+    let x = Math.random() * totalW, chosen = wheelSegs[0];
+    for (const s of wheelSegs) { if (x < s.weight) { chosen = s; break; } x -= s.weight; }
+    // Mitte des gezeichneten Segments (oben = 0°, da wir beim Zeichnen -90° genutzt haben)
+    const mid = (chosen.drawStart + chosen.drawEnd) / 2;
     const current = ((rotation % 360) + 360) % 360;
-    let delta = (270 - target - current) % 360; if (delta < 0) delta += 360;
-    rotation += 1800 + delta;
+    let delta = (360 - mid - current) % 360; if (delta < 0) delta += 360;
+    rotation += 1800 + delta + (Math.random() * (segAngle * 0.5) - segAngle * 0.25);
     spinning = true; $("spinResult").textContent = "Dreht sich...";
     cv.style.transform = `rotate(${rotation}deg)`;
     setTimeout(() => {
-      spinning = false;
-      if (win) { setCoins(coins + 500); rain("🎉", "#22c55e", 60); $("spinResult").textContent = "BESTANDEN?! Statistisch unmöglich. Screenshot machen! +500 Coins"; }
-      else { $("spinResult").textContent = `${s.label}. War ja klar.`; }
-    }, 5100);
+      spinning = false; addXP(5);
+      if (chosen.coins > 0) {
+        const won = addWin(chosen.coins);
+        sfx.win();
+        if (chosen.pass) { rain("🎉", "#22c55e", 60); $("spinResult").textContent = `BESTANDEN?! Statistisch unmöglich. +${fmt(won)} Coins`; }
+        else { rain("🪙", "#f59e0b", 15); $("spinResult").textContent = `+${fmt(won)} Coins! Glück gehabt.`; }
+      } else {
+        sfx.lose(); $("spinResult").textContent = `${chosen.label}. War ja klar.`;
+      }
+    }, 5600);
   });
 
+  // Münz-Skins mit je eigener Animation
+  const COIN_SKINS = [
+    { id: "gold", name: "Gold", price: 0, grad: "radial-gradient(circle at 30% 30%, #fde68a, #f59e0b 60%, #b45309)", text: "#1f1300" },
+    { id: "silver", name: "Silber", price: 100, grad: "radial-gradient(circle at 30% 30%, #f1f5f9, #94a3b8 60%, #475569)", text: "#1e293b" },
+    { id: "emerald", name: "Smaragd", price: 250, grad: "radial-gradient(circle at 30% 30%, #86efac, #22c55e 60%, #15803d)", text: "#052e16" },
+    { id: "ruby", name: "Rubin", price: 400, grad: "radial-gradient(circle at 30% 30%, #fca5a5, #ef4444 60%, #991b1b)", text: "#fff" },
+    { id: "diamond", name: "Diamant", price: 1000, grad: "radial-gradient(circle at 30% 30%, #cffafe, #22d3ee 60%, #0891b2)", text: "#083344" },
+    { id: "plasma", name: "Plasma", price: 5000, grad: "linear-gradient(135deg, #22d3ee, #a855f7, #f472b6, #22d3ee)", text: "#fff" },
+    { id: "singularity", name: "Singularität", price: 10000, grad: "conic-gradient(from 0deg, #a855f7, #22d3ee, #f472b6, #facc15, #a855f7)", text: "#fff" }
+  ];
+  let ownedCoinSkins = store.get("coinSkins", ["gold"]);
+  let coinSkin = store.get("coinSkin", "gold");
+  function applyCoinSkin(id) {
+    const s = COIN_SKINS.find((x) => x.id === id) || COIN_SKINS[0];
+    const coin = $("flipCoin");
+    coin.style.background = s.grad; coin.style.color = s.text;
+    coinSkin = id; store.set("coinSkin", id); renderCoinShop();
+  }
+  function renderCoinShop() {
+    $("coinSkinShop").innerHTML = "";
+    COIN_SKINS.forEach((s) => {
+      const owned = ownedCoinSkins.includes(s.id);
+      const card = document.createElement("div");
+      card.className = "coinSkinCard" + (s.id === coinSkin ? " active" : "");
+      const prev = document.createElement("div"); prev.className = "coinPreview";
+      prev.style.background = s.grad;
+      const name = document.createElement("div"); name.style.fontSize = ".8rem"; name.style.fontWeight = "700"; name.textContent = s.name;
+      const btn = document.createElement("button"); btn.style.fontSize = ".72rem"; btn.style.padding = "6px 10px";
+      if (!owned) { btn.textContent = `${fmt(s.price)} 🪙`; btn.style.background = "#eab308"; btn.style.color = "#1f1300";
+        btn.addEventListener("click", () => { if (coins < s.price) { toast("Zu teuer."); return; } setCoins(coins - s.price); ownedCoinSkins.push(s.id); store.set("coinSkins", ownedCoinSkins); sfx.coin(); applyCoinSkin(s.id); });
+      } else if (s.id === coinSkin) { btn.textContent = "Aktiv"; btn.disabled = true; btn.style.background = "#22c55e"; btn.style.color = "#052e16"; }
+      else { btn.textContent = "Equip"; btn.style.background = "#22c55e"; btn.style.color = "#052e16"; btn.addEventListener("click", () => { sfx.click(); applyCoinSkin(s.id); }); }
+      card.append(prev, name, btn); $("coinSkinShop").appendChild(card);
+    });
+  }
+  applyCoinSkin(coinSkin);
+
   // Münzwurf
+  document.querySelectorAll(".betMul").forEach((b) => b.addEventListener("click", () => {
+    let v = Math.floor(Number($("betInput").value)) || 1;
+    v = b.dataset.mul === "double" ? v * 2 : Math.max(1, Math.floor(v / 2));
+    $("betInput").value = v; sfx.click();
+  }));
   let flipping = false;
   const loseTexts = ["Das Haus gewinnt immer. Wie die PLF.", "Genauso viel Glück wie bei Java.", "Vielleicht doch lieber lernen?", "Die Münze hat auch nicht an dich geglaubt.", "Statistisch gesehen warst du eh chancenlos."];
   function flip(choice) {
@@ -376,29 +736,120 @@
     const bet = Math.floor(Number($("betInput").value));
     if (!bet || bet < 1) { $("flipResult").textContent = "Einsatz eingeben. So schwer ist das nicht."; return; }
     if (bet > coins) { $("flipResult").textContent = "So viele Coins hast du nicht. Rechnen ist auch nicht deine Stärke."; return; }
-    setCoins(coins - bet); flipping = true;
+    setCoins(coins - bet); flipping = true; sfx.click();
     $("flipCoin").textContent = "?"; $("flipCoin").classList.add("flipping");
     $("flipResult").textContent = "Die Münze fliegt...";
     const win = Math.random() < 0.45;
     const other = choice === "Kopf" ? "Zahl" : "Kopf";
     setTimeout(() => {
       $("flipCoin").classList.remove("flipping");
-      $("flipCoin").textContent = win ? choice : other; flipping = false;
-      if (win) { setCoins(coins + bet * 2); rain("🪙", "#f59e0b", 20); $("flipResult").textContent = `${choice}! +${bet} Coins. Glück gehabt, Können war es nicht.`; }
-      else if (coins === 0) { $("flipResult").textContent = `${other}. Alles weg. Pleite wie nach der PLF. Farm halt wieder.`; }
-      else { $("flipResult").textContent = `${other}. -${bet} Coins. ${loseTexts[rnd(0, loseTexts.length - 1)]}`; }
+      $("flipCoin").textContent = win ? choice : other; flipping = false; addXPbet(4, bet);
+      if (win) { const won = addWin(bet * 2); sfx.win(); rain("🪙", "#f59e0b", 20); $("flipResult").textContent = `${choice}! +${fmt(won)} Coins. Glück gehabt, Können war es nicht.`; }
+      else if (coins === 0) { sfx.lose(); $("flipResult").textContent = `${other}. Alles weg. Hol den Minuten-Bonus.`; }
+      else { sfx.lose(); $("flipResult").textContent = `${other}. -${bet} Coins. ${loseTexts[rnd(0, loseTexts.length - 1)]}`; }
     }, 1500);
   }
   $("flipHeads").addEventListener("click", () => flip("Kopf"));
   $("flipTails").addEventListener("click", () => flip("Zahl"));
 
+  // Zahlen raten
+  const HOUSE = 1;
+  function updateGuessCalc() {
+    const range = Number($("guessRange").value);
+    const bet = Math.floor(Number($("guessBet").value)) || 0;
+    const payout = Math.round(bet * range * HOUSE);
+    $("guessCalc").innerHTML = `Trefferchance: <b>1 zu ${fmt(range)}</b> · Multiplikator: <b>${fmt(range)}x</b> · Gewinn bei Treffer: <b style="color:#22c55e">${fmt(payout)} Coins</b>`;
+    $("guessInput").max = range; $("guessInput").placeholder = `1 - ${fmt(range)}`;
+  }
+  $("guessRange").addEventListener("change", () => { updateGuessCalc(); sfx.click(); });
+  $("guessBet").addEventListener("input", updateGuessCalc);
+  updateGuessCalc();
+  function doGuess() {
+    const range = Number($("guessRange").value);
+    const bet = Math.floor(Number($("guessBet").value));
+    const g = Math.floor(Number($("guessInput").value));
+    if (!bet || bet < 1) { $("guessResult").style.color = ""; $("guessResult").textContent = "Einsatz eingeben."; return; }
+    if (bet > coins) { $("guessResult").style.color = ""; $("guessResult").textContent = "So viele Coins hast du nicht."; return; }
+    if (!g || g < 1 || g > range) { $("guessResult").style.color = ""; $("guessResult").textContent = `Zahl zwischen 1 und ${fmt(range)} eingeben.`; return; }
+    setCoins(coins - bet); sfx.click(); addXPbet(6, bet);
+    const secret = rnd(1, range);
+    if (g === secret) {
+      const win = addWin(bet * range * HOUSE);
+      sfx.win(); rain("🪙", "#22c55e", 60); toast(`JACKPOT! +${fmt(win)} Coins`);
+      $("guessResult").style.color = "#22c55e"; $("guessResult").textContent = `Die Zahl war ${secret}. GETROFFEN! +${fmt(win)} Coins. Das glaubt dir keiner.`;
+    } else {
+      sfx.lose(); $("guessResult").style.color = "#ef4444"; $("guessResult").textContent = `Die Zahl war ${secret}, du hattest ${g}. Daneben. -${bet} Coins. Wie bei der PLF.`;
+    }
+  }
+  $("guessGo").addEventListener("click", doGuess);
+  $("guessInput").addEventListener("keydown", (e) => { if (e.key === "Enter") doGuess(); });
+
+  // ---------- Higher or Lower ----------
+  // Rang 1 = Ass (niedrig) ... 13 = König (hoch)
+  const HL_RANKS = ["", "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
+  const HL_SUITS = ["♠", "♥", "♦", "♣"];
+  const HL_MULT = 1.9; // pro Treffer, leicht unter fair -> Haus gewinnt
+  let hlActive = false, hlRank = 0, hlSuit = 0, hlPot = 0, hlStreak = 0;
+  function drawHlCard(rank, suit) {
+    const el = $("hlCard");
+    el.textContent = HL_RANKS[rank] + HL_SUITS[suit];
+    el.classList.toggle("red", suit === 1 || suit === 2);
+    el.classList.remove("flip"); void el.offsetWidth; el.classList.add("flip");
+  }
+  function hlUpdatePot() {
+    $("hlPot").textContent = `Serie: ${hlStreak}`;
+    $("hlCash").textContent = `💰 Cashen (${fmt(Math.round(hlPot))} Coins)`;
+  }
+  $("hlStartBtn").addEventListener("click", () => {
+    if (hlActive) return;
+    const bet = Math.floor(Number($("hlBet").value));
+    if (!bet || bet < 1) { $("hlResult").style.color = ""; $("hlResult").textContent = "Einsatz eingeben."; return; }
+    if (bet > coins) { $("hlResult").style.color = ""; $("hlResult").textContent = "So viele Coins hast du nicht."; return; }
+    setCoins(coins - bet); sfx.click();
+    hlActive = true; hlPot = bet; hlStreak = 0;
+    hlRank = rnd(1, 13); hlSuit = rnd(0, 3);
+    $("hlStart").classList.add("hidden"); $("hlGame").classList.remove("hidden");
+    $("hlResult").style.color = ""; $("hlResult").textContent = "";
+    drawHlCard(hlRank, hlSuit); hlUpdatePot();
+  });
+  function hlGuess(higher) {
+    if (!hlActive) return;
+    sfx.click();
+    const nextRank = rnd(1, 13), nextSuit = rnd(0, 3);
+    // Ass (Rang 1) zählt als höchste UND niedrigste Karte: bei einem Ass gewinnt jeder Tipp
+    const aceWin = (hlRank === 1 || nextRank === 1);
+    const correct = aceWin || (nextRank === hlRank) || (higher ? nextRank > hlRank : nextRank < hlRank);
+    const prev = HL_RANKS[hlRank];
+    hlRank = nextRank; hlSuit = nextSuit; drawHlCard(hlRank, hlSuit);
+    if (correct) {
+      hlStreak++; hlPot *= HL_MULT; hlUpdatePot(); addXP(3); sfx.win();
+      $("hlResult").style.color = "#22c55e";
+      $("hlResult").textContent = `${HL_RANKS[hlRank]} nach ${prev}. Richtig! Weiter oder cashen?`;
+    } else {
+      hlActive = false; sfx.lose();
+      $("hlGame").classList.add("hidden"); $("hlStart").classList.remove("hidden");
+      $("hlResult").style.color = "#ef4444";
+      $("hlResult").textContent = `${HL_RANKS[hlRank]} nach ${prev}. Daneben. Topf von ${fmt(Math.round(hlPot))} verloren. Wie bei der PLF.`;
+    }
+  }
+  $("hlHigher").addEventListener("click", () => hlGuess(true));
+  $("hlLower").addEventListener("click", () => hlGuess(false));
+  $("hlCash").addEventListener("click", () => {
+    if (!hlActive) return;
+    const won = addWin(Math.round(hlPot));
+    hlActive = false; sfx.coin(); rain("🪙", "#f59e0b", 20);
+    $("hlGame").classList.add("hidden"); $("hlStart").classList.remove("hidden");
+    $("hlResult").style.color = "#22c55e";
+    $("hlResult").textContent = hlStreak > 0 ? `Gecasht! +${fmt(won)} Coins nach ${hlStreak} Treffer(n).` : `Gecasht. +${fmt(won)} Coins. Mutig, direkt aufzugeben.`;
+  });
+
   // Skins + Lootbox
   const RARITIES = {
-    common:    { name: "Gewöhnlich", color: "#9ca3af", weight: 55, sell: 5 },
-    rare:      { name: "Selten",     color: "#3b82f6", weight: 27, sell: 15 },
-    epic:      { name: "Episch",     color: "#a855f7", weight: 12, sell: 40 },
-    legendary: { name: "Legendär",   color: "#f59e0b", weight: 5,  sell: 120 },
-    mythic:    { name: "Mythisch",   color: "#ef4444", weight: 1,  sell: 400 }
+    common: { name: "Gewöhnlich", color: "#9ca3af", weight: 55, sell: 5 },
+    rare: { name: "Selten", color: "#3b82f6", weight: 27, sell: 15 },
+    epic: { name: "Episch", color: "#a855f7", weight: 12, sell: 40 },
+    legendary: { name: "Legendär", color: "#f59e0b", weight: 5, sell: 120 },
+    mythic: { name: "Mythisch", color: "#ef4444", weight: 1, sell: 400 }
   };
   const SKINS = [
     { id: "standard", name: "Standard", rarity: "common", bg: "#0b1120", card: "#111a2e", text: "#f9fafb", start: true },
@@ -416,192 +867,222 @@
     { id: "bestanden", name: "Bestanden (fühlt sich falsch an)", rarity: "mythic", bg: "linear-gradient(135deg, #14532d, #22c55e, #14532d)", card: "rgba(0,0,0,.4)", text: "#f0fdf4", anim: true, font: "Georgia, serif", radius: "16px" }
   ];
   const skinById = (id) => SKINS.find((s) => s.id === id) || SKINS[0];
-
   let inv = store.get("inv", null);
-  if (!inv) {
-    const legacy = store.get("skins", ["standard"]);
-    inv = {}; legacy.forEach((id) => inv[id] = 1);
-    if (!inv.standard) inv.standard = 1;
-    store.set("inv", inv);
-  }
+  if (!inv) { const legacy = store.get("skins", ["standard"]); inv = {}; legacy.forEach((id) => inv[id] = 1); if (!inv.standard) inv.standard = 1; store.set("inv", inv); }
   let equipped = store.get("equipped", "standard");
   const saveInv = () => store.set("inv", inv);
   const ownedIds = () => Object.keys(inv).filter((id) => inv[id] > 0);
 
-  $("rarityInfo").innerHTML = Object.values(RARITIES)
-    .map((r) => `<span style="color:${r.color}">${r.name} ${r.weight} % · Verkauf ${r.sell}</span>`).join(" · ");
+  $("rarityInfo").innerHTML = Object.values(RARITIES).map((r) => `<span style="color:${r.color}">${r.name} ${r.weight} % · Verkauf ${r.sell}</span>`).join(" · ");
 
   function applySkin(id) {
     const s = skinById(id);
     const root = document.documentElement.style;
-    root.setProperty("--bg", s.bg);
-    root.setProperty("--card", s.card);
-    root.setProperty("--text", s.text);
-    root.setProperty("--font", s.font || "system-ui, sans-serif");
-    root.setProperty("--radius", s.radius || "16px");
-    root.setProperty("--align", s.align || "center");
-    root.setProperty("--talign", s.talign || "center");
+    root.setProperty("--bg", s.bg); root.setProperty("--card", s.card); root.setProperty("--text", s.text);
+    root.setProperty("--font", s.font || "system-ui, sans-serif"); root.setProperty("--radius", s.radius || "16px");
+    root.setProperty("--align", s.align || "center"); root.setProperty("--talign", s.talign || "center");
     root.setProperty("--border", s.start ? "rgba(255,255,255,.07)" : "rgba(255,255,255,.14)");
     document.body.classList.toggle("skin-anim", !!s.anim);
-    equipped = s.id; store.set("equipped", s.id);
-    renderInventory();
+    equipped = s.id; store.set("equipped", s.id); renderInventory();
   }
-
   function renderInventory() {
     $("inventory").innerHTML = "";
     SKINS.filter((s) => (inv[s.id] || 0) > 0).forEach((s) => {
       const r = RARITIES[s.rarity];
-      const wrap = document.createElement("div");
-      wrap.className = "inv-item" + (s.id === equipped ? " equipped" : "");
-      wrap.style.borderColor = r.color;
+      const wrap = document.createElement("div"); wrap.className = "inv-item" + (s.id === equipped ? " equipped" : ""); wrap.style.borderColor = r.color;
       const title = document.createElement("div"); title.textContent = s.name;
-      const cnt = document.createElement("div"); cnt.className = "count";
-      cnt.textContent = `x${inv[s.id]} · ${r.name} · Verkauf ${r.sell}`;
+      const cnt = document.createElement("div"); cnt.className = "count"; cnt.textContent = `x${inv[s.id]} · ${r.name} · Verkauf ${r.sell}`;
       const btns = document.createElement("div"); btns.className = "inv-btns";
-      const eq = document.createElement("button");
-      eq.className = "equipBtn"; eq.textContent = s.id === equipped ? "Aktiv" : "Equip";
-      eq.disabled = s.id === equipped;
-      eq.addEventListener("click", () => applySkin(s.id));
-      btns.appendChild(eq);
-      if (s.id !== "standard") {
-        const sell = document.createElement("button");
-        sell.className = "sellBtn"; sell.textContent = `Verkauf +${r.sell}`;
-        sell.addEventListener("click", () => sellSkin(s.id));
-        btns.appendChild(sell);
-      }
-      wrap.append(title, cnt, btns);
-      $("inventory").appendChild(wrap);
+      const eq = document.createElement("button"); eq.className = "equipBtn"; eq.textContent = s.id === equipped ? "Aktiv" : "Equip"; eq.disabled = s.id === equipped;
+      eq.addEventListener("click", () => { sfx.click(); applySkin(s.id); }); btns.appendChild(eq);
+      if (s.id !== "standard") { const sell = document.createElement("button"); sell.className = "sellBtn"; sell.textContent = `Verkauf +${r.sell}`; sell.addEventListener("click", () => sellSkin(s.id)); btns.appendChild(sell); }
+      wrap.append(title, cnt, btns); $("inventory").appendChild(wrap);
     });
     $("invCount").textContent = `${ownedIds().length} Arten`;
+    if (typeof renderTraderBuy === "function") renderTraderBuy();
   }
-
   function sellSkin(id) {
     if ((inv[id] || 0) <= 0) return;
     const r = RARITIES[skinById(id).rarity];
-    inv[id]--;
-    if (inv[id] <= 0) { delete inv[id]; if (equipped === id) applySkin("standard"); }
-    saveInv(); setCoins(coins + r.sell);
-    $("caseResult").style.color = r.color;
-    $("caseResult").textContent = `Verkauft für +${r.sell} Coins. Der Händler lacht sich ins Fäustchen.`;
-    renderInventory();
+    inv[id]--; if (inv[id] <= 0) { delete inv[id]; if (equipped === id) applySkin("standard"); }
+    saveInv(); setCoins(coins + r.sell); sfx.coin();
+    $("caseResult").style.color = r.color; $("caseResult").textContent = `Verkauft für +${r.sell} Coins.`; renderInventory();
   }
-
   function rollSkin() {
     let x = Math.random() * 100, rarity = "common";
     for (const [key, r] of Object.entries(RARITIES)) { if (x < r.weight) { rarity = key; break; } x -= r.weight; }
     const options = SKINS.filter((s) => !s.start && s.rarity === rarity);
     return options[rnd(0, options.length - 1)];
   }
-
-  function caseItem(s) {
-    const d = document.createElement("div");
-    d.className = "case-item";
-    d.style.borderBottomColor = RARITIES[s.rarity].color;
-    d.textContent = s.name;
-    return d;
-  }
+  function caseItem(s) { const d = document.createElement("div"); d.className = "case-item"; d.style.borderBottomColor = RARITIES[s.rarity].color; d.textContent = s.name; return d; }
   for (let i = 0; i < 8; i++) $("caseStrip").appendChild(caseItem(rollSkin()));
 
   let caseOpening = false;
+  function updateCaseBtn() { $("caseBtn").textContent = `Lootbox öffnen (${boxPrice()} Coins)`; }
+  updateCaseBtn();
   $("caseBtn").addEventListener("click", () => {
     if (caseOpening) return;
-    if (coins < 50) { $("caseResult").style.color = ""; $("caseResult").textContent = "50 Coins nötig. Farm oder Daily Chest."; return; }
-    setCoins(coins - 50); caseOpening = true;
+    const price = boxPrice();
+    if (coins < price) { $("caseResult").style.color = ""; $("caseResult").textContent = `${price} Coins nötig. Hol den Minuten-Bonus.`; return; }
+    setCoins(coins - price); caseOpening = true; sfx.click();
     const winner = rollSkin();
-    const strip = $("caseStrip");
-    const WIN_IDX = 35;
+    const strip = $("caseStrip"); const WIN_IDX = 35;
     strip.innerHTML = ""; strip.style.transition = "none"; strip.style.transform = "translateX(0)";
     for (let i = 0; i < 40; i++) strip.appendChild(caseItem(i === WIN_IDX ? winner : rollSkin()));
     const offset = 11 + WIN_IDX * 100 + 46 - strip.parentElement.clientWidth / 2 + rnd(-30, 30);
     $("caseResult").style.color = ""; $("caseResult").textContent = "Lootbox öffnet sich...";
-    strip.offsetWidth;
-    strip.style.transition = "transform 4.5s cubic-bezier(.12,.8,.2,1)";
-    strip.style.transform = `translateX(-${offset}px)`;
+    strip.offsetWidth; strip.style.transition = "transform 4.5s cubic-bezier(.12,.8,.2,1)"; strip.style.transform = `translateX(-${offset}px)`;
     setTimeout(() => {
-      caseOpening = false;
-      const r = RARITIES[winner.rarity];
-      const had = (inv[winner.id] || 0) > 0;
+      caseOpening = false; addXP(10);
+      const r = RARITIES[winner.rarity]; const had = (inv[winner.id] || 0) > 0;
       inv[winner.id] = (inv[winner.id] || 0) + 1; saveInv(); renderInventory();
       $("caseResult").style.color = r.color;
-      $("caseResult").textContent = had
-        ? `${winner.name} (${r.name}) - schon wieder. Jetzt x${inv[winner.id]}. Verkaufen für ${r.sell}?`
-        : `NEU: ${winner.name} (${r.name})! Equippen oder verkaufen.`;
-      if (winner.rarity === "legendary" || winner.rarity === "mythic") rain("✨", r.color, 50);
+      $("caseResult").textContent = had ? `${winner.name} (${r.name}) - schon wieder. Jetzt x${inv[winner.id]}. Verkaufen für ${r.sell}?` : `NEU: ${winner.name} (${r.name})! Equippen oder verkaufen.`;
+      if (winner.rarity === "legendary" || winner.rarity === "mythic") { rain("✨", r.color, 50); sfx.win(); } else sfx.coin();
     }, 4700);
   });
 
-  // Händler
-  let currentOffer = null;
-  const traderLines = ["Vertrau mir, ich bin fast ehrlich.", "Nur für dich, mein Freund.", "Ein Angebot wie im BWM-Lehrbuch unter Betrug.", "Schnell, bevor ich es mir anders überlege.", "Freundschaftspreis. Für meine Freunde."];
-  const declineLines = ["Dein Verlust. Im wahrsten Sinne.", "Zu schlau für mich? Das bezweifle ich.", "Schon gut, ich find einen Dümmeren. Moment, da bist ja du.", "Abgelehnt? Mutig für jemanden mit deinen Noten.", "Komm wieder, wenn du pleite bist. Also gleich."];
-  function newOffer() {
-    const owned = ownedIds().filter((id) => id !== "standard");
-    const type = (owned.length > 0 && Math.random() < 0.6) ? "buyLow" : "sellHigh";
-    if (type === "buyLow") {
-      const id = owned[rnd(0, owned.length - 1)];
-      const r = RARITIES[skinById(id).rarity];
-      const pay = Math.max(1, Math.floor(r.sell * 0.3));
-      currentOffer = { type, id, pay };
-      $("tradeOffer").textContent = `Ich geb dir ${pay} Coins für deinen "${skinById(id).name}" (${r.name}). Deal?`;
-    } else {
-      const cheap = SKINS.filter((s) => !s.start && (s.rarity === "common" || s.rarity === "rare"));
-      const s = cheap[rnd(0, cheap.length - 1)];
-      const r = RARITIES[s.rarity];
-      const price = r.sell * rnd(5, 9);
-      currentOffer = { type, id: s.id, price };
-      $("tradeOffer").textContent = `Seltenes Einzelstück! "${s.name}" (${r.name}) für nur ${price} Coins. Zugreifen!`;
-    }
-    $("traderMsg").textContent = traderLines[rnd(0, traderLines.length - 1)];
-  }
-  newOffer(); setInterval(newOffer, 12000);
+  // ---------- Shop ----------
+  const SHOP = {
+    "⚡ Booster": [
+      { id: "xp5", icon: "⚡", title: "XP-Booster", desc: "Doppelte XP für 5 Minuten.", price: 300, buy: () => { xpBoostUntil = Date.now() + 5*60000; store.set("xpBoostUntil", xpBoostUntil); updateBoostBar(); toast("XP-Booster aktiv für 5 Min!"); } },
+      { id: "coins2x", icon: "💰", title: "Coins-Booster", desc: "Verdoppelt deinen nächsten Gewinn (egal welches Spiel). Einmalig.", price: 5000, buy: () => { nextWinX2 = true; store.set("nextWinX2", true); toast("Nächster Gewinn x2!"); } }
+    ],
+    "💎 Perks (dauerhaft, sehr teuer)": [
+      { id: "p_coins", icon: "📈", title: "Perk: +10% Coins für immer", desc: "Dauerhaft 10% mehr Coins aus allen Spielen.", price: 20000, perk: "coins" },
+      { id: "p_box", icon: "📦", title: "Perk: Lootbox -20%", desc: "Lootbox kostet dauerhaft nur noch 40 statt 50.", price: 15000, perk: "box" },
+      { id: "p_bonus", icon: "⏰", title: "Perk: Minuten-Bonus x2", desc: "Dauerhaft 20 statt 10 Coins pro Minute.", price: 25000, perk: "bonus" }
+    ],
+    "🎖️ Titel (zum Flexen)": [
+      { id: "t_durchfaller", icon: "🏅", title: "Titel: Durchfaller des Jahres", desc: "Steht oben neben deinem Level.", price: 800, title_val: "Durchfaller des Jahres" },
+      { id: "t_coinmillionaer", icon: "🤑", title: "Titel: Coin-Millionär", desc: "Auch wenn du keine Million hast.", price: 2000, title_val: "Coin-Millionär" },
+      { id: "t_javagott", icon: "☕", title: "Titel: Java-Gott", desc: "Der höchste Titel. Verdient hast du ihn nicht.", price: 5000, title_val: "Java-Gott" }
+    ],
+    "🎨 Garantierte Skins": [
+      { id: "s_epic", icon: "🟣", title: "Zufälliger Episch-Skin", desc: "Garantiert Episch. Günstiger als Lootbox-Pech.", price: 300, skin_rarity: "epic" },
+      { id: "s_legend", icon: "🟠", title: "Zufälliger Legendär-Skin", desc: "Garantiert Legendär. Kein Risiko.", price: 1000, skin_rarity: "legendary" },
+      { id: "s_mythic", icon: "🔴", title: "Bestanden-Skin (Mythisch)", desc: "Der seltenste Skin, direkt gekauft.", price: 4000, skin_id: "bestanden" }
+    ]
+  };
 
-  $("tradeAccept").addEventListener("click", () => {
-    if (!currentOffer) return;
-    const o = currentOffer;
-    if (o.type === "buyLow") {
-      if ((inv[o.id] || 0) <= 0) { $("tradeResult").textContent = "Den Skin hast du gar nicht mehr. Nice try."; return; }
-      inv[o.id]--; if (inv[o.id] <= 0) { delete inv[o.id]; if (equipped === o.id) applySkin("standard"); }
-      saveInv(); setCoins(coins + o.pay); renderInventory();
-      $("tradeResult").textContent = `Verkauft für ${o.pay}. Der war viel mehr wert. Der Händler grinst.`;
-    } else {
-      if (coins < o.price) { $("tradeResult").textContent = "Kein Geld. Peinlich."; return; }
-      setCoins(coins - o.price);
-      inv[o.id] = (inv[o.id] || 0) + 1; saveInv(); renderInventory();
-      $("tradeResult").textContent = `Gekauft für ${o.price}. Im Shop wäre es ein Zehntel gewesen. Autsch.`;
+  function buyShopItem(item) {
+    // Titel: wenn bereits besessen, nur anlegen (kostenlos)
+    if (item.title_val && ownedTitles.includes(item.id)) { activeTitle = item.title_val; store.set("activeTitle", activeTitle); applyTitle(); renderShop(); return; }
+    // Perk: nur einmal kaufbar
+    if (item.perk && perks[item.perk]) { toast("Perk hast du schon."); return; }
+    if (coins < item.price) { toast("Zu teuer. Farm mehr."); return; }
+    if (item.skin_id && (inv[item.skin_id] || 0) > 0) { toast("Hast du schon."); }
+    setCoins(coins - item.price); sfx.coin();
+    if (item.buy) item.buy();
+    if (item.perk) { perks[item.perk] = true; store.set("perks", perks); updateCaseBtn(); updateCollect(); toast("Perk dauerhaft freigeschaltet!"); rain("💎", "#22d3ee", 30); }
+    if (item.title_val) { ownedTitles.push(item.id); store.set("titles", ownedTitles); activeTitle = item.title_val; store.set("activeTitle", activeTitle); applyTitle(); toast("Titel freigeschaltet!"); }
+    if (item.skin_rarity) { const pool = SKINS.filter((s) => !s.start && s.rarity === item.skin_rarity); const s = pool[rnd(0, pool.length - 1)]; inv[s.id] = (inv[s.id]||0)+1; saveInv(); renderInventory(); rain("✨", RARITIES[item.skin_rarity].color, 40); toast(`${s.name} erhalten!`); }
+    if (item.skin_id) { inv[item.skin_id] = (inv[item.skin_id]||0)+1; saveInv(); renderInventory(); rain("✨", "#ef4444", 50); toast("Bestanden-Skin erhalten!"); }
+    renderShop();
+  }
+  function applyTitle() {
+    const u = unclaimedCount();
+    let txt = "Lvl " + level;
+    if (u > 0) txt += ` · ${u} 🎁`;
+    if (activeTitle) txt += " · " + activeTitle;
+    $("levelText").textContent = txt;
+  }
+  function renderShop() {
+    $("shopCats").innerHTML = "";
+    for (const [cat, items] of Object.entries(SHOP)) {
+      const h = document.createElement("div"); h.className = "shop-cat"; h.textContent = cat; $("shopCats").appendChild(h);
+      const grid = document.createElement("div"); grid.id = ""; grid.style.display = "flex"; grid.style.flexWrap = "wrap"; grid.style.gap = "10px"; grid.style.justifyContent = "center"; grid.style.marginTop = "8px";
+      items.forEach((item) => {
+        const card = document.createElement("div"); card.className = "shop-item";
+        const titleOwned = item.title_val && ownedTitles.includes(item.id);
+        const perkOwned = item.perk && perks[item.perk];
+        card.innerHTML = `<div class="icon">${item.icon}</div><div class="title">${item.title}</div><div class="desc">${item.desc}</div>`;
+        const btn = document.createElement("button");
+        if (perkOwned) { btn.textContent = "Aktiv ✓"; btn.className = "owned"; btn.disabled = true; }
+        else if (titleOwned) { const active = activeTitle === item.title_val; btn.textContent = active ? "Aktiv" : "Anlegen"; btn.className = "owned"; btn.disabled = active; }
+        else btn.textContent = `${fmt(item.price)} 🪙`;
+        btn.addEventListener("click", () => buyShopItem(item));
+        card.appendChild(btn); grid.appendChild(card);
+      });
+      $("shopCats").appendChild(grid);
     }
-    setTimeout(newOffer, 800);
-  });
-  $("tradeDecline").addEventListener("click", () => {
-    $("tradeResult").textContent = declineLines[rnd(0, declineLines.length - 1)];
-    setTimeout(newOffer, 800);
-  });
+  }
+  renderShop(); applyTitle();
+
+  // ---------- Händler (fair, mit Perks) ----------
+  // Skins zum vollen Verkaufswert ankaufen
+  function renderTraderBuy() {
+    $("traderBuy").innerHTML = "";
+    const owned = ownedIds().filter((id) => id !== "standard");
+    if (owned.length === 0) { $("traderBuy").innerHTML = `<span class="hint">Du hast keine Skins zum Verkaufen.</span>`; return; }
+    owned.forEach((id) => {
+      const s = skinById(id), r = RARITIES[s.rarity];
+      const row = document.createElement("div"); row.className = "reward-row";
+      const left = document.createElement("span"); left.innerHTML = `<b style="color:${r.color}">${s.name}</b> <span style="color:#94a3b8">x${inv[id]}</span>`;
+      const b = document.createElement("button"); b.textContent = `Verkaufen +${r.sell}`; b.style.padding = "6px 12px"; b.style.fontSize = ".78rem"; b.style.background = "#22c55e"; b.style.color = "#052e16";
+      b.addEventListener("click", () => {
+        if ((inv[id] || 0) <= 0) return;
+        inv[id]--; if (inv[id] <= 0) { delete inv[id]; if (equipped === id) applySkin("standard"); }
+        saveInv(); setCoins(coins + r.sell); sfx.coin();
+        $("tradeResult").style.color = r.color; $("tradeResult").textContent = `Verkauft für vollen Wert: +${r.sell} Coins.`;
+        renderInventory(); renderTraderBuy();
+      });
+      row.append(left, b); $("traderBuy").appendChild(row);
+    });
+  }
+
+  // Deal des Tages: fester Rabatt auf einen Shop-Artikel, einmal pro Tag kaufbar, täglich wechselnd
+  const ALL_SHOP = Object.values(SHOP).flat();
+  let dealDay = store.get("dealDay", "");
+  let dealBought = store.get("dealBought", "");
+  function todaysDeal() {
+    // deterministisch aus dem Datum: gleicher Deal den ganzen Tag
+    const seed = [...todayKey()].reduce((a, c) => a + c.charCodeAt(0), 0);
+    const pool = ALL_SHOP.filter((it) => it.price >= 300); // keine Mini-Items
+    return pool[seed % pool.length];
+  }
+  function renderDailyDeal() {
+    const deal = todaysDeal();
+    const r = RARITIES; // ungenutzt, nur Klarheit
+    const discounted = Math.round(deal.price * 0.6); // 40 % Rabatt
+    const already = dealBought === todayKey();
+    $("dailyDeal").innerHTML = "";
+    const card = document.createElement("div"); card.className = "shop-item"; card.style.width = "100%"; card.style.maxWidth = "320px"; card.style.margin = "0 auto";
+    card.innerHTML = `<div class="icon">${deal.icon}</div><div class="title">${deal.title}</div>
+      <div class="desc">${deal.desc}</div>
+      <div style="font-weight:800;"><span style="text-decoration:line-through;color:#94a3b8;">${fmt(deal.price)}</span> → <span style="color:#22c55e;">${fmt(discounted)} 🪙</span> <span style="color:#f59e0b;">-40%</span></div>`;
+    const b = document.createElement("button");
+    if (already) { b.textContent = "Heute schon gekauft"; b.className = "owned"; b.disabled = true; }
+    else b.textContent = `Für ${fmt(discounted)} kaufen`;
+    b.addEventListener("click", () => {
+      if (dealBought === todayKey()) return;
+      if (coins < discounted) { toast("Zu teuer."); return; }
+      // Rabatt anwenden: temporär Preis senken, Item über buyShopItem geben
+      const realPrice = deal.price; const tmp = { ...deal, price: discounted };
+      buyShopItem(tmp);
+      dealBought = todayKey(); store.set("dealBought", dealBought);
+      renderDailyDeal();
+    });
+    card.appendChild(b); $("dailyDeal").appendChild(card);
+  }
+  renderTraderBuy(); renderDailyDeal();
 
   applySkin(equipped);
 
-  // Java-Fakt
   const facts = ["Was ist eine NullPointerException? Tipp: deine Vorbereitung.", "Was gibt System.out.println(maxi.isReady()) aus? Antwort: false", "Unterschied zwischen == und equals()? Ungefähr eine ganze Note.", "Eine for-Schleife läuft öfter, als du lernst.", "Wie viele Semikolons wirst du bei der PLF vergessen? Ja.", "Der Garbage Collector räumt mehr auf als du in deinem Zimmer.", "while(true) beschreibt, wie lange du das Lernen schon aufschiebst.", "ChatGPT darf nicht mit zur PLF. Nur damit du es weißt.", "Fun Fact: Auch IntelliJ glaubt nicht an dich."];
   $("fact").textContent = facts[Math.floor(Date.now() / 86400000) % facts.length];
 
-  // Ausreden
   const excuses = ["mein IntelliJ gerade indexiert.", "die PLF eh noch ewig weg ist.", "ich zuerst noch FIFA spielen muss.", "mein Laptop ein Update macht.", "ich das morgen eh in einer Stunde schaffe.", "Java mich emotional verletzt hat.", "ich zuerst meinen Schreibtisch aufräumen muss.", "Merkur rückläufig ist."];
-  $("excuseBtn").addEventListener("click", () => { $("excuse").textContent = "Heute kann ich nicht lernen, weil " + excuses[rnd(0, excuses.length - 1)]; });
+  $("excuseBtn").addEventListener("click", () => { sfx.click(); $("excuse").textContent = "Heute kann ich nicht lernen, weil " + excuses[rnd(0, excuses.length - 1)]; });
 
-  // Button, der davonläuft
   const btn = $("readyBtn");
   const fleeTexts = ["Ich bin bereit", "Sicher?", "Nö", "Lern lieber", "Fang mich doch", "Java > du"];
   const place = (x, y) => { btn.style.left = x + "px"; btn.style.top = y + "px"; };
-  place(innerWidth / 2 - btn.offsetWidth / 2, innerHeight - btn.offsetHeight - 24);
+  place(innerWidth / 2 - 80, innerHeight - 80);
   function flee() { place(Math.random() * (innerWidth - btn.offsetWidth), Math.random() * (innerHeight - btn.offsetHeight)); btn.textContent = fleeTexts[rnd(0, fleeTexts.length - 1)]; }
   btn.addEventListener("mouseenter", flee);
   btn.addEventListener("touchstart", (e) => { e.preventDefault(); flee(); }, { passive: false });
   btn.addEventListener("click", () => alert("Nein. Bist du nicht."));
-
-  // Nerv-Popup
-  let nagDelay = 120000, nagTimer;
-  const scheduleNag = () => { clearTimeout(nagTimer); nagTimer = setTimeout(() => { $("nagText").textContent = "Maxi lernt gerade nicht. Jetzt starten?"; $("nag").classList.remove("hidden"); }, nagDelay); };
-  $("nagYes").addEventListener("click", () => { $("nagText").textContent = "Gute Wahl. Wir wissen beide, dass das gelogen ist."; setTimeout(() => $("nag").classList.add("hidden"), 1500); nagDelay = 120000; scheduleNag(); });
-  $("nagLater").addEventListener("click", () => { $("nag").classList.add("hidden"); nagDelay = Math.max(15000, nagDelay / 2); scheduleNag(); });
-  scheduleNag();
 </script>
 </body>
 </html>
