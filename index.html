@@ -788,7 +788,7 @@
   // Rang 1 = Ass (niedrig) ... 13 = König (hoch)
   const HL_RANKS = ["", "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
   const HL_SUITS = ["♠", "♥", "♦", "♣"];
-  const HL_MULT = 1.9; // pro Treffer, leicht unter fair -> Haus gewinnt
+  const HL_MULT = 1.25; // pro Treffer, leicht unter fair -> Haus gewinnt
   let hlActive = false, hlRank = 0, hlSuit = 0, hlPot = 0, hlStreak = 0;
   function drawHlCard(rank, suit) {
     const el = $("hlCard");
