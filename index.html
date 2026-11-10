@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maxi Timer</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; padding: 24px 16px 120px;
+    font-family: system-ui, sans-serif; background: #111827; color: #f9fafb;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; overflow-x: hidden; transition: background .5s;
+  }
+  h1 { font-size: clamp(1.4rem, 4vw, 2.4rem); margin: 0 0 8px; }
+  .sub { color: #9ca3af; margin-bottom: 24px; }
+  #countdown { font-variant-numeric: tabular-nums; font-size: clamp(1.8rem, 8vw, 4.5rem); font-weight: 800; }
+  #countdown small { font-size: .35em; color: #9ca3af; }
+  .card { background: #1f2937; border-radius: 12px; padding: 16px 20px; margin-top: 20px; width: 100%; max-width: 560px; }
+  .bar { height: 18px; background: #374151; border-radius: 9px; overflow: hidden; margin-top: 8px; }
+  #barFill { height: 100%; width: 3%; background: #22c55e; transition: width 1s, background 1s; }
+  button { font: inherit; font-weight: 700; border: 0; border-radius: 10px; padding: 12px 20px; cursor: pointer; }
+  #readyBtn { background: #22c55e; color: #052e16; position: fixed; transition: left .15s, top .15s; z-index: 10; }
+  #excuseBtn { background: #6366f1; color: #fff; margin-top: 10px; }
+  body.panic { background: #7f1d1d; animation: shake .25s infinite; }
+  @keyframes shake {
+    0%, 100% { transform: translate(0, 0); }
+    25% { transform: translate(-3px, 2px); }
+    75% { transform: translate(3px, -2px); }
+  }
+</style>
+</head>
+<body>
+  <h1>⏳ Maxi, die POS-PLF kommt</h1>
+  <div class="sub">13.01.2027, 10:45 Uhr. Kein Entkommen.</div>
+
+  <div id="countdown">...</div>
+
+  <div class="card">
+    <strong>Maxis Lernfortschritt:</strong> <span id="barLabel">3.0 %</span>
+    <div class="bar"><div id="barFill"></div></div>
+  </div>
+
+  <div class="card">
+    <strong>📚 Java-Fakt des Tages</strong>
+    <p id="fact"></p>
+  </div>
+
+  <div class="card">
+    <strong>🛋️ Ausreden-Generator</strong>
+    <p id="excuse">Drück den Knopf, Maxi.</p>
+    <button id="excuseBtn">Neue Ausrede</button>
+  </div>
+
+  <button id="readyBtn">Ich bin bereit</button>
+
+<script>
+  const PLF = new Date("2027-01-13T10:45:00+01:00");
+  const pad = (n, l = 2) => String(n).padStart(l, "0");
+
+  // Countdown mit Millisekunden + Tab-Titel + Panikmodus
+  const cd = document.getElementById("countdown");
+  function tick() {
+    const diff = PLF - Date.now();
+    if (diff <= 0) {
+      cd.textContent = "Vorbei. Hoffentlich hast du gelernt.";
+      document.title = "PLF vorbei";
+      document.body.classList.remove("panic");
+      return;
+    }
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor(diff / 3600000) % 24;
+    const m = Math.floor(diff / 60000) % 60;
+    const s = Math.floor(diff / 1000) % 60;
+    const ms = diff % 1000;
+    cd.innerHTML = `${d}<small>T</small> ${pad(h)}<small>h</small> ${pad(m)}<small>m</small> ${pad(s)}<small>s</small> ${pad(ms, 3)}<small>ms</small>`;
+    document.title = `${d}T ${pad(h)}:${pad(m)}:${pad(s)} bis zur PLF`;
+    document.body.classList.toggle("panic", diff < 86400000);
+    requestAnimationFrame(tick);
+  }
+  tick();
+
+  // Fortschrittsbalken, der eher sinkt als steigt
+  let progress = 3;
+  const fill = document.getElementById("barFill");
+  const label = document.getElementById("barLabel");
+  setInterval(() => {
+    progress += Math.random() < 0.6 ? -Math.random() * 2 : Math.random() * 1.5;
+    progress = Math.min(7, Math.max(0.5, progress));
+    fill.style.width = progress + "%";
+    fill.style.background = progress < 2 ? "#ef4444" : "#22c55e";
+    label.textContent = progress.toFixed(1) + " %";
+  }, 1500);
+
+  // Java-Fakt des Tages
+  const facts = [
+    "Was ist eine NullPointerException? Tipp: deine Vorbereitung.",
+    "Was gibt System.out.println(maxi.isReady()) aus? Antwort: false",
+    "Unterschied zwischen == und equals()? Ungefähr eine ganze Note.",
+    "Eine for-Schleife läuft öfter, als du lernst.",
+    "Wie viele Semikolons wirst du bei der PLF vergessen? Ja.",
+    "Der Garbage Collector räumt mehr auf als du in deinem Zimmer.",
+    "while(true) beschreibt, wie lange du das Lernen schon aufschiebst.",
+    "public static void main(String[] args) ist länger als deine Lernzeit diese Woche.",
+    "ChatGPT darf nicht mit zur PLF. Nur damit du es weißt.",
+    "Fun Fact: Auch IntelliJ glaubt nicht an dich."
+  ];
+  const dayNr = Math.floor(Date.now() / 86400000);
+  document.getElementById("fact").textContent = facts[dayNr % facts.length];
+
+  // Ausreden-Generator
+  const excuses = [
+    "mein IntelliJ gerade indexiert.",
+    "die PLF eh noch ewig weg ist.",
+    "ich zuerst noch FIFA spielen muss.",
+    "mein Laptop ein Update macht.",
+    "ich das morgen eh in einer Stunde schaffe.",
+    "Java mich emotional verletzt hat.",
+    "ich zuerst meinen Schreibtisch aufräumen muss.",
+    "Merkur rückläufig ist."
+  ];
+  document.getElementById("excuseBtn").addEventListener("click", () => {
+    const e = excuses[Math.floor(Math.random() * excuses.length)];
+    document.getElementById("excuse").textContent = "Heute kann ich nicht lernen, weil " + e;
+  });
+
+  // Button, der davonläuft
+  const btn = document.getElementById("readyBtn");
+  const fleeTexts = ["Ich bin bereit", "Sicher?", "Nö", "Lern lieber", "Fang mich doch", "Java > du"];
+  const place = (x, y) => { btn.style.left = x + "px"; btn.style.top = y + "px"; };
+  place(innerWidth / 2 - btn.offsetWidth / 2, innerHeight - btn.offsetHeight - 24);
+  function flee() {
+    place(Math.random() * (innerWidth - btn.offsetWidth), Math.random() * (innerHeight - btn.offsetHeight));
+    btn.textContent = fleeTexts[Math.floor(Math.random() * fleeTexts.length)];
+  }
+  btn.addEventListener("mouseenter", flee);
+  btn.addEventListener("touchstart", (e) => { e.preventDefault(); flee(); }, { passive: false });
+  btn.addEventListener("click", () => alert("Nein. Bist du nicht."));
+</script>
+</body>
+</html>
