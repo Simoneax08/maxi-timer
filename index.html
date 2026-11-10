@@ -68,6 +68,14 @@
   #spinResult, #flipResult, #caseResult, #tradeResult, #guessResult { min-height: 1.5em; font-weight: 700; margin-top: 12px; }
   #flipCoin { width: 100px; height: 100px; margin: 16px auto; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.6rem; box-shadow: 0 6px 18px rgba(0,0,0,.45), inset 0 2px 6px rgba(255,255,255,.4); }
   .card-face { width: 90px; height: 128px; margin: 14px auto; border-radius: 12px; background: #f8fafc; color: #0f172a; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 2.1rem; box-shadow: 0 6px 18px rgba(0,0,0,.45); border: 2px solid #e2e8f0; position: relative; }
+  .hand { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 6px 0; min-height: 70px; }
+  .mini-card { width: 46px; height: 64px; border-radius: 7px; background: #f8fafc; color: #0f172a; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.05rem; box-shadow: 0 3px 8px rgba(0,0,0,.4); border: 1px solid #e2e8f0; }
+  .mini-card.red { color: #dc2626; }
+  .mini-card.back { background: repeating-linear-gradient(45deg, #1e3a8a, #1e3a8a 6px, #1e40af 6px, #1e40af 12px); color: transparent; }
+  #bjResult, #bjActions { margin-top: 10px; }
+  .bj-hand { border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 8px; margin-top: 10px; }
+  .bj-hand.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .bj-hand .bj-label { font-size: .78rem; color: #94a3b8; }
   .card-face.red { color: #dc2626; }
   .card-face.flip { animation: cardflip .4s ease; }
   @keyframes cardflip { 0% { transform: rotateY(0) scale(1); } 50% { transform: rotateY(90deg) scale(1.05); } 100% { transform: rotateY(0) scale(1); } }
@@ -125,6 +133,17 @@
   .modal-box .big-xp { height: 14px; background: #1e293b; border-radius: 7px; overflow: hidden; margin: 12px 0 6px; }
   .modal-box .big-xp > div { height: 100%; background: #22c55e; transition: width .4s; }
   .reward-row { display: flex; justify-content: space-between; padding: 9px 12px; border-radius: 10px; background: #0b1120; margin-top: 8px; border: 1px solid rgba(255,255,255,.07); }
+  .stat-row { display: flex; justify-content: space-between; padding: 9px 12px; border-radius: 10px; background: #0b1120; margin-top: 8px; border: 1px solid rgba(255,255,255,.07); font-size: .9rem; }
+  .stat-row b { color: var(--accent); }
+  .ach { display: flex; gap: 12px; align-items: center; padding: 11px 12px; border-radius: 12px; background: #0b1120; margin-top: 10px; border: 1px solid rgba(255,255,255,.08); }
+  .ach.done { border-color: #22c55e; background: linear-gradient(90deg, rgba(34,197,94,.1), #0b1120); }
+  .ach .ach-ic { font-size: 1.6rem; filter: grayscale(1) opacity(.5); }
+  .ach.done .ach-ic { filter: none; }
+  .ach .ach-body { flex: 1; text-align: left; }
+  .ach .ach-name { font-weight: 800; font-size: .92rem; }
+  .ach .ach-desc { font-size: .76rem; color: #94a3b8; }
+  .ach .ach-reward { font-size: .8rem; font-weight: 700; color: var(--accent); white-space: nowrap; }
+  .ach.done .ach-reward { color: #22c55e; }
   .reward-row .lv { font-weight: 800; color: var(--accent); }
   #levelClose { background: var(--accent); color: #1f1300; width: 100%; margin-top: 18px; }
   #claimBurst { position: fixed; left: 50%; top: 38%; transform: translate(-50%,-50%) scale(.4); z-index: 90; pointer-events: none; font-weight: 900; text-align: center; opacity: 0; }
@@ -144,6 +163,7 @@
   <div id="tabs">
     <button class="tab active" data-tab="timer">⏳ Countdown</button>
     <button class="tab" data-tab="market">🛒 Handelsplatz</button>
+    <button class="tab" data-tab="stats">📊 Stats</button>
   </div>
   <div id="topbar">
     <div id="levelBox">
@@ -201,10 +221,11 @@
         <button class="gtab" data-game="wheel">🎡 Wheel</button>
         <button class="gtab" data-game="flip">🪙 Münzwurf</button>
         <button class="gtab" data-game="guess">🔢 Zahlen raten</button>
+        <button class="gtab" data-game="bj">🂡 Blackjack</button>
       </div>
 
       <div class="game-panel" id="game-hl">
-        <p class="hint">Tippe, ob die nächste Karte höher oder tiefer ist. Jeder Treffer erhöht den Gewinn (x1.25). Gleiche Karte zählt als Treffer. Ass zählt als höchste UND niedrigste Karte, bei einem Ass gewinnt also jeder Tipp. Jederzeit cashen, sonst bei Fehler alles weg.</p>
+        <p class="hint">Tippe, ob die nächste Karte höher oder tiefer ist. Jeder Treffer erhöht den Gewinn (x1.1). Gleiche Karte zählt als Treffer. Jederzeit cashen, sonst bei Fehler alles weg.</p>
         <div id="hlStart">
           <div class="bet-row">
             <div class="field"><label>Einsatz (Coins)</label><input id="hlBet" type="number" min="1" value="10" style="width:140px;text-align:center;"></div>
@@ -270,6 +291,29 @@
         <button id="guessGo">Raten</button>
         <div id="guessResult"></div>
       </div>
+
+      <div class="game-panel hidden" id="game-bj">
+        <p class="hint">So nah wie möglich an 21, ohne drüber. Bildkarten zählen 10, Ass 1 oder 11. Der Compiler zieht bis 17 (Soft 17 steht). Blackjack (21 mit 2 Karten) zahlt 2.5x, normaler Gewinn 2x, Push gibt den Einsatz zurück. Double Down verdoppelt den Einsatz für genau eine Karte. Bei zwei gleichen Karten kannst du splitten. Bei 21 wird automatisch gehalten.</p>
+        <div id="bjStart">
+          <div class="bet-row">
+            <div class="field"><label>Einsatz (Coins)</label><input id="bjBet" type="number" min="1" value="10" style="width:140px;text-align:center;"></div>
+            <button class="maxBet" data-target="bjBet">Max</button>
+          </div>
+          <button id="bjDealBtn" style="background:#0ea5e9;color:#fff;margin-top:10px;">Austeilen</button>
+        </div>
+        <div id="bjTable" class="hidden">
+          <div style="font-size:.8rem;color:#94a3b8;margin-top:8px;">Compiler <span id="bjDealerVal"></span></div>
+          <div id="bjDealer" class="hand"></div>
+          <div id="bjHands"></div>
+          <div class="bet-row" id="bjActions">
+            <button id="bjHit" style="background:#22c55e;color:#052e16;">Hit</button>
+            <button id="bjStand" style="background:#ef4444;color:#fff;">Stand</button>
+            <button id="bjDouble" style="background:#f59e0b;color:#1f1300;">Double</button>
+            <button id="bjSplit" style="background:#a855f7;color:#fff;">Split</button>
+          </div>
+        </div>
+        <div id="bjResult"></div>
+      </div>
     </div>
 
     <div class="card">
@@ -300,6 +344,28 @@
       <p style="margin:16px 0 4px;font-weight:700;">⭐ Deal des Tages</p>
       <div id="dailyDeal"></div>
       <div id="tradeResult"></div>
+    </div>
+
+    <div class="card">
+      <strong>📅 Login-Streak</strong>
+      <p id="streakText" class="hint"></p>
+      <button id="streakBtn" style="background:#22c55e;color:#052e16;">Täglichen Bonus abholen</button>
+      <div id="streakInfo" style="font-size:.85rem;color:#94a3b8;margin-top:8px;"></div>
+    </div>
+  </div>
+
+  <!-- ===== TAB 3: STATS ===== -->
+  <div class="page hidden" id="page-stats">
+    <h1>📊 Statistik</h1>
+    <div class="sub">Zahlen lügen nicht. Du schon.</div>
+    <div class="card">
+      <strong>📈 Deine Werte</strong>
+      <div id="statList" style="margin-top:10px;"></div>
+    </div>
+    <div class="card">
+      <strong>🏆 Achievements</strong> (<span id="achCount"></span>)
+      <p class="hint">Alle 12 schalten den Platin-Skin und dauerhaft 1.02x Coins frei.</p>
+      <div id="achList"></div>
     </div>
   </div>
 
@@ -348,6 +414,19 @@
   };
   const todayKey = () => { const d = new Date(); return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`; };
 
+  // ---------- Globaler Reset ----------
+  // Erhöhe diese Zahl, um bei JEDEM Spieler einmalig den Fortschritt zurückzusetzen
+  // (Coins, Level, Inventar, Stats, Achievements, Streak usw.). Danach läuft alles normal weiter.
+  const RESET_VERSION = 1;
+  (function () {
+    try {
+      if (Number(localStorage.getItem("resetVersion")) !== RESET_VERSION) {
+        localStorage.clear();
+        localStorage.setItem("resetVersion", String(RESET_VERSION));
+      }
+    } catch {}
+  })();
+
   let toastT;
   function toast(msg) { $("toast").textContent = msg; $("toast").classList.add("show"); clearTimeout(toastT); toastT = setTimeout(() => $("toast").classList.remove("show"), 2500); }
 
@@ -380,10 +459,12 @@
     sfx.click();
     document.querySelectorAll(".tab").forEach((x) => x.classList.remove("active"));
     t.classList.add("active");
-    const timer = t.dataset.tab === "timer";
-    $("page-timer").classList.toggle("hidden", !timer);
-    $("page-market").classList.toggle("hidden", timer);
-    setReadyVisible(timer);
+    const which = t.dataset.tab;
+    $("page-timer").classList.toggle("hidden", which !== "timer");
+    $("page-market").classList.toggle("hidden", which !== "market");
+    $("page-stats").classList.toggle("hidden", which !== "stats");
+    setReadyVisible(which === "timer");
+    if (which === "stats") { renderStats(); renderAch(); }
   }));
 
   // Spiele-Unterreiter
@@ -392,7 +473,7 @@
     document.querySelectorAll(".gtab").forEach((x) => x.classList.remove("active"));
     t.classList.add("active");
     const g = t.dataset.game;
-    ["hl", "wheel", "flip", "guess"].forEach((name) => $("game-" + name).classList.toggle("hidden", name !== g));
+    ["hl", "wheel", "flip", "guess", "bj"].forEach((name) => $("game-" + name).classList.toggle("hidden", name !== g));
   }));
 
   // Max-Einsatz: setzt die volle aktuelle Balance ins Einsatzfeld
@@ -413,6 +494,52 @@
   function setCoins(v) { coins = v; store.set("coins", v); $("coins").textContent = "🪙 " + fmt(coins); }
   setCoins(coins);
 
+  // ---------- Statistik ----------
+  let stats = store.get("stats", { games: 0, biggestWin: 0, totalLost: 0, hlBest: 0, spins: 0, boxes: 0, flips: 0, bjPlayed: 0, bjBlackjack: 0 });
+  function saveStats() { store.set("stats", stats); if (typeof renderStats === "function") renderStats(); }
+  function bump(key, n = 1) { stats[key] = (stats[key] || 0) + n; stats.games = (stats.games || 0) + (key.endsWith("Played") || key === "spins" || key === "flips" ? n : 0); saveStats(); if (typeof checkAch === "function") checkAch(); }
+
+  // ---------- Achievements ----------
+  let achDone = store.get("achDone", {}); // id -> true (abgeschlossen)
+  let achClaimed = store.get("achClaimed", {}); // id -> true (Belohnung abgeholt, via auto)
+  let allAchBonus = store.get("allAchBonus", false); // 1.02x Dauer-Multiplier bei allen 12
+  const ACHIEVEMENTS = [
+    { id: "first_spin", icon: "🎡", name: "Erster Dreh", desc: "Dreh das Wheel einmal.", reward: 50, check: () => (stats.spins || 0) >= 1 },
+    { id: "first_box", icon: "📦", name: "Erste Lootbox", desc: "Öffne eine Lootbox.", reward: 50, check: () => (stats.boxes || 0) >= 1 },
+    { id: "spin25", icon: "🌀", name: "Dreh-Junkie", desc: "Dreh das Wheel 25 Mal.", reward: 150, check: () => (stats.spins || 0) >= 25 },
+    { id: "box10", icon: "🎁", name: "Sammler", desc: "Öffne 10 Lootboxen.", reward: 200, check: () => (stats.boxes || 0) >= 10 },
+    { id: "hl5", icon: "🃏", name: "Kartenzähler", desc: "Erreiche eine Serie von 5 bei Higher/Lower.", reward: 250, check: () => (stats.hlBest || 0) >= 5 },
+    { id: "bj_bj", icon: "🂡", name: "Blackjack!", desc: "Hol dir einen echten Blackjack.", reward: 300, check: () => (stats.bjBlackjack || 0) >= 1 },
+    { id: "win1k", icon: "💰", name: "Großer Fang", desc: "Gewinne 1.000 Coins auf einen Schlag.", reward: 200, check: () => (stats.biggestWin || 0) >= 1000 },
+    { id: "win10k", icon: "🤑", name: "Jackpot-Jäger", desc: "Gewinne 10.000 Coins auf einen Schlag.", reward: 500, check: () => (stats.biggestWin || 0) >= 10000 },
+    { id: "lost5k", icon: "🕳️", name: "Zockerherz", desc: "Verliere insgesamt 5.000 Coins.", reward: 200, check: () => (stats.totalLost || 0) >= 5000 },
+    { id: "lvl10", icon: "⭐", name: "Aufsteiger", desc: "Erreiche Level 10.", reward: 300, check: () => level >= 10 },
+    { id: "flips50", icon: "🪙", name: "Münzmeister", desc: "Wirf die Münze 50 Mal.", reward: 150, check: () => (stats.flips || 0) >= 50 },
+    { id: "rich", icon: "🏦", name: "Reich", desc: "Besitze gleichzeitig 50.000 Coins.", reward: 500, check: () => coins >= 50000 }
+  ];
+  function checkAch() {
+    let changed = false;
+    ACHIEVEMENTS.forEach((a) => {
+      if (!achDone[a.id] && a.check()) {
+        achDone[a.id] = true; changed = true;
+        setCoins(coins + a.reward); sfx.level(); rain("🏆", "#facc15", 25);
+        toast(`Achievement: ${a.name}! +${fmt(a.reward)} Coins`);
+      }
+    });
+    if (changed) { store.set("achDone", achDone); }
+    // Alle 12 erreicht: exklusiver Skin + 1.02x Dauer-Multiplier
+    const total = ACHIEVEMENTS.length;
+    const have = ACHIEVEMENTS.filter((a) => achDone[a.id]).length;
+    if (have >= total && !allAchBonus) {
+      allAchBonus = true; store.set("allAchBonus", true);
+      inv["platin"] = (inv["platin"] || 0) + 1; if (typeof saveInv === "function") saveInv();
+      if (typeof renderInventory === "function") renderInventory();
+      rain("💎", "#e0e7ff", 60); sfx.win();
+      toast("ALLE Achievements! Platin-Skin + dauerhaft 1.02x Coins freigeschaltet!");
+    }
+    if (typeof renderAch === "function") renderAch();
+  }
+
   // Level
   // Shop-/Booster-State früh deklariert (von Level & addXP genutzt)
   let xpBoostUntil = store.get("xpBoostUntil", 0);
@@ -425,9 +552,12 @@
   const bonusPerMin = () => perks.bonus ? 20 : 10;
   // Gewinn-Coins gutschreiben: Perk (+10%) immer, nextWinX2 einmalig verdoppelnd
   function addWin(base) {
-    let total = Math.round(base * (perks.coins ? 1.1 : 1));
+    let total = Math.round(base * (perks.coins ? 1.1 : 1) * (allAchBonus ? 1.02 : 1));
     if (nextWinX2) { total *= 2; nextWinX2 = false; store.set("nextWinX2", false); toast("Coins-Booster: Gewinn verdoppelt!"); }
-    setCoins(coins + total); return total;
+    setCoins(coins + total);
+    if (total > (stats.biggestWin || 0)) { stats.biggestWin = total; saveStats(); }
+    checkAch();
+    return total;
   }
 
   let level = store.get("level", 1), xp = store.get("xp", 0);
@@ -674,7 +804,7 @@
   $("spinBtn").addEventListener("click", () => {
     if (spinning) return;
     if (coins < 10) { $("spinResult").textContent = "Pleite. Hol dir den Minuten-Bonus."; return; }
-    setCoins(coins - 10); sfx.click();
+    setCoins(coins - 10); sfx.click(); bump("spins");
     let x = Math.random() * totalW, chosen = wheelSegs[0];
     for (const s of wheelSegs) { if (x < s.weight) { chosen = s; break; } x -= s.weight; }
     // Mitte des gezeichneten Segments (oben = 0°, da wir beim Zeichnen -90° genutzt haben)
@@ -693,6 +823,7 @@
         else { rain("🪙", "#f59e0b", 15); $("spinResult").textContent = `+${fmt(won)} Coins! Glück gehabt.`; }
       } else {
         sfx.lose(); $("spinResult").textContent = `${chosen.label}. War ja klar.`;
+        stats.totalLost = (stats.totalLost || 0) + 10; saveStats(); checkAch();
       }
     }, 5600);
   });
@@ -747,7 +878,7 @@
     const bet = Math.floor(Number($("betInput").value));
     if (!bet || bet < 1) { $("flipResult").textContent = "Einsatz eingeben. So schwer ist das nicht."; return; }
     if (bet > coins) { $("flipResult").textContent = "So viele Coins hast du nicht. Rechnen ist auch nicht deine Stärke."; return; }
-    setCoins(coins - bet); flipping = true; sfx.click();
+    setCoins(coins - bet); flipping = true; sfx.click(); bump("flips");
     $("flipCoin").textContent = "?"; $("flipCoin").classList.add("flipping");
     $("flipResult").textContent = "Die Münze fliegt...";
     const win = Math.random() < 0.45;
@@ -756,8 +887,7 @@
       $("flipCoin").classList.remove("flipping");
       $("flipCoin").textContent = win ? choice : other; flipping = false; addXPbet(4, bet);
       if (win) { const won = addWin(bet * 2); sfx.win(); rain("🪙", "#f59e0b", 20); $("flipResult").textContent = `${choice}! +${fmt(won)} Coins. Glück gehabt, Können war es nicht.`; }
-      else if (coins === 0) { sfx.lose(); $("flipResult").textContent = `${other}. Alles weg. Hol den Minuten-Bonus.`; }
-      else { sfx.lose(); $("flipResult").textContent = `${other}. -${bet} Coins. ${loseTexts[rnd(0, loseTexts.length - 1)]}`; }
+      else { stats.totalLost = (stats.totalLost || 0) + bet; saveStats(); checkAch(); if (coins === 0) { sfx.lose(); $("flipResult").textContent = `${other}. Alles weg. Hol den Minuten-Bonus.`; } else { sfx.lose(); $("flipResult").textContent = `${other}. -${bet} Coins. ${loseTexts[rnd(0, loseTexts.length - 1)]}`; } }
     }, 1500);
   }
   $("flipHeads").addEventListener("click", () => flip("Kopf"));
@@ -789,7 +919,8 @@
       sfx.win(); rain("🪙", "#22c55e", 60); toast(`JACKPOT! +${fmt(win)} Coins`);
       $("guessResult").style.color = "#22c55e"; $("guessResult").textContent = `Die Zahl war ${secret}. GETROFFEN! +${fmt(win)} Coins. Das glaubt dir keiner.`;
     } else {
-      sfx.lose(); $("guessResult").style.color = "#ef4444"; $("guessResult").textContent = `Die Zahl war ${secret}, du hattest ${g}. Daneben. -${bet} Coins. Wie bei der PLF.`;
+      sfx.lose(); stats.totalLost = (stats.totalLost || 0) + bet; saveStats(); checkAch();
+      $("guessResult").style.color = "#ef4444"; $("guessResult").textContent = `Die Zahl war ${secret}, du hattest ${g}. Daneben. -${bet} Coins. Wie bei der PLF.`;
     }
   }
   $("guessGo").addEventListener("click", doGuess);
@@ -799,7 +930,7 @@
   // Rang 1 = Ass (niedrig) ... 13 = König (hoch)
   const HL_RANKS = ["", "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
   const HL_SUITS = ["♠", "♥", "♦", "♣"];
-  const HL_MULT = 1.25; // pro Treffer, unter der echten Trefferchance -> Haus gewinnt
+  const HL_MULT = 1.1; // pro Treffer, deutlich unter der echten Trefferchance -> Haus gewinnt
   let hlActive = false, hlRank = 0, hlSuit = 0, hlPot = 0, hlStreak = 0;
   function drawHlCard(rank, suit) {
     const el = $("hlCard");
@@ -829,8 +960,7 @@
     sfx.click();
     const nextRank = rnd(1, 13), nextSuit = rnd(0, 3);
     // Ass (Rang 1) zählt als höchste UND niedrigste Karte: bei einem Ass gewinnt jeder Tipp
-    const aceWin = (hlRank === 1 || nextRank === 1);
-    const correct = aceWin || (nextRank === hlRank) || (higher ? nextRank > hlRank : nextRank < hlRank);
+    const correct = (nextRank === hlRank) || (higher ? nextRank > hlRank : nextRank < hlRank);
     const prev = HL_RANKS[hlRank];
     hlRank = nextRank; hlSuit = nextSuit; drawHlCard(hlRank, hlSuit);
     if (correct) {
@@ -839,6 +969,7 @@
       $("hlResult").textContent = `${HL_RANKS[hlRank]} nach ${prev}. Richtig! Weiter oder cashen?`;
     } else {
       hlActive = false; sfx.lose();
+      stats.totalLost = (stats.totalLost || 0) + Math.round(hlPot); saveStats(); checkAch();
       $("hlGame").classList.add("hidden"); $("hlStart").classList.remove("hidden");
       $("hlResult").style.color = "#ef4444";
       $("hlResult").textContent = `${HL_RANKS[hlRank]} nach ${prev}. Daneben. Topf von ${fmt(Math.round(hlPot))} verloren. Wie bei der PLF.`;
@@ -853,7 +984,187 @@
     $("hlGame").classList.add("hidden"); $("hlStart").classList.remove("hidden");
     $("hlResult").style.color = "#22c55e";
     $("hlResult").textContent = hlStreak > 0 ? `Gecasht! +${fmt(won)} Coins nach ${hlStreak} Treffer(n).` : `Gecasht. +${fmt(won)} Coins. Mutig, direkt aufzugeben.`;
+    if (hlStreak > (stats.hlBest || 0)) { stats.hlBest = hlStreak; saveStats(); }
   });
+
+  // ---------- Blackjack (mit Split & Double Down, Standard-Casinoregeln) ----------
+  const BJ_RANKS = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
+  function bjCardValue(r) { if (r === "A") return 11; if (r === "J" || r === "Q" || r === "K" || r === "10") return 10; return Number(r); }
+  function bjDraw() { return { r: BJ_RANKS[rnd(0, 12)], s: rnd(0, 3) }; }
+  function bjHandValue(hand) {
+    let total = 0, aces = 0;
+    hand.forEach((c) => { total += bjCardValue(c.r); if (c.r === "A") aces++; });
+    while (total > 21 && aces > 0) { total -= 10; aces--; }
+    return total;
+  }
+  function miniCard(c, hidden) {
+    const d = document.createElement("div");
+    d.className = "mini-card" + (hidden ? " back" : "") + ((c.s === 1 || c.s === 2) && !hidden ? " red" : "");
+    d.textContent = hidden ? "" : c.r + HL_SUITS[c.s];
+    return d;
+  }
+  let bjDealer = [], bjBet = 0, bjActive = false;
+  let bjHandsArr = [], bjIdx = 0; // mehrere Spieler-Hände (für Split)
+
+  function bjRenderDealer(hideHole) {
+    $("bjDealer").innerHTML = "";
+    bjDealer.forEach((c, i) => $("bjDealer").appendChild(miniCard(c, hideHole && i === 1)));
+    $("bjDealerVal").textContent = hideHole ? "" : "(" + bjHandValue(bjDealer) + ")";
+  }
+  function bjRenderHands() {
+    const wrap = $("bjHands"); wrap.innerHTML = "";
+    bjHandsArr.forEach((h, i) => {
+      const box = document.createElement("div");
+      box.className = "bj-hand" + (i === bjIdx && bjActive ? " active" : "");
+      const label = document.createElement("div"); label.className = "bj-label";
+      const tag = bjHandsArr.length > 1 ? `Hand ${i + 1}` : "Du";
+      label.textContent = `${tag} (${bjHandValue(h.cards)})${h.done ? " – fertig" : ""}${h.doubled ? " · Double" : ""}`;
+      const row = document.createElement("div"); row.className = "hand";
+      h.cards.forEach((c) => row.appendChild(miniCard(c, false)));
+      box.append(label, row); wrap.appendChild(box);
+    });
+  }
+  function bjUpdateActions() {
+    const h = bjHandsArr[bjIdx];
+    // Double: nur mit genau 2 Karten; Split: nur bei zwei gleichwertigen Karten, max 4 Hände
+    const twoCards = h.cards.length === 2;
+    const isPair = twoCards && bjCardValue(h.cards[0].r) === bjCardValue(h.cards[1].r);
+    const doublePossible = twoCards && !h.doubled;
+    const splitPossible = isPair && bjHandsArr.length < 4;
+    // Button nur zeigen, wenn der Zug grundsätzlich geht; deaktivieren, wenn Coins fehlen
+    const canAfford = coins >= h.bet;
+    $("bjDouble").style.display = doublePossible ? "" : "none";
+    $("bjDouble").disabled = !canAfford;
+    $("bjDouble").title = canAfford ? "" : `Dafür brauchst du nochmal ${fmt(h.bet)} Coins`;
+    $("bjSplit").style.display = splitPossible ? "" : "none";
+    $("bjSplit").disabled = !canAfford;
+    $("bjSplit").title = canAfford ? "" : `Dafür brauchst du nochmal ${fmt(h.bet)} Coins`;
+    // Hinweis unter den Buttons, wenn Double/Split wegen Coins gesperrt sind
+    if ((doublePossible || splitPossible) && !canAfford) {
+      $("bjResult").style.color = "#94a3b8";
+      $("bjResult").textContent = `Double/Split gesperrt: du brauchst dafür nochmal ${fmt(h.bet)} Coins.`;
+    }
+  }
+
+  function bjDeal() {
+    if (bjActive) return;
+    const bet = Math.floor(Number($("bjBet").value));
+    if (!bet || bet < 1) { $("bjResult").style.color = ""; $("bjResult").textContent = "Einsatz eingeben."; return; }
+    if (bet > coins) { $("bjResult").style.color = ""; $("bjResult").textContent = "So viele Coins hast du nicht."; return; }
+    setCoins(coins - bet); sfx.click();
+    bjBet = bet; bjActive = true;
+    bjDealer = [bjDraw(), bjDraw()];
+    bjHandsArr = [{ cards: [bjDraw(), bjDraw()], bet, done: false, doubled: false }];
+    bjIdx = 0;
+    $("bjStart").classList.add("hidden"); $("bjTable").classList.remove("hidden"); $("bjActions").classList.remove("hidden");
+    $("bjHit").style.display = ""; $("bjStand").style.display = ""; // Grundaktionen immer sichtbar
+    $("bjResult").textContent = "";
+    bjRenderDealer(true); bjRenderHands();
+    const pv = bjHandValue(bjHandsArr[0].cards), dv = bjHandValue(bjDealer);
+    // Blackjack-Check direkt nach dem Austeilen
+    if (pv === 21 || dv === 21) {
+      bjRenderDealer(false);
+      if (pv === 21 && dv === 21) bjFinish("Beide Blackjack. Push.", "#94a3b8");
+      else if (pv === 21) { bump("bjBlackjack"); bjHandsArr[0].blackjack = true; bjFinish("BLACKJACK! 2.5x Auszahlung.", "#22c55e"); }
+      else bjFinish("Compiler hat Blackjack. Verloren.", "#ef4444");
+      return;
+    }
+    bjUpdateActions();
+  }
+  $("bjDealBtn").addEventListener("click", bjDeal);
+
+  function bjNextHand() {
+    bjIdx++;
+    if (bjIdx >= bjHandsArr.length) { bjDealerPlay(); return; }
+    bjRenderHands(); bjUpdateActions();
+    // frisch gesplittete Hand mit 21? automatisch weiter
+    if (bjHandValue(bjHandsArr[bjIdx].cards) === 21) { bjHandsArr[bjIdx].done = true; bjNextHand(); }
+  }
+  $("bjHit").addEventListener("click", () => {
+    if (!bjActive) return;
+    sfx.click();
+    const h = bjHandsArr[bjIdx];
+    h.cards.push(bjDraw()); bjRenderHands();
+    const v = bjHandValue(h.cards);
+    if (v > 21) { h.done = true; h.bust = true; bjNextHand(); }
+    else if (v === 21) { h.done = true; bjNextHand(); } // 21 = Insta-Stand
+    else bjUpdateActions();
+  });
+  $("bjStand").addEventListener("click", () => {
+    if (!bjActive) return;
+    sfx.click(); bjHandsArr[bjIdx].done = true; bjNextHand();
+  });
+  $("bjDouble").addEventListener("click", () => {
+    if (!bjActive) return;
+    const h = bjHandsArr[bjIdx];
+    if (h.cards.length !== 2 || coins < h.bet || h.doubled) return;
+    sfx.click(); setCoins(coins - h.bet); h.bet *= 2; h.doubled = true;
+    h.cards.push(bjDraw()); h.done = true;
+    bjRenderHands();
+    if (bjHandValue(h.cards) > 21) h.bust = true;
+    bjNextHand();
+  });
+  $("bjSplit").addEventListener("click", () => {
+    if (!bjActive) return;
+    const h = bjHandsArr[bjIdx];
+    if (h.cards.length !== 2 || bjCardValue(h.cards[0].r) !== bjCardValue(h.cards[1].r) || coins < h.bet || bjHandsArr.length >= 4) return;
+    sfx.click(); setCoins(coins - h.bet);
+    const moved = h.cards.pop();
+    h.cards.push(bjDraw());
+    const newHand = { cards: [moved, bjDraw()], bet: h.bet, done: false, doubled: false };
+    bjHandsArr.splice(bjIdx + 1, 0, newHand);
+    bjRenderHands(); bjUpdateActions();
+    if (bjHandValue(h.cards) === 21) { h.done = true; bjNextHand(); }
+  });
+
+  function bjDealerPlay() {
+    $("bjActions").classList.add("hidden");
+    // Dealer zieht nur, wenn mindestens eine Hand noch im Spiel ist
+    const anyAlive = bjHandsArr.some((h) => !h.bust);
+    bjRenderDealer(false); addXP(4);
+    if (anyAlive) { while (bjHandValue(bjDealer) < 17) bjDealer.push(bjDraw()); bjRenderDealer(false); }
+    const dv = bjHandValue(bjDealer);
+    let payout = 0, parts = [];
+    bjHandsArr.forEach((h, i) => {
+      const pv = bjHandValue(h.cards);
+      const tag = bjHandsArr.length > 1 ? `H${i + 1}` : "";
+      if (h.bust) { parts.push(`${tag} überkauft`); }
+      else if (h.blackjack) { payout += Math.round(h.bet * 2.5); parts.push(`${tag} Blackjack`); }
+      else if (dv > 21) { payout += h.bet * 2; parts.push(`${tag} Dealer bust`); }
+      else if (pv > dv) { payout += h.bet * 2; parts.push(`${tag} ${pv} gewinnt`); }
+      else if (pv === dv) { payout += h.bet; parts.push(`${tag} Push`); }
+      else { parts.push(`${tag} ${pv} verliert`); }
+    });
+    const totalBet = bjHandsArr.reduce((a, h) => a + h.bet, 0);
+    bjFinishResolved(payout, totalBet, `Compiler ${dv}. ` + parts.join(", ") + ".");
+  }
+
+  // Für die direkten Blackjack-Fälle beim Austeilen
+  function bjFinish(msg, color) {
+    const h = bjHandsArr[0];
+    let payout = 0;
+    if (h.blackjack) payout = Math.round(h.bet * 2.5);
+    else if (color === "#94a3b8") payout = h.bet; // Push
+    bjFinishResolved(payout, h.bet, msg, color);
+  }
+  function bjFinishResolved(payout, totalBet, msg, color) {
+    bjActive = false;
+    $("bjActions").classList.remove("hidden");
+    $("bjStart").classList.remove("hidden");
+    bjRenderHands();
+    const net = payout - totalBet;
+    let c = color || (net > 0 ? "#22c55e" : net === 0 ? "#94a3b8" : "#ef4444");
+    if (payout > 0) { addWin(payout); sfx.win(); if (net > 0) rain("🪙", "#f59e0b", 20); }
+    if (net < 0) { sfx.lose(); stats.totalLost = (stats.totalLost || 0) + (totalBet - Math.max(0, payout)); saveStats(); checkAch(); }
+    // Ergebnis-Zeile: Einsatz, Auszahlung und Netto klar anzeigen
+    let summary;
+    if (net > 0) summary = `Einsatz ${fmt(totalBet)} · Auszahlung ${fmt(payout)} · Gewinn +${fmt(net)} Coins`;
+    else if (net === 0) summary = `Einsatz ${fmt(totalBet)} zurück · ±0`;
+    else summary = `Einsatz ${fmt(totalBet)} · ${payout > 0 ? `Auszahlung ${fmt(payout)} · ` : ""}Verlust ${fmt(-net)} Coins`;
+    $("bjResult").style.color = c;
+    $("bjResult").innerHTML = `${msg}<br><span style="font-size:.9rem;color:#cbd5e1;">${summary}</span>`;
+    bump("bjPlayed");
+  }
 
   // Skins + Lootbox
   const RARITIES = {
@@ -876,7 +1187,8 @@
     { id: "vapor", name: "Vaporwave", rarity: "epic", bg: "linear-gradient(135deg, #22d3ee, #a855f7, #f472b6)", card: "rgba(17,24,39,.6)", text: "#ffffff", font: "'Comic Sans MS', cursive", radius: "18px" },
     { id: "gold", name: "Gold Edition", rarity: "legendary", bg: "linear-gradient(135deg, #78350f, #f59e0b, #78350f)", card: "rgba(0,0,0,.45)", text: "#fef3c7", font: "Georgia, serif", radius: "16px" },
     { id: "rainbow", name: "Regenbogen", rarity: "legendary", bg: "linear-gradient(90deg, #ef4444, #f59e0b, #eab308, #22c55e, #3b82f6, #a855f7, #ef4444)", card: "rgba(0,0,0,.5)", text: "#ffffff", anim: true, radius: "22px" },
-    { id: "bestanden", name: "Bestanden (fühlt sich falsch an)", rarity: "mythic", bg: "linear-gradient(135deg, #14532d, #22c55e, #14532d)", card: "rgba(0,0,0,.4)", text: "#f0fdf4", anim: true, font: "Georgia, serif", radius: "16px" }
+    { id: "bestanden", name: "Bestanden (fühlt sich falsch an)", rarity: "mythic", bg: "linear-gradient(135deg, #14532d, #22c55e, #14532d)", card: "rgba(0,0,0,.4)", text: "#f0fdf4", anim: true, font: "Georgia, serif", radius: "16px" },
+    { id: "platin", name: "Platin (Achievement-Belohnung)", rarity: "mythic", bg: "linear-gradient(135deg, #1e293b, #cbd5e1, #94a3b8, #e2e8f0, #1e293b)", card: "rgba(0,0,0,.35)", text: "#f8fafc", anim: true, radius: "18px" }
   ];
   const skinById = (id) => SKINS.find((s) => s.id === id) || SKINS[0];
   let inv = store.get("inv", null);
@@ -936,7 +1248,7 @@
     if (caseOpening) return;
     const price = boxPrice();
     if (coins < price) { $("caseResult").style.color = ""; $("caseResult").textContent = `${price} Coins nötig. Hol den Minuten-Bonus.`; return; }
-    setCoins(coins - price); caseOpening = true; sfx.click();
+    setCoins(coins - price); caseOpening = true; sfx.click(); bump("boxes"); stats.totalLost = (stats.totalLost || 0) + price; saveStats();
     const winner = rollSkin();
     const strip = $("caseStrip"); const WIN_IDX = 35;
     strip.innerHTML = ""; strip.style.transition = "none"; strip.style.transform = "translateX(0)";
@@ -1078,6 +1390,68 @@
     card.appendChild(b); $("dailyDeal").appendChild(card);
   }
   renderTraderBuy(); renderDailyDeal();
+
+  // ---------- Statistik- und Achievement-Anzeige ----------
+  function renderStats() {
+    const rows = [
+      ["Spiele gespielt", stats.games || 0],
+      ["Größter Einzelgewinn", fmt(stats.biggestWin || 0) + " 🪙"],
+      ["Coins insgesamt verspielt", fmt(stats.totalLost || 0) + " 🪙"],
+      ["Beste Higher/Lower-Serie", stats.hlBest || 0],
+      ["Wheel gedreht", stats.spins || 0],
+      ["Lootboxen geöffnet", stats.boxes || 0],
+      ["Münzwürfe", stats.flips || 0],
+      ["Blackjack gespielt", stats.bjPlayed || 0],
+      ["Echte Blackjacks", stats.bjBlackjack || 0],
+      ["Aktuelles Level", level]
+    ];
+    $("statList").innerHTML = rows.map((r) => `<div class="stat-row"><span>${r[0]}</span><b>${r[1]}</b></div>`).join("");
+  }
+  function renderAch() {
+    const have = ACHIEVEMENTS.filter((a) => achDone[a.id]).length;
+    $("achCount").textContent = `${have} / ${ACHIEVEMENTS.length}`;
+    $("achList").innerHTML = "";
+    ACHIEVEMENTS.forEach((a) => {
+      const done = !!achDone[a.id];
+      const d = document.createElement("div"); d.className = "ach" + (done ? " done" : "");
+      d.innerHTML = `<div class="ach-ic">${a.icon}</div><div class="ach-body"><div class="ach-name">${a.name}${done ? " ✓" : ""}</div><div class="ach-desc">${a.desc}</div></div><div class="ach-reward">+${fmt(a.reward)}</div>`;
+      $("achList").appendChild(d);
+    });
+  }
+
+  // ---------- Login-Streak ----------
+  function renderStreak() {
+    const streak = store.get("streak", 0);
+    const last = store.get("streakDay", "");
+    const claimedToday = last === todayKey();
+    const nextReward = 20 + Math.min(streak, 30) * 10; // wächst bis Tag 30
+    $("streakText").textContent = `Jeden Tag einloggen gibt wachsenden Bonus. Aktuelle Serie: ${streak} Tag(e).`;
+    if (claimedToday) {
+      $("streakBtn").disabled = true; $("streakBtn").textContent = "Heute schon abgeholt";
+      $("streakInfo").textContent = `Komm morgen wieder. Nächster Bonus: ${fmt(20 + Math.min(streak, 30) * 10)} Coins.`;
+    } else {
+      $("streakBtn").disabled = false; $("streakBtn").textContent = `Bonus abholen (${fmt(nextReward)} Coins)`;
+      $("streakInfo").textContent = "Verpasst du einen Tag, beginnt die Serie von vorn.";
+    }
+  }
+  $("streakBtn").addEventListener("click", () => {
+    const last = store.get("streakDay", "");
+    if (last === todayKey()) return;
+    // gestern? -> Serie +1, sonst Reset auf 1
+    const y = new Date(); y.setDate(y.getDate() - 1);
+    const yKey = `${y.getFullYear()}-${y.getMonth() + 1}-${y.getDate()}`;
+    let streak = store.get("streak", 0);
+    streak = (last === yKey) ? streak + 1 : 1;
+    const reward = 20 + Math.min(streak - 1, 30) * 10;
+    store.set("streak", streak); store.set("streakDay", todayKey());
+    setCoins(coins + reward); addXP(10); sfx.coin(); rain("🪙", "#22c55e", 20);
+    toast(`Login-Streak Tag ${streak}: +${fmt(reward)} Coins!`);
+    renderStreak();
+  });
+  renderStreak();
+
+  // Initiale Achievement-Prüfung (z.B. falls schon Level 10 erreicht)
+  checkAch(); renderStats();
 
   applySkin(equipped);
 
