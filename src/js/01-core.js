@@ -109,27 +109,26 @@
   }, 120);
 
   // Coins
+  // accountMode: eingeloggt. Dann merkt sich setCoins Einsätze (pendingWager)
+  // und Gewinne (pendingWin), die 08-account-supabase.js regelmäßig an den Server schickt.
   let coins = store.get("coins", __justReset ? 5000 : 100);
-  let syncDirty = false;
-  function setCoins(v) { coins = v; store.set("coins", v); $("coins").textContent = "🪙 " + fmt(coins); syncDirty = true; if ($("acctCoins")) $("acctCoins").textContent = fmt(coins); }
+  let syncDirty = false, accountMode = false, pendingWager = 0, pendingWin = 0;
+  function showCoins() { $("coins").textContent = "🪙 " + fmt(coins); store.set("coins", coins); if ($("acctCoins")) $("acctCoins").textContent = fmt(coins); }
+  function setCoins(v) {
+    const d = v - coins;
+    if (accountMode) { if (d < 0) pendingWager += -d; else pendingWin += d; }
+    coins = v; syncDirty = true; showCoins();
+  }
   setCoins(coins);
 
-  // ---------- Code einlösen (1x pro Benutzer) ----------
-  const REDEEM_CODES = { "MAXIREICH50K": 50000 };
-  let codesUsed = store.get("codesUsed", {}); // code -> true
+  // ---------- Code einlösen (Server, 1x pro Konto, Login nötig) ----------
   if ($("redeemBtn")) {
     $("redeemBtn").addEventListener("click", () => {
       const info = $("redeemInfo");
       const code = ($("redeemInput").value || "").trim(); // case-sensitive
       if (!code) { info.style.color = ""; info.textContent = "Code eingeben."; return; }
-      if (!(code in REDEEM_CODES)) { info.style.color = "#ef4444"; info.textContent = "Ungültiger Code."; sfx.lose(); return; }
-      if (codesUsed[code]) { info.style.color = "#ef4444"; info.textContent = "Diesen Code hast du schon eingelöst."; sfx.lose(); return; }
-      codesUsed[code] = true; store.set("codesUsed", codesUsed);
-      const amount = REDEEM_CODES[code];
-      setCoins(coins + amount);
-      $("redeemInput").value = "";
-      info.style.color = "#22c55e"; info.textContent = `🎉 Code eingelöst! +${fmt(amount)} Coins.`;
-      sfx.win(); rain("🪙", "#f59e0b", 24);
+      if (!accountMode) { info.style.color = "#ef4444"; info.textContent = "Zum Einlösen bitte einloggen."; sfx.lose(); return; }
+      redeemCode(code, info);
     });
     $("bonusBtn").addEventListener("click", () => { sfx.click(); $("redeemInfo").textContent = ""; $("bonusModal").classList.remove("hidden"); });
     $("bonusClose").addEventListener("click", () => { sfx.click(); $("bonusModal").classList.add("hidden"); });
