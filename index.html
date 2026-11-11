@@ -669,7 +669,7 @@
   setCoins(coins);
 
   // ---------- Code einlösen (1x pro Benutzer) ----------
-  const REDEEM_CODES = { "MAXI5K": 5000, "JACKPOT10K": 10000 };
+  const REDEEM_CODES = { "WALHALLA6767": 6767 };
   let codesUsed = store.get("codesUsed", {}); // code -> true
   if ($("redeemBtn")) {
     $("redeemBtn").addEventListener("click", () => {
@@ -1535,7 +1535,7 @@
 
   // ---------- Crash ----------
   const CRASH_HOUSE = 0.95;
-  let crashActive = false, crashBet = 0, crashPoint = 1, crashCur = 1, crashTimer = null, crashCashed = false;
+  let crashActive = false, crashBet = 0, crashPoint = 1, crashCur = 1, crashTimer = null, crashCashed = false, crashCashMult = 0, crashCashWon = 0;
   function crashColor(m) { return m < 2 ? "#f59e0b" : m < 5 ? "#22c55e" : m < 20 ? "#3b82f6" : "#a855f7"; }
   let crashHist = [];
   function drawCrash(crashed) {
@@ -1596,10 +1596,15 @@
         crashHist.push({ t: el, m: crashPoint }); drawCrash(true);
         $("crashMult").textContent = crashPoint.toFixed(2) + "x"; $("crashMult").style.color = "#ef4444";
         $("crashRocket").classList.remove("fly");
-        if (!crashCashed) {
-          crashActive = false; sfx.lose();
+        crashActive = false;
+        $("crashGame").classList.add("hidden"); $("crashStart").classList.remove("hidden");
+        if (crashCashed) {
+          const wouldWin = Math.floor(crashBet * crashPoint);
+          $("crashResult").style.color = "#22c55e";
+          $("crashResult").textContent = `✅ Gecasht bei ${crashCashMult.toFixed(2)}x (+${fmt(crashCashWon)}). Abgestürzt bei ${crashPoint.toFixed(2)}x, komplett wären es ${fmt(wouldWin)} Coins gewesen.`;
+        } else {
+          sfx.lose();
           stats.totalLost = (stats.totalLost || 0) + crashBet; saveStats(); checkAch();
-          $("crashGame").classList.add("hidden"); $("crashStart").classList.remove("hidden");
           $("crashResult").style.color = "#ef4444"; $("crashResult").textContent = `💥 Absturz bei ${crashPoint.toFixed(2)}x! Einsatz ${fmt(crashBet)} weg.`;
         }
         return;
@@ -1612,19 +1617,18 @@
   });
   $("crashCash").addEventListener("click", () => {
     if (!crashActive || crashCashed) return;
-    crashCashed = true; crashActive = false; $("crashCash").disabled = true;
-    if (crashTimer) { clearInterval(crashTimer); crashTimer = null; }
-    $("crashRocket").classList.remove("fly");
+    crashCashed = true; $("crashCash").disabled = true; // Spiel laeuft weiter bis zum Absturz
+    crashCashMult = crashCur;
     const won = addWin(Math.floor(crashBet * crashCur));
+    crashCashWon = won;
     if (crashCur > (stats.crashBest || 0)) { stats.crashBest = Math.round(crashCur * 100) / 100; saveStats(); }
     sfx.win(); rain("🪙", "#f59e0b", 20);
-    $("crashGame").classList.add("hidden"); $("crashStart").classList.remove("hidden");
-    $("crashResult").style.color = "#22c55e"; $("crashResult").textContent = `Gecasht bei ${crashCur.toFixed(2)}x! +${fmt(won)} Coins.`;
+    $("crashResult").style.color = "#22c55e"; $("crashResult").textContent = `Gecasht bei ${crashCur.toFixed(2)}x! +${fmt(won)} Coins. Mal sehen, wie weit es noch geht...`;
   });
 
   // ---------- Plinko ----------
   const PLINKO_ROWS = 8;
-  const PLINKO_MULTS = [8, 2.5, 1.3, 0.8, 0.35, 0.8, 1.3, 2.5, 8]; // ~5% Hausvorteil (Binomial 8)
+  const PLINKO_MULTS = [24, 3, 1, 0.6, 0.35, 0.6, 1, 3, 24]; // ~4.8% Hausvorteil (Binomial 8, 24x Jackpot)
   const PLINKO_COLORS = ["#f43f5e", "#a855f7", "#3b82f6", "#334155", "#1e293b", "#334155", "#3b82f6", "#a855f7", "#f43f5e"];
   let plinkoDropping = false;
   function buildPlinko() {
