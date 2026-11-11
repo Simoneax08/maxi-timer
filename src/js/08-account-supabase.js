@@ -245,9 +245,12 @@
     if (!chatMsgs) return;
     const row = document.createElement("div");
     row.className = "chat-msg" + (authUsername && r.username === authUsername ? " me" : "");
+    const time = document.createElement("span"); time.className = "chat-time";
+    const dt = r.created_at ? new Date(r.created_at) : new Date();
+    time.textContent = dt.toLocaleTimeString("de-AT", { hour: "2-digit", minute: "2-digit" });
     const who = document.createElement("b"); who.textContent = (r.username || "?") + ": ";
     const txt = document.createElement("span"); txt.textContent = r.body || "";
-    row.append(who, txt);
+    row.append(time, " ", who, txt);
     chatMsgs.appendChild(row);
     chatMsgs.scrollTop = chatMsgs.scrollHeight;
   }

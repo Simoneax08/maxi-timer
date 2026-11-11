@@ -5,7 +5,8 @@
 .chat-panel.collapsed .chat-head{border-radius:12px}
 .chat-body{display:flex;flex-direction:column}
 .chat-msgs{height:260px;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:4px}
-.chat-msg{word-break:break-word}
+.chat-msg{word-break:break-word;text-align:left}
+.chat-time{opacity:.55;font-size:12px;font-variant-numeric:tabular-nums}
 .chat-msg b{color:#93c5fd}
 .chat-msg.me b{color:#f59e0b}
 .chat-hint{font-size:12px;opacity:.7;padding:4px}

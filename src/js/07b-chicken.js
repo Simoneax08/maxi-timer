@@ -13,7 +13,10 @@
   }
   function crRender() {
     const risk = Math.round((1 - CR_SURVIVE(crStep + 1)) * 100);
-    $("crInfo").textContent = `Schritt ${crStep} · x${crMult.toFixed(2)} · Gewinn ${fmt(Math.floor(crBet * crMult))} · nächster Schritt: ${risk} % Risiko`;
+    const cash = Math.floor(crBet * crMult);
+    $("crInfo").textContent = `Schritt ${crStep} · x${crMult.toFixed(2)} · nächster Schritt: ${risk} % Risiko`;
+    $("crCashBtn").textContent = crStep >= 1 ? `💰 Kassieren (${fmt(cash)} Coins · x${crMult.toFixed(2)})` : "💰 Kassieren";
+    $("crCashBtn").disabled = crStep < 1;
   }
   function crEndUI() {
     $("crStartBox").classList.remove("hidden");

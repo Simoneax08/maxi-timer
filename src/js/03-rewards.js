@@ -53,12 +53,21 @@
       renderLevel(); renderLevelModal();
     }, 3600);
   }
+  // Alle abholen: sofort gutschreiben, ohne Spinner. Jedes Level wird einzeln ausgelost.
   function claimAll() {
-    if (rwSpinning) return;
-    const next = claimedLevel + 1;
-    if (next > level) return;
-    claimLevel(next);
-    if (claimedLevel < level) setTimeout(claimAll, 3900);
+    if (rwSpinning || level <= claimedLevel) return;
+    let total = 0; const parts = [];
+    for (let lv = claimedLevel + 1; lv <= level; lv++) {
+      const ch = rwPick();
+      const w = Math.floor(levelReward(lv) * ch.mult);
+      total += w; parts.push(`Lv ${lv} ${ch.label}`);
+    }
+    setCoins(coins + total);
+    claimedLevel = level; store.set("claimedLevel", claimedLevel);
+    sfx.coin(); rain("🪙", "#f59e0b", 30);
+    claimBurst(total, `Alle abgeholt (${parts.length})`, "#f59e0b");
+    toast(`+${fmt(total)} Coins: ${parts.join(", ")}`);
+    renderLevel(); renderLevelModal();
   }
 
   function renderLevelModal() {
