@@ -137,7 +137,7 @@
   #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   .modal { position: fixed; inset: 0; background: rgba(0,0,0,.65); display: flex; align-items: center; justify-content: center; z-index: 70; padding: 16px; backdrop-filter: blur(3px); }
   .modal.hidden { display: none; }
-  .modal-box { background: #111a2e; color: #f9fafb; border: 1px solid rgba(255,255,255,.14); border-radius: 18px; padding: 24px; max-width: 420px; width: 100%; box-shadow: 0 20px 50px rgba(0,0,0,.5); text-align: left; }
+  .modal-box { background: #111a2e; color: #f9fafb; border: 1px solid rgba(255,255,255,.14); border-radius: 18px; padding: 24px; max-width: 420px; width: 100%; max-height: 88vh; overflow-y: auto; box-shadow: 0 20px 50px rgba(0,0,0,.5); text-align: left; }
   .modal-box h2 { margin: 0 0 4px; }
   .modal-box .big-xp { height: 14px; background: #1e293b; border-radius: 7px; overflow: hidden; margin: 12px 0 6px; }
   .modal-box .big-xp > div { height: 100%; background: #22c55e; transition: width .4s; }
@@ -663,7 +663,8 @@
     if (!$("levelModal").classList.contains("hidden")) renderLevelModal();
   }
   // Einsatzabhängige XP: Grund-XP + 1 XP pro 50 gesetzten Coins (gedeckelt bei +40)
-  function addXPbet(base, bet) { addXP(base + Math.min(20, Math.floor((bet || 0) / 500))); }
+  // XP hängt vom Einsatz ab: 1 XP pro 100 Coins, mindestens 1, gedeckelt bei 100.
+  function addXPbet(bet) { addXP(Math.max(1, Math.min(100, Math.floor((bet || 0) / 100)))); }
 
   // Belohnungs-Lotterie beim Abholen
   function claimBurst(amount, label, color) {
@@ -946,7 +947,7 @@
     spinning = true; $("spinResult").textContent = "Dreht sich...";
     cv.style.transform = `rotate(${rotation}deg)`;
     setTimeout(() => {
-      spinning = false; addXP(5);
+      spinning = false; addXPbet(10);
       if (chosen.coins > 0) {
         const won = addWin(chosen.coins);
         sfx.win();
@@ -1017,7 +1018,7 @@
     const other = choice === "Kopf" ? "Zahl" : "Kopf";
     setTimeout(() => {
       $("flipCoin").classList.remove("flipping");
-      $("flipCoin").textContent = win ? choice : other; flipping = false; addXPbet(4, bet);
+      $("flipCoin").textContent = win ? choice : other; flipping = false; addXPbet(bet);
       if (win) { const won = addWin(bet * 2); sfx.win(); rain("🪙", "#f59e0b", 20); $("flipResult").textContent = `${choice}! +${fmt(won)} Coins. Glück gehabt, Können war es nicht.`; }
       else { stats.totalLost = (stats.totalLost || 0) + bet; saveStats(); checkAch(); if (coins === 0) { sfx.lose(); $("flipResult").textContent = `${other}. Alles weg. Hol den Minuten-Bonus.`; } else { sfx.lose(); $("flipResult").textContent = `${other}. -${bet} Coins. ${loseTexts[rnd(0, loseTexts.length - 1)]}`; } }
     }, 1500);
@@ -1044,7 +1045,7 @@
     if (!bet || bet < 1) { $("guessResult").style.color = ""; $("guessResult").textContent = "Einsatz eingeben."; return; }
     if (bet > coins) { $("guessResult").style.color = ""; $("guessResult").textContent = "So viele Coins hast du nicht."; return; }
     if (!g || g < 1 || g > range) { $("guessResult").style.color = ""; $("guessResult").textContent = `Zahl zwischen 1 und ${fmt(range)} eingeben.`; return; }
-    setCoins(coins - bet); sfx.click(); addXPbet(6, bet);
+    setCoins(coins - bet); sfx.click(); addXPbet(bet);
     const secret = rnd(1, range);
     if (g === secret) {
       const win = addWin(bet * range * HOUSE);
@@ -1080,7 +1081,7 @@
     const bet = Math.floor(Number($("hlBet").value));
     if (!bet || bet < 1) { $("hlResult").style.color = ""; $("hlResult").textContent = "Einsatz eingeben."; return; }
     if (bet > coins) { $("hlResult").style.color = ""; $("hlResult").textContent = "So viele Coins hast du nicht."; return; }
-    setCoins(coins - bet); sfx.click();
+    setCoins(coins - bet); sfx.click(); addXPbet(bet);
     hlActive = true; hlPot = bet; hlStreak = 0;
     hlRank = rnd(1, 13); hlSuit = rnd(0, 3);
     $("hlStart").classList.add("hidden"); $("hlGame").classList.remove("hidden");
@@ -1096,7 +1097,7 @@
     const prev = HL_RANKS[hlRank];
     hlRank = nextRank; hlSuit = nextSuit; drawHlCard(hlRank, hlSuit);
     if (correct) {
-      hlStreak++; hlPot *= HL_MULT; hlUpdatePot(); addXP(3); sfx.win();
+      hlStreak++; hlPot *= HL_MULT; hlUpdatePot(); sfx.win();
       $("hlResult").style.color = "#22c55e";
       $("hlResult").textContent = `${HL_RANKS[hlRank]} nach ${prev}. Richtig! Weiter oder cashen?`;
     } else {
@@ -1183,7 +1184,7 @@
     const bet = Math.floor(Number($("bjBet").value));
     if (!bet || bet < 1) { $("bjResult").style.color = ""; $("bjResult").textContent = "Einsatz eingeben."; return; }
     if (bet > coins) { $("bjResult").style.color = ""; $("bjResult").textContent = "So viele Coins hast du nicht."; return; }
-    setCoins(coins - bet); sfx.click();
+    setCoins(coins - bet); sfx.click(); addXPbet(bet);
     bjBet = bet; bjActive = true;
     bjDealer = [bjDraw(), bjDraw()];
     bjHandsArr = [{ cards: [bjDraw(), bjDraw()], bet, done: false, doubled: false }];
@@ -1253,7 +1254,7 @@
     $("bjActions").classList.add("hidden");
     // Dealer zieht nur, wenn mindestens eine Hand noch im Spiel ist
     const anyAlive = bjHandsArr.some((h) => !h.bust);
-    bjRenderDealer(false); addXP(4);
+    bjRenderDealer(false);
     if (anyAlive) { while (bjHandValue(bjDealer) < 17) bjDealer.push(bjDraw()); bjRenderDealer(false); }
     const dv = bjHandValue(bjDealer);
     // winPayout = echte Gewinne (werden geboostet) · pushReturn = zurück­gegebener Einsatz (KEIN Boost)
@@ -1353,7 +1354,7 @@
     }
     // sicheres Feld
     minesField[i] = 2; minesRevealed++;
-    minesRenderGrid(false); minesUpdateInfo(); addXP(2);
+    minesRenderGrid(false); minesUpdateInfo();
     // Alle sicheren Felder aufgedeckt -> automatischer Gewinn
     if (minesRevealed >= MINES_TOTAL - minesN) minesCashOut(true);
   }
@@ -1376,7 +1377,7 @@
     if (!bet || bet < 1) { $("minesResult").style.color = ""; $("minesResult").textContent = "Einsatz eingeben."; return; }
     if (bet > coins) { $("minesResult").style.color = ""; $("minesResult").textContent = "So viele Coins hast du nicht."; return; }
     if (!n || n < 1) n = 1; if (n > 24) n = 24;
-    setCoins(coins - bet); sfx.click();
+    setCoins(coins - bet); sfx.click(); addXPbet(bet);
     minesBet = bet; minesN = n; minesActive = true; minesRevealed = 0;
     // Minenfeld aufbauen: 0 = verdeckt sicher, 1 = Mine, 2 = aufgedeckt sicher
     minesField = new Array(MINES_TOTAL).fill(0);
@@ -1469,7 +1470,7 @@
   function updateCaseBtn() { $("caseBtn").textContent = `Lootbox öffnen (${boxPrice()} Coins)`; }
   updateCaseBtn();
   function caseReveal(winner) {
-    caseOpening = false; addXP(10);
+    caseOpening = false; addXPbet(boxPrice());
     const r = RARITIES[winner.rarity]; const had = (inv[winner.id] || 0) > 0;
     inv[winner.id] = (inv[winner.id] || 0) + 1; saveInv(); renderInventory();
     $("caseResult").style.color = r.color;
