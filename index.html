@@ -86,6 +86,7 @@
   .mine-tile:disabled { cursor: default; }
   #minesResult { min-height: 1.5em; font-weight: 700; margin-top: 12px; }
   /* Crash */
+  #crashCanvas { width: 100%; max-width: 360px; height: 170px; display: block; margin: 10px auto 0; background: radial-gradient(130% 120% at 12% 100%, #0b1b2e 0%, #0a0f1d 58%, #070b16 100%); border: 1px solid rgba(255,255,255,.08); border-radius: 14px; box-shadow: inset 0 0 36px rgba(14,165,233,.08), 0 8px 24px rgba(0,0,0,.4); }
   #crashMult { font-size: clamp(2.5rem, 12vw, 4rem); font-weight: 900; font-variant-numeric: tabular-nums; margin: 10px 0; transition: color .2s; }
   #crashRocket { font-size: 2.2rem; transition: transform .1s; }
   #crashRocket.fly { animation: rocketShake .25s infinite; }
@@ -94,7 +95,7 @@
   /* Plinko */
   #plinkoBoard { position: relative; width: 100%; max-width: 320px; height: 268px; margin: 14px auto 0; background: radial-gradient(120% 90% at 50% 0%, #15213b 0%, #0b1120 55%, #070b16 100%); border-radius: 16px; border: 1px solid rgba(255,255,255,.08); box-shadow: inset 0 0 40px rgba(59,130,246,.08), 0 8px 24px rgba(0,0,0,.4); overflow: hidden; }
   .plinko-peg { position: absolute; width: 8px; height: 8px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff, #93a4c4); box-shadow: 0 0 6px rgba(147,197,253,.6); transform: translate(-50%,-50%); }
-  #plinkoBall { position: absolute; width: 18px; height: 18px; border-radius: 50%; background: radial-gradient(circle at 32% 28%, #fff7d6, #fbbf24 55%, #f59e0b); box-shadow: 0 0 14px rgba(251,191,36,.9), inset 0 1px 3px rgba(255,255,255,.7); transform: translate(-50%,-50%); z-index: 3; transition: left .18s cubic-bezier(.4,.1,.6,1), top .18s cubic-bezier(.5,0,.6,1); }
+  #plinkoBall, .plinko-ball { position: absolute; width: 18px; height: 18px; border-radius: 50%; background: radial-gradient(circle at 32% 28%, #fff7d6, #fbbf24 55%, #f59e0b); box-shadow: 0 0 14px rgba(251,191,36,.9), inset 0 1px 3px rgba(255,255,255,.7); transform: translate(-50%,-50%); z-index: 3; transition: left .18s cubic-bezier(.4,.1,.6,1), top .18s cubic-bezier(.5,0,.6,1); }
   #plinkoBall.hidden { display: none; }
   #plinkoSlots { display: flex; gap: 4px; max-width: 320px; margin: 8px auto 0; }
   .plinko-slot { flex: 1; text-align: center; font-size: .72rem; font-weight: 800; padding: 8px 2px; border-radius: 9px; color: #fff; box-shadow: 0 3px 0 rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.18); text-shadow: 0 1px 2px rgba(0,0,0,.5); transition: transform .12s, box-shadow .12s; }
@@ -238,6 +239,7 @@
       <div id="xpbar"><div id="xpFill"></div></div>
       <div id="boostWrap" class="hidden"><span id="boostLabel">⚡ XP x2</span><div id="boostBar"><div id="boostFill"></div></div></div>
     </div>
+    <button id="bonusBtn" title="Bonus-Code einlösen">🎟️</button>
     <button id="soundToggle">🔊</button>
     <div id="coins">🪙 0</div>
     <div id="winBoostBadge" class="hidden"></div>
@@ -281,6 +283,7 @@
       <button id="chestBtn">🎁 Truhe öffnen</button>
       <div id="chestTimer"></div>
     </div>
+
 
     <div class="card">
       <strong>🎮 Spiele</strong>
@@ -424,6 +427,7 @@
           <button id="crashStartBtn" style="background:#0ea5e9;color:#fff;">🚀 Starten</button>
         </div>
         <div id="crashGame" class="hidden">
+          <canvas id="crashCanvas"></canvas>
           <div id="crashMult">1.00x</div>
           <div id="crashRocket">🚀</div>
           <button id="crashCash" style="background:#22c55e;color:#052e16;">💰 Cashen</button>
@@ -441,7 +445,10 @@
           <button class="betMul" data-target="plinkoBet" data-mul="half">÷2</button>
           <button class="betMul" data-target="plinkoBet" data-mul="double">×2</button>
         </div>
-        <button id="plinkoDropBtn" style="background:#0ea5e9;color:#fff;">⬇️ Kugel fallen lassen</button>
+        <div class="bet-row">
+          <div class="field"><label>Bälle gleichzeitig (max 20)</label><input id="plinkoBalls" type="number" min="1" max="20" value="1" style="width:110px;text-align:center;"></div>
+        </div>
+        <button id="plinkoDropBtn" style="background:#0ea5e9;color:#fff;">⬇️ Bälle fallen lassen</button>
         <div id="plinkoBoard"><div id="plinkoBall" class="hidden"></div></div>
         <div id="plinkoSlots"></div>
         <div id="plinkoResult"></div>
@@ -537,6 +544,17 @@
       <p style="margin:16px 0 4px;font-weight:700;">Nächste Belohnungen</p>
       <div id="lmRewards"></div>
       <button id="levelClose">Schließen</button>
+    </div>
+  </div>
+
+  <div id="bonusModal" class="modal hidden">
+    <div class="modal-box">
+      <h2>🎟️ Bonus-Code</h2>
+      <p class="hint">Gib einen Bonus-Code ein. Groß- und Kleinschreibung zählt. Jeder Code nur einmal pro Benutzer.</p>
+      <div class="field" style="margin:10px 0;"><label>Code</label><input id="redeemInput" type="text" placeholder="Code" style="width:100%;text-align:center;"></div>
+      <button id="redeemBtn" style="background:#8b5cf6;color:#fff;">Einlösen</button>
+      <div id="redeemInfo" style="margin-top:8px;"></div>
+      <button id="bonusClose" style="margin-top:14px;">Schließen</button>
     </div>
   </div>
 
@@ -648,6 +666,28 @@
   let coins = store.get("coins", 100);
   function setCoins(v) { coins = v; store.set("coins", v); $("coins").textContent = "🪙 " + fmt(coins); }
   setCoins(coins);
+
+  // ---------- Code einlösen (1x pro Benutzer) ----------
+  const REDEEM_CODES = { "MAXI5K": 5000 };
+  let codesUsed = store.get("codesUsed", {}); // code -> true
+  if ($("redeemBtn")) {
+    $("redeemBtn").addEventListener("click", () => {
+      const info = $("redeemInfo");
+      const code = ($("redeemInput").value || "").trim(); // case-sensitive
+      if (!code) { info.style.color = ""; info.textContent = "Code eingeben."; return; }
+      if (!(code in REDEEM_CODES)) { info.style.color = "#ef4444"; info.textContent = "Ungültiger Code."; sfx.lose(); return; }
+      if (codesUsed[code]) { info.style.color = "#ef4444"; info.textContent = "Diesen Code hast du schon eingelöst."; sfx.lose(); return; }
+      codesUsed[code] = true; store.set("codesUsed", codesUsed);
+      const amount = REDEEM_CODES[code];
+      setCoins(coins + amount);
+      $("redeemInput").value = "";
+      info.style.color = "#22c55e"; info.textContent = `🎉 Code eingelöst! +${fmt(amount)} Coins.`;
+      sfx.win(); rain("🪙", "#f59e0b", 24);
+    });
+    $("bonusBtn").addEventListener("click", () => { sfx.click(); $("redeemInfo").textContent = ""; $("bonusModal").classList.remove("hidden"); });
+    $("bonusClose").addEventListener("click", () => { sfx.click(); $("bonusModal").classList.add("hidden"); });
+    $("bonusModal").addEventListener("click", (e) => { if (e.target === $("bonusModal")) $("bonusModal").classList.add("hidden"); });
+  }
 
   // ---------- Statistik ----------
   let stats = store.get("stats", { games: 0, biggestWin: 0, totalLost: 0, hlBest: 0, spins: 0, boxes: 0, flips: 0, bjPlayed: 0, bjBlackjack: 0 });
@@ -1496,6 +1536,42 @@
   const CRASH_HOUSE = 0.95;
   let crashActive = false, crashBet = 0, crashPoint = 1, crashCur = 1, crashTimer = null, crashCashed = false;
   function crashColor(m) { return m < 2 ? "#f59e0b" : m < 5 ? "#22c55e" : m < 20 ? "#3b82f6" : "#a855f7"; }
+  let crashHist = [];
+  function drawCrash(crashed) {
+    const cv = $("crashCanvas"); if (!cv) return;
+    const ctx = cv.getContext("2d");
+    const DPR = window.devicePixelRatio || 1;
+    const w = cv.clientWidth || 340, h = cv.clientHeight || 170;
+    if (cv.width !== Math.round(w * DPR)) { cv.width = Math.round(w * DPR); cv.height = Math.round(h * DPR); }
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    const pad = 8;
+    const last = crashHist.length ? crashHist[crashHist.length - 1] : { t: 0, m: 1 };
+    const tMax = Math.max(4, last.t);
+    const mMax = Math.max(1.6, last.m * 1.12);
+    const X = (t) => pad + (t / tMax) * (w - pad * 2);
+    const Y = (m) => (h - pad) - ((m - 1) / (mMax - 1)) * (h - pad * 2);
+    // Gitternetz
+    ctx.strokeStyle = "rgba(255,255,255,.05)"; ctx.lineWidth = 1;
+    for (let i = 1; i <= 3; i++) { const y = pad + (i / 4) * (h - pad * 2); ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(w - pad, y); ctx.stroke(); }
+    if (crashHist.length < 2) return;
+    const col = crashed ? "#ef4444" : crashColor(last.m);
+    // Fläche
+    ctx.beginPath(); ctx.moveTo(X(crashHist[0].t), Y(crashHist[0].m));
+    for (const p of crashHist) ctx.lineTo(X(p.t), Y(p.m));
+    ctx.lineTo(X(last.t), h - pad); ctx.lineTo(X(crashHist[0].t), h - pad); ctx.closePath();
+    const grad = ctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, col + "55"); grad.addColorStop(1, col + "00");
+    ctx.fillStyle = grad; ctx.fill();
+    // Linie
+    ctx.beginPath(); ctx.moveTo(X(crashHist[0].t), Y(crashHist[0].m));
+    for (const p of crashHist) ctx.lineTo(X(p.t), Y(p.m));
+    ctx.strokeStyle = col; ctx.lineWidth = 3; ctx.lineJoin = "round"; ctx.lineCap = "round";
+    ctx.shadowColor = col; ctx.shadowBlur = 10; ctx.stroke(); ctx.shadowBlur = 0;
+    // Spitze
+    ctx.beginPath(); ctx.arc(X(last.t), Y(last.m), crashed ? 6 : 5, 0, Math.PI * 2);
+    ctx.fillStyle = crashed ? "#ef4444" : "#fff"; ctx.fill();
+  }
   $("crashStartBtn").addEventListener("click", () => {
     if (crashActive) return;
     const bet = Math.floor(Number($("crashBet").value));
@@ -1509,12 +1585,14 @@
     $("crashStart").classList.add("hidden"); $("crashGame").classList.remove("hidden");
     $("crashResult").textContent = ""; $("crashCash").disabled = false;
     $("crashRocket").classList.add("fly");
+    crashHist = [{ t: 0, m: 1 }]; drawCrash(false);
     const t0 = Date.now();
     crashTimer = setInterval(() => {
       const el = (Date.now() - t0) / 1000;
       crashCur = Math.pow(Math.E, 0.3 * el); // exponentieller Anstieg (langsamer = mehr Reaktionszeit)
       if (crashCur >= crashPoint) {
         crashCur = crashPoint; clearInterval(crashTimer); crashTimer = null;
+        crashHist.push({ t: el, m: crashPoint }); drawCrash(true);
         $("crashMult").textContent = crashPoint.toFixed(2) + "x"; $("crashMult").style.color = "#ef4444";
         $("crashRocket").classList.remove("fly");
         if (!crashCashed) {
@@ -1525,6 +1603,9 @@
         }
         return;
       }
+      crashHist.push({ t: el, m: crashCur });
+      if (crashHist.length > 400) crashHist.shift();
+      drawCrash(false);
       $("crashMult").textContent = crashCur.toFixed(2) + "x"; $("crashMult").style.color = crashColor(crashCur);
     }, 50);
   });
@@ -1561,54 +1642,83 @@
     }
     $("plinkoSlots").innerHTML = PLINKO_MULTS.map((m, i) => `<div class="plinko-slot" data-i="${i}" style="background:${PLINKO_COLORS[i]}">${m}x</div>`).join("");
   }
-  $("plinkoDropBtn").addEventListener("click", () => {
-    if (plinkoDropping) return;
-    const bet = Math.floor(Number($("plinkoBet").value));
-    if (!bet || bet < 1) { $("plinkoResult").style.color = ""; $("plinkoResult").textContent = "Einsatz eingeben."; return; }
-    if (bet > coins) { $("plinkoResult").style.color = ""; $("plinkoResult").textContent = "So viele Coins hast du nicht."; return; }
-    setCoins(coins - bet); sfx.click(); addXPbet(bet); bump("plinkoPlayed");
-    plinkoDropping = true; buildPlinko();
-    document.querySelectorAll(".plinko-slot").forEach((s) => s.classList.remove("hit"));
-    const board = $("plinkoBoard"), W = board.clientWidth || 300, H = 220;
-    // Pfad: pro Reihe zufällig links/rechts -> Anzahl rechts = Zielfach
+  function finishPlinko(n, totalBet, totalReturn) {
+    plinkoDropping = false; checkAch();
+    const net = totalReturn - totalBet;
+    const res = $("plinkoResult");
+    if (net >= 0) {
+      res.style.color = "#22c55e";
+      res.textContent = n === 1 ? `Zurück: ${fmt(totalReturn)} Coins (Gewinn ${fmt(net)}).` : `${n} Bälle: zurück ${fmt(totalReturn)} Coins, Gewinn ${fmt(net)}.`;
+      sfx.win(); rain("🔵", "#3b82f6", Math.min(30, 10 + n * 2));
+    } else {
+      res.style.color = "#ef4444";
+      res.textContent = `${n} ${n === 1 ? "Ball" : "Bälle"}: zurück ${fmt(totalReturn)} Coins, Verlust ${fmt(-net)}.`;
+      sfx.lose();
+    }
+  }
+  function dropOneBall(bet, W, H, onDone) {
+    const board = $("plinkoBoard");
     let rights = 0; const path = [];
     for (let r = 0; r < PLINKO_ROWS; r++) { const right = Math.random() < 0.5; if (right) rights++; path.push(right); }
     const slot = rights;
-    const ball = $("plinkoBall"); ball.classList.remove("hidden");
-    let col = 0;
-    ball.style.left = W / 2 + "px"; ball.style.top = "10px";
-    let step = 0;
+    const ball = document.createElement("div"); ball.className = "plinko-ball";
+    ball.style.left = (W / 2 + (Math.random() * 10 - 5)) + "px"; ball.style.top = "10px";
+    board.appendChild(ball);
+    let col = 0, step = 0;
     const stepT = setInterval(() => {
       if (step >= PLINKO_ROWS) {
         clearInterval(stepT);
         const slotX = (slot + 0.5) / PLINKO_MULTS.length * W;
         ball.style.left = slotX + "px"; ball.style.top = (H + 28) + "px";
         setTimeout(() => {
-          ball.classList.add("hidden");
-          const slotEl = document.querySelector(`.plinko-slot[data-i="${slot}"]`); if (slotEl) slotEl.classList.add("hit");
+          ball.remove();
+          const slotEl = document.querySelector(`.plinko-slot[data-i="${slot}"]`);
+          if (slotEl) { slotEl.classList.add("hit"); setTimeout(() => slotEl.classList.remove("hit"), 450); }
           const mult = PLINKO_MULTS[slot];
-          plinkoDropping = false;
+          let ret;
           if (mult >= 1) {
-            const won = addWin(Math.floor(bet * mult));
-            if (won > (stats.plinkoBest || 0)) { stats.plinkoBest = won; saveStats(); }
-            sfx.win(); rain("🔵", PLINKO_COLORS[slot], 15);
-            $("plinkoResult").style.color = "#22c55e"; $("plinkoResult").textContent = `${mult}x! +${fmt(won)} Coins.`;
+            ret = addWin(Math.floor(bet * mult));
+            if (ret > (stats.plinkoBest || 0)) { stats.plinkoBest = ret; saveStats(); }
           } else {
-            const back = Math.floor(bet * mult);
-            setCoins(coins + back);
-            stats.totalLost = (stats.totalLost || 0) + (bet - back); saveStats(); checkAch();
-            sfx.lose(); $("plinkoResult").style.color = "#ef4444"; $("plinkoResult").textContent = `Nur ${mult}x. Zurück: ${fmt(back)}, Verlust ${fmt(bet - back)}.`;
+            ret = Math.floor(bet * mult);
+            setCoins(coins + ret);
+            stats.totalLost = (stats.totalLost || 0) + (bet - ret); saveStats();
           }
-        }, 220);
+          onDone(ret);
+        }, 200);
         return;
       }
       if (path[step]) col++;
       const pegs = step + 2;
-      const x = (col + 0.5) / (PLINKO_MULTS.length) * W + (W / PLINKO_MULTS.length) * 0.0;
       ball.style.left = ((col + 0.5) / pegs * W) + "px";
       ball.style.top = (24 + (step + 0.5) / PLINKO_ROWS * H) + "px";
       step++;
     }, 180);
+  }
+  $("plinkoDropBtn").addEventListener("click", () => {
+    if (plinkoDropping) return;
+    const bet = Math.floor(Number($("plinkoBet").value));
+    let n = Math.floor(Number($("plinkoBalls").value) || 1);
+    n = Math.max(1, Math.min(20, n));
+    if (!bet || bet < 1) { $("plinkoResult").style.color = ""; $("plinkoResult").textContent = "Einsatz eingeben."; return; }
+    const totalBet = bet * n;
+    if (totalBet > coins) { $("plinkoResult").style.color = ""; $("plinkoResult").textContent = `Für ${n} Bälle brauchst du ${fmt(totalBet)} Coins.`; return; }
+    setCoins(coins - totalBet); sfx.click(); addXPbet(totalBet);
+    for (let i = 0; i < n; i++) bump("plinkoPlayed");
+    plinkoDropping = true; buildPlinko();
+    $("plinkoResult").textContent = "";
+    document.querySelectorAll(".plinko-slot").forEach((s) => s.classList.remove("hit"));
+    $("plinkoBoard").querySelectorAll(".plinko-ball").forEach((b) => b.remove());
+    const board = $("plinkoBoard"), W = board.clientWidth || 300, H = 220;
+    let done = 0, totalReturn = 0;
+    for (let b = 0; b < n; b++) {
+      setTimeout(() => {
+        dropOneBall(bet, W, H, (ret) => {
+          totalReturn += ret; done++;
+          if (done >= n) finishPlinko(n, totalBet, totalReturn);
+        });
+      }, b * 90);
+    }
   });
 
   // Skins + Lootbox
