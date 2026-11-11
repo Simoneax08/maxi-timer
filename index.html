@@ -85,6 +85,23 @@
   .mine-tile.boom { background: #7f1d1d; border-color: #ef4444; cursor: default; }
   .mine-tile:disabled { cursor: default; }
   #minesResult { min-height: 1.5em; font-weight: 700; margin-top: 12px; }
+  /* Crash */
+  #crashMult { font-size: clamp(2.5rem, 12vw, 4rem); font-weight: 900; font-variant-numeric: tabular-nums; margin: 10px 0; transition: color .2s; }
+  #crashRocket { font-size: 2.2rem; transition: transform .1s; }
+  #crashRocket.fly { animation: rocketShake .25s infinite; }
+  @keyframes rocketShake { 0%,100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-4px) rotate(3deg); } }
+  #crashResult, #plinkoResult { min-height: 1.5em; font-weight: 700; margin-top: 12px; }
+  /* Plinko */
+  #plinkoBoard { position: relative; width: 100%; max-width: 300px; height: 260px; margin: 12px auto 0; background: #060a14; border-radius: 12px; border: 1px solid rgba(255,255,255,.06); overflow: hidden; }
+  .plinko-peg { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: #475569; transform: translate(-50%,-50%); }
+  #plinkoBall { position: absolute; width: 16px; height: 16px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #fde68a, #f59e0b); box-shadow: 0 0 8px rgba(245,158,11,.7); transform: translate(-50%,-50%); z-index: 2; transition: left .18s linear, top .18s linear; }
+  #plinkoBall.hidden { display: none; }
+  #plinkoSlots { display: flex; gap: 3px; max-width: 300px; margin: 6px auto 0; }
+  .plinko-slot { flex: 1; text-align: center; font-size: .72rem; font-weight: 800; padding: 6px 2px; border-radius: 6px; color: #fff; }
+  .plinko-slot.hit { outline: 2px solid #facc15; transform: scale(1.1); }
+  /* Konfetti */
+  .confetti { position: fixed; top: -12px; width: 10px; height: 14px; z-index: 95; pointer-events: none; animation: confFall linear forwards; }
+  @keyframes confFall { to { transform: translateY(105vh) rotate(720deg); } }
   .card-face.red { color: #dc2626; }
   .card-face.flip { animation: cardflip .4s ease; }
   @keyframes cardflip { 0% { transform: rotateY(0) scale(1); } 50% { transform: rotateY(90deg) scale(1.05); } 100% { transform: rotateY(0) scale(1); } }
@@ -269,6 +286,8 @@
       <strong>🎮 Spiele</strong>
       <div id="gameTabs">
         <button class="gtab active" data-game="mines">💣 Mines</button>
+        <button class="gtab" data-game="crash">🚀 Crash</button>
+        <button class="gtab" data-game="plinko">🔵 Plinko</button>
         <button class="gtab" data-game="bj">🂡 Blackjack</button>
         <button class="gtab" data-game="hl">🃏 Higher/Lower</button>
         <button class="gtab" data-game="wheel">🎡 Wheel</button>
@@ -390,6 +409,43 @@
         </div>
         <div id="minesResult"></div>
       </div>
+
+      <div class="game-panel hidden" id="game-crash">
+        <p class="hint">Der Multiplikator steigt live. Cashe aus, bevor die Rakete abstürzt. Stürzt sie vor deinem Cashout ab, ist der Einsatz weg. ~5% Hausvorteil.</p>
+        <div id="crashStart">
+          <div class="bet-row">
+            <div class="field"><label>Einsatz (Coins)</label><input id="crashBet" type="number" min="1" value="10" style="width:130px;text-align:center;"></div>
+            <button class="maxBet" data-target="crashBet">Max</button>
+          </div>
+          <div class="bet-row">
+            <button class="betMul" data-target="crashBet" data-mul="half">÷2</button>
+            <button class="betMul" data-target="crashBet" data-mul="double">×2</button>
+          </div>
+          <button id="crashStartBtn" style="background:#0ea5e9;color:#fff;">🚀 Starten</button>
+        </div>
+        <div id="crashGame" class="hidden">
+          <div id="crashMult">1.00x</div>
+          <div id="crashRocket">🚀</div>
+          <button id="crashCash" style="background:#22c55e;color:#052e16;">💰 Cashen</button>
+        </div>
+        <div id="crashResult"></div>
+      </div>
+
+      <div class="game-panel hidden" id="game-plinko">
+        <p class="hint">Lass die Kugel fallen, sie landet in einem Multiplikator-Fach. Außen = hoch, Mitte = niedrig. ~5% Hausvorteil.</p>
+        <div class="bet-row">
+          <div class="field"><label>Einsatz (Coins)</label><input id="plinkoBet" type="number" min="1" value="10" style="width:130px;text-align:center;"></div>
+          <button class="maxBet" data-target="plinkoBet">Max</button>
+        </div>
+        <div class="bet-row">
+          <button class="betMul" data-target="plinkoBet" data-mul="half">÷2</button>
+          <button class="betMul" data-target="plinkoBet" data-mul="double">×2</button>
+        </div>
+        <button id="plinkoDropBtn" style="background:#0ea5e9;color:#fff;">⬇️ Kugel fallen lassen</button>
+        <div id="plinkoBoard"><div id="plinkoBall" class="hidden"></div></div>
+        <div id="plinkoSlots"></div>
+        <div id="plinkoResult"></div>
+      </div>
     </div>
 
     <div class="card">
@@ -431,6 +487,19 @@
       <button id="streakBtn" style="background:#22c55e;color:#052e16;">Täglichen Bonus abholen</button>
       <div id="streakInfo" style="font-size:.85rem;color:#94a3b8;margin-top:8px;"></div>
     </div>
+
+    <div class="card">
+      <strong>🎯 Tägliche Challenges</strong>
+      <p class="hint">Drei Aufgaben pro Tag. Schaffst du sie, gibt es Coins. Setzen sich täglich neu.</p>
+      <div id="challengeList"></div>
+    </div>
+
+    <div class="card">
+      <strong>♻️ Prestige / Rebirth</strong>
+      <p id="prestigeText" class="hint"></p>
+      <button id="prestigeBtn" style="background:#a855f7;color:#fff;">Prestige</button>
+      <div id="prestigeInfo" style="font-size:.85rem;color:#94a3b8;margin-top:8px;"></div>
+    </div>
   </div>
 
   <!-- ===== TAB 3: STATS ===== -->
@@ -442,8 +511,12 @@
       <div id="statList" style="margin-top:10px;"></div>
     </div>
     <div class="card">
+      <strong>🏅 Rekorde</strong>
+      <div id="recordList" style="margin-top:10px;"></div>
+    </div>
+    <div class="card">
       <strong>🏆 Achievements</strong> (<span id="achCount"></span>)
-      <p class="hint">Alle 12 schalten den Platin-Skin und dauerhaft 1.02x Coins frei.</p>
+      <p class="hint">Alle 12 schalten den Platin-Skin und dauerhaft 1.1x Coins frei.</p>
       <div id="achList"></div>
     </div>
   </div>
@@ -544,7 +617,8 @@
     $("page-timer").classList.toggle("hidden", which !== "timer");
     $("page-market").classList.toggle("hidden", which !== "market");
     $("page-stats").classList.toggle("hidden", which !== "stats");
-    if (which === "stats") { renderStats(); renderAch(); }
+    if (which === "stats") { renderStats(); renderAch(); renderRecords(); }
+    if (which === "market") { renderChallenges(); renderPrestige(); }
   }));
 
   // Spiele-Unterreiter
@@ -553,7 +627,8 @@
     document.querySelectorAll(".gtab").forEach((x) => x.classList.remove("active"));
     t.classList.add("active");
     const g = t.dataset.game;
-    ["hl", "wheel", "flip", "guess", "bj", "mines"].forEach((name) => $("game-" + name).classList.toggle("hidden", name !== g));
+    ["hl", "wheel", "flip", "guess", "bj", "mines", "crash", "plinko"].forEach((name) => $("game-" + name).classList.toggle("hidden", name !== g));
+    if (g === "plinko") buildPlinko();
   }));
 
   // Max-Einsatz: setzt die volle aktuelle Balance ins Einsatzfeld
@@ -576,8 +651,20 @@
 
   // ---------- Statistik ----------
   let stats = store.get("stats", { games: 0, biggestWin: 0, totalLost: 0, hlBest: 0, spins: 0, boxes: 0, flips: 0, bjPlayed: 0, bjBlackjack: 0 });
-  function saveStats() { store.set("stats", stats); if (typeof renderStats === "function") renderStats(); }
-  function bump(key, n = 1) { stats[key] = (stats[key] || 0) + n; stats.games = (stats.games || 0) + (key.endsWith("Played") || key === "spins" || key === "flips" ? n : 0); saveStats(); if (typeof checkAch === "function") checkAch(); }
+  function saveStats() { store.set("stats", stats); if (typeof renderStats === "function") renderStats(); if (typeof renderRecords === "function") renderRecords(); }
+  // Tages-Zähler für die Challenges (setzen sich täglich zurück)
+  let daily = store.get("daily", { day: "", games: 0, won: 0, boxes: 0, spins: 0 });
+  function dailyCheck() { const d = todayKey(); if (daily.day !== d) { daily = { day: d, games: 0, won: 0, boxes: 0, spins: 0 }; store.set("daily", daily); } }
+  function dailyBump(key, n = 1) { dailyCheck(); daily[key] = (daily[key] || 0) + n; store.set("daily", daily); if (typeof renderChallenges === "function") renderChallenges(); }
+  function bump(key, n = 1) {
+    stats[key] = (stats[key] || 0) + n;
+    const isGame = key.endsWith("Played") || key === "spins" || key === "flips";
+    stats.games = (stats.games || 0) + (isGame ? n : 0);
+    if (isGame) dailyBump("games", n);
+    if (key === "spins") dailyBump("spins", n);
+    if (key === "boxes") dailyBump("boxes", n);
+    saveStats(); if (typeof checkAch === "function") checkAch();
+  }
 
   // ---------- Achievements ----------
   let achDone = store.get("achDone", {}); // id -> true (abgeschlossen)
@@ -627,12 +714,13 @@
   let perks = store.get("perks", {});
   let ownedTitles = store.get("titles", []);
   let activeTitle = store.get("activeTitle", "");
+  let prestige = store.get("prestige", 0); // Rebirth-Stufe: +5% Coins je Stufe
   // Hilfsfunktionen für Boni
   const boxPrice = () => perks.box ? 40 : 50;
   const bonusPerMin = () => perks.bonus5 ? 50 : perks.bonus ? 20 : 10;
-  // Dauerhafter Coin-Multiplikator aus Perks + Platin (bewusst moderat, kein OP-Farmen)
+  // Dauerhafter Coin-Multiplikator aus Perks + Platin + Prestige (bewusst moderat)
   function coinMult() {
-    return (perks.coins ? 1.1 : 1) * (perks.coins15 ? 1.15 : 1) * (allAchBonus ? 1.1 : 1);
+    return (perks.coins ? 1.1 : 1) * (perks.coins15 ? 1.15 : 1) * (allAchBonus ? 1.1 : 1) * (1 + prestige * 0.05);
   }
   // Gewinn-Coins gutschreiben (nur bei echtem Gewinn aufrufen, nicht bei Push)
   function addWin(base) {
@@ -640,6 +728,8 @@
     if (nextWinMult > 1) { total = Math.floor(total * nextWinMult); toast(`Coins-Booster: Gewinn x${nextWinMult}!`); nextWinMult = 1; store.set("nextWinMult", 1); if (typeof updateWinBoost === "function") updateWinBoost(); }
     setCoins(coins + total);
     if (total > (stats.biggestWin || 0)) { stats.biggestWin = total; saveStats(); }
+    if (typeof dailyBump === "function") dailyBump("won", total);
+    if (total >= 5000) confetti(total >= 50000 ? 140 : 80); // Konfetti bei großen Gewinnen
     checkAch();
     return total;
   }
@@ -802,6 +892,19 @@
       el.style.fontSize = 12 + Math.random() * 10 + "px";
       el.style.animationDuration = 2 + Math.random() * 2 + "s"; el.style.animationDelay = Math.random() * 1.5 + "s";
       document.body.appendChild(el); setTimeout(() => el.remove(), 6000);
+    }
+  }
+  // Konfetti bei großen Gewinnen
+  const CONFETTI_COLORS = ["#f59e0b", "#22c55e", "#3b82f6", "#a855f7", "#ef4444", "#22d3ee", "#facc15"];
+  function confetti(count = 80) {
+    for (let i = 0; i < count; i++) {
+      const el = document.createElement("div"); el.className = "confetti";
+      el.style.left = Math.random() * 100 + "vw";
+      el.style.background = CONFETTI_COLORS[rnd(0, CONFETTI_COLORS.length - 1)];
+      el.style.animationDuration = 2.2 + Math.random() * 2 + "s"; el.style.animationDelay = Math.random() * 0.6 + "s";
+      el.style.width = 6 + Math.random() * 8 + "px"; el.style.height = 8 + Math.random() * 10 + "px";
+      el.style.opacity = 0.8 + Math.random() * 0.2;
+      document.body.appendChild(el); setTimeout(() => el.remove(), 5000);
     }
   }
 
@@ -1389,6 +1492,125 @@
   });
   $("minesCash").addEventListener("click", () => minesCashOut(false));
 
+  // ---------- Crash ----------
+  const CRASH_HOUSE = 0.95;
+  let crashActive = false, crashBet = 0, crashPoint = 1, crashCur = 1, crashTimer = null, crashCashed = false;
+  function crashColor(m) { return m < 2 ? "#f59e0b" : m < 5 ? "#22c55e" : m < 20 ? "#3b82f6" : "#a855f7"; }
+  $("crashStartBtn").addEventListener("click", () => {
+    if (crashActive) return;
+    const bet = Math.floor(Number($("crashBet").value));
+    if (!bet || bet < 1) { $("crashResult").style.color = ""; $("crashResult").textContent = "Einsatz eingeben."; return; }
+    if (bet > coins) { $("crashResult").style.color = ""; $("crashResult").textContent = "So viele Coins hast du nicht."; return; }
+    setCoins(coins - bet); sfx.click(); addXPbet(bet); bump("crashPlayed");
+    crashBet = bet; crashActive = true; crashCashed = false; crashCur = 1;
+    // Absturzpunkt ziehen (5% Hausvorteil, ~5% Instant-Crash bei 1.00)
+    const u = Math.random();
+    crashPoint = u < (1 - CRASH_HOUSE) ? 1.00 : Math.min(1000, CRASH_HOUSE / (1 - u));
+    $("crashStart").classList.add("hidden"); $("crashGame").classList.remove("hidden");
+    $("crashResult").textContent = ""; $("crashCash").disabled = false;
+    $("crashRocket").classList.add("fly");
+    const t0 = Date.now();
+    crashTimer = setInterval(() => {
+      const el = (Date.now() - t0) / 1000;
+      crashCur = Math.pow(Math.E, 0.5 * el); // exponentieller Anstieg
+      if (crashCur >= crashPoint) {
+        crashCur = crashPoint; clearInterval(crashTimer); crashTimer = null;
+        $("crashMult").textContent = crashPoint.toFixed(2) + "x"; $("crashMult").style.color = "#ef4444";
+        $("crashRocket").classList.remove("fly");
+        if (!crashCashed) {
+          crashActive = false; sfx.lose();
+          stats.totalLost = (stats.totalLost || 0) + crashBet; saveStats(); checkAch();
+          $("crashGame").classList.add("hidden"); $("crashStart").classList.remove("hidden");
+          $("crashResult").style.color = "#ef4444"; $("crashResult").textContent = `💥 Absturz bei ${crashPoint.toFixed(2)}x! Einsatz ${fmt(crashBet)} weg.`;
+        }
+        return;
+      }
+      $("crashMult").textContent = crashCur.toFixed(2) + "x"; $("crashMult").style.color = crashColor(crashCur);
+    }, 50);
+  });
+  $("crashCash").addEventListener("click", () => {
+    if (!crashActive || crashCashed) return;
+    crashCashed = true; crashActive = false; $("crashCash").disabled = true;
+    if (crashTimer) { clearInterval(crashTimer); crashTimer = null; }
+    $("crashRocket").classList.remove("fly");
+    const won = addWin(Math.floor(crashBet * crashCur));
+    if (crashCur > (stats.crashBest || 0)) { stats.crashBest = Math.round(crashCur * 100) / 100; saveStats(); }
+    sfx.win(); rain("🪙", "#f59e0b", 20);
+    $("crashGame").classList.add("hidden"); $("crashStart").classList.remove("hidden");
+    $("crashResult").style.color = "#22c55e"; $("crashResult").textContent = `Gecasht bei ${crashCur.toFixed(2)}x! +${fmt(won)} Coins.`;
+  });
+
+  // ---------- Plinko ----------
+  const PLINKO_ROWS = 8;
+  const PLINKO_MULTS = [8, 2.5, 1.3, 0.8, 0.35, 0.8, 1.3, 2.5, 8]; // ~5% Hausvorteil (Binomial 8)
+  const PLINKO_COLORS = ["#a855f7", "#3b82f6", "#22c55e", "#64748b", "#475569", "#64748b", "#22c55e", "#3b82f6", "#a855f7"];
+  let plinkoDropping = false;
+  function buildPlinko() {
+    const board = $("plinkoBoard");
+    board.querySelectorAll(".plinko-peg").forEach((p) => p.remove());
+    const W = board.clientWidth || 300, H = 220;
+    for (let r = 0; r < PLINKO_ROWS; r++) {
+      const pegs = r + 2;
+      for (let c = 0; c < pegs; c++) {
+        const peg = document.createElement("div"); peg.className = "plinko-peg";
+        const x = (c + 0.5) / pegs * W;
+        const y = 24 + r / PLINKO_ROWS * H;
+        peg.style.left = x + "px"; peg.style.top = y + "px";
+        board.appendChild(peg);
+      }
+    }
+    $("plinkoSlots").innerHTML = PLINKO_MULTS.map((m, i) => `<div class="plinko-slot" data-i="${i}" style="background:${PLINKO_COLORS[i]}">${m}x</div>`).join("");
+  }
+  $("plinkoDropBtn").addEventListener("click", () => {
+    if (plinkoDropping) return;
+    const bet = Math.floor(Number($("plinkoBet").value));
+    if (!bet || bet < 1) { $("plinkoResult").style.color = ""; $("plinkoResult").textContent = "Einsatz eingeben."; return; }
+    if (bet > coins) { $("plinkoResult").style.color = ""; $("plinkoResult").textContent = "So viele Coins hast du nicht."; return; }
+    setCoins(coins - bet); sfx.click(); addXPbet(bet); bump("plinkoPlayed");
+    plinkoDropping = true; buildPlinko();
+    document.querySelectorAll(".plinko-slot").forEach((s) => s.classList.remove("hit"));
+    const board = $("plinkoBoard"), W = board.clientWidth || 300, H = 220;
+    // Pfad: pro Reihe zufällig links/rechts -> Anzahl rechts = Zielfach
+    let rights = 0; const path = [];
+    for (let r = 0; r < PLINKO_ROWS; r++) { const right = Math.random() < 0.5; if (right) rights++; path.push(right); }
+    const slot = rights;
+    const ball = $("plinkoBall"); ball.classList.remove("hidden");
+    let col = 0;
+    ball.style.left = W / 2 + "px"; ball.style.top = "10px";
+    let step = 0;
+    const stepT = setInterval(() => {
+      if (step >= PLINKO_ROWS) {
+        clearInterval(stepT);
+        const slotX = (slot + 0.5) / PLINKO_MULTS.length * W;
+        ball.style.left = slotX + "px"; ball.style.top = (H + 28) + "px";
+        setTimeout(() => {
+          ball.classList.add("hidden");
+          const slotEl = document.querySelector(`.plinko-slot[data-i="${slot}"]`); if (slotEl) slotEl.classList.add("hit");
+          const mult = PLINKO_MULTS[slot];
+          plinkoDropping = false;
+          if (mult >= 1) {
+            const won = addWin(Math.floor(bet * mult));
+            if (won > (stats.plinkoBest || 0)) { stats.plinkoBest = won; saveStats(); }
+            sfx.win(); rain("🔵", PLINKO_COLORS[slot], 15);
+            $("plinkoResult").style.color = "#22c55e"; $("plinkoResult").textContent = `${mult}x! +${fmt(won)} Coins.`;
+          } else {
+            const back = Math.floor(bet * mult);
+            setCoins(coins + back);
+            stats.totalLost = (stats.totalLost || 0) + (bet - back); saveStats(); checkAch();
+            sfx.lose(); $("plinkoResult").style.color = "#ef4444"; $("plinkoResult").textContent = `Nur ${mult}x. Zurück: ${fmt(back)}, Verlust ${fmt(bet - back)}.`;
+          }
+        }, 220);
+        return;
+      }
+      if (path[step]) col++;
+      const pegs = step + 2;
+      const x = (col + 0.5) / (PLINKO_MULTS.length) * W + (W / PLINKO_MULTS.length) * 0.0;
+      ball.style.left = ((col + 0.5) / pegs * W) + "px";
+      ball.style.top = (24 + (step + 0.5) / PLINKO_ROWS * H) + "px";
+      step++;
+    }, 180);
+  });
+
   // Skins + Lootbox
   // Fairere Verkaufspreise: erwarteter Wert pro Box ~42 bei 50 Einsatz (~16% Hausvorteil)
   const RARITIES = {
@@ -1412,7 +1634,13 @@
     { id: "gold", name: "Gold Edition", rarity: "legendary", bg: "linear-gradient(135deg, #78350f, #f59e0b, #78350f)", card: "rgba(0,0,0,.45)", text: "#fef3c7", font: "Georgia, serif", radius: "16px" },
     { id: "rainbow", name: "Regenbogen", rarity: "legendary", bg: "linear-gradient(90deg, #ef4444, #f59e0b, #eab308, #22c55e, #3b82f6, #a855f7, #ef4444)", card: "rgba(0,0,0,.5)", text: "#ffffff", anim: true, radius: "22px" },
     { id: "bestanden", name: "Bestanden (fühlt sich falsch an)", rarity: "mythic", bg: "linear-gradient(135deg, #14532d, #22c55e, #14532d)", card: "rgba(0,0,0,.4)", text: "#f0fdf4", anim: true, font: "Georgia, serif", radius: "16px" },
-    { id: "platin", name: "Platin (Achievement-Belohnung)", rarity: "mythic", bg: "linear-gradient(135deg, #1e293b, #cbd5e1, #94a3b8, #e2e8f0, #1e293b)", card: "rgba(0,0,0,.35)", text: "#f8fafc", anim: true, radius: "18px" }
+    { id: "platin", name: "Platin (Achievement-Belohnung)", rarity: "mythic", bg: "linear-gradient(135deg, #1e293b, #cbd5e1, #94a3b8, #e2e8f0, #1e293b)", card: "rgba(0,0,0,.35)", text: "#f8fafc", anim: true, radius: "18px" },
+    { id: "toxic", name: "Toxic", rarity: "rare", bg: "#0a1f0a", card: "#14321a", text: "#a3e635", font: "'Courier New', monospace" },
+    { id: "neon", name: "Neon Nights", rarity: "epic", bg: "linear-gradient(135deg, #0f0524, #2d0a4e, #0f0524)", card: "rgba(236,72,153,.12)", text: "#f0abfc", radius: "20px" },
+    { id: "lava", name: "Lava", rarity: "epic", bg: "linear-gradient(180deg, #450a0a, #b91c1c, #f59e0b)", card: "rgba(0,0,0,.4)", text: "#fff7ed", radius: "16px" },
+    { id: "ocean", name: "Tiefsee", rarity: "rare", bg: "linear-gradient(180deg, #082f49, #0e7490, #155e75)", card: "rgba(0,0,0,.35)", text: "#e0f2fe", radius: "18px" },
+    { id: "galaxy", name: "Galaxie", rarity: "legendary", bg: "linear-gradient(135deg, #1e1b4b, #4c1d95, #be185d, #1e1b4b)", card: "rgba(0,0,0,.5)", text: "#ede9fe", anim: true, radius: "22px" },
+    { id: "holo", name: "Hologramm", rarity: "mythic", bg: "linear-gradient(135deg, #22d3ee, #a78bfa, #f0abfc, #86efac, #22d3ee)", card: "rgba(10,10,25,.55)", text: "#ffffff", anim: true, radius: "20px" }
   ];
   const skinById = (id) => SKINS.find((s) => s.id === id) || SKINS[0];
   let inv = store.get("inv", null);
@@ -1648,8 +1876,9 @@
       { ic: "📦", label: "Lootboxen", val: stats.boxes || 0 },
       { ic: "🪙", label: "Münzwürfe", val: stats.flips || 0 },
       { ic: "🂡", label: "Blackjack", val: stats.bjPlayed || 0 },
-      { ic: "💥", label: "Echte Blackjacks", val: stats.bjBlackjack || 0 },
-      { ic: "💣", label: "Mines", val: stats.minesPlayed || 0 }
+      { ic: "💣", label: "Mines", val: stats.minesPlayed || 0 },
+      { ic: "🚀", label: "Crash", val: stats.crashPlayed || 0 },
+      { ic: "🔵", label: "Plinko", val: stats.plinkoPlayed || 0 }
     ];
     const bigHtml = big.map((b) => `<div class="stat-big"><div class="sb-ic">${b.ic}</div><div class="sb-val" style="color:${b.col}">${b.val}</div><div class="sb-lbl">${b.label}</div></div>`).join("");
     const tilesHtml = tiles.map((t) => `<div class="stat-tile"><span class="st-ic">${t.ic}</span><span class="st-val">${t.val}</span><span class="st-lbl">${t.label}</span></div>`).join("");
@@ -1697,6 +1926,85 @@
     renderStreak();
   });
   renderStreak();
+
+  // ---------- Tägliche Challenges ----------
+  // Pool fester Challenges; 3 pro Tag werden deterministisch aus dem Datum gewählt
+  const CHALLENGE_POOL = [
+    { id: "c_games5", icon: "🎮", desc: "Spiele 5 Runden", target: 5, reward: 300, prog: () => daily.games || 0 },
+    { id: "c_games15", icon: "🔥", desc: "Spiele 15 Runden", target: 15, reward: 700, prog: () => daily.games || 0 },
+    { id: "c_won2k", icon: "💰", desc: "Gewinne 2.000 Coins heute", target: 2000, reward: 500, prog: () => daily.won || 0 },
+    { id: "c_won10k", icon: "🤑", desc: "Gewinne 10.000 Coins heute", target: 10000, reward: 1500, prog: () => daily.won || 0 },
+    { id: "c_box3", icon: "📦", desc: "Öffne 3 Lootboxen", target: 3, reward: 400, prog: () => daily.boxes || 0 },
+    { id: "c_spin10", icon: "🎡", desc: "Dreh das Wheel 10 Mal", target: 10, reward: 350, prog: () => daily.spins || 0 }
+  ];
+  function todaysChallenges() {
+    dailyCheck();
+    const seed = [...todayKey()].reduce((a, c) => a + c.charCodeAt(0), 0);
+    // 3 verschiedene Challenges deterministisch wählen
+    const idxs = [];
+    let s = seed;
+    while (idxs.length < 3) { s = (s * 31 + 7) % CHALLENGE_POOL.length; if (!idxs.includes(s)) idxs.push(s); }
+    return idxs.map((i) => CHALLENGE_POOL[i]);
+  }
+  function renderChallenges() {
+    dailyCheck();
+    const claimed = store.get("challClaimed", {});
+    const day = todayKey();
+    $("challengeList").innerHTML = "";
+    todaysChallenges().forEach((c) => {
+      const p = Math.min(c.prog(), c.target);
+      const done = p >= c.target;
+      const key = day + "_" + c.id;
+      const isClaimed = claimed[key];
+      const row = document.createElement("div"); row.className = "reward-row"; row.style.flexWrap = "wrap";
+      const left = document.createElement("div"); left.style.flex = "1"; left.style.minWidth = "160px"; left.style.textAlign = "left";
+      left.innerHTML = `<div>${c.icon} ${c.desc}</div><div style="font-size:.75rem;color:#94a3b8;">${fmt(p)} / ${fmt(c.target)} · Belohnung ${fmt(c.reward)} 🪙</div>`;
+      const b = document.createElement("button"); b.style.padding = "7px 12px"; b.style.fontSize = ".78rem";
+      if (isClaimed) { b.textContent = "✓ Abgeholt"; b.className = "owned"; b.disabled = true; b.style.background = "#22c55e"; b.style.color = "#052e16"; }
+      else if (done) { b.textContent = "Abholen"; b.style.background = "#eab308"; b.style.color = "#1f1300";
+        b.addEventListener("click", () => { const cl = store.get("challClaimed", {}); if (cl[key]) return; cl[key] = true; store.set("challClaimed", cl); setCoins(coins + c.reward); sfx.coin(); rain("🪙", "#22c55e", 18); confetti(40); toast(`Challenge geschafft: +${fmt(c.reward)} Coins!`); renderChallenges(); }); }
+      else { b.textContent = "Offen"; b.disabled = true; b.style.background = "#334155"; b.style.color = "#94a3b8"; }
+      row.append(left, b); $("challengeList").appendChild(row);
+    });
+  }
+  renderChallenges();
+
+  // ---------- Prestige / Rebirth ----------
+  const PRESTIGE_COST = 5000000;
+  function renderPrestige() {
+    $("prestigeText").innerHTML = `Ab ${fmt(PRESTIGE_COST)} Coins kannst du Prestigen: Coins werden zurückgesetzt, dafür gibt es dauerhaft <b>+5% Coins</b> pro Stufe (stapelt). Aktuelle Prestige-Stufe: <b>${prestige}</b> (+${prestige * 5}%).`;
+    if (coins >= PRESTIGE_COST) {
+      $("prestigeBtn").disabled = false; $("prestigeBtn").textContent = `Prestige (Stufe ${prestige + 1})`;
+      $("prestigeInfo").textContent = "Skins, Level, Perks und Achievements bleiben erhalten.";
+    } else {
+      $("prestigeBtn").disabled = true; $("prestigeBtn").textContent = "Prestige gesperrt";
+      $("prestigeInfo").textContent = `Noch ${fmt(PRESTIGE_COST - coins)} Coins bis zum nächsten Prestige.`;
+    }
+  }
+  $("prestigeBtn").addEventListener("click", () => {
+    if (coins < PRESTIGE_COST) return;
+    if (!confirm(`Wirklich prestigen? Deine ${fmt(coins)} Coins werden auf 100 zurückgesetzt. Du bekommst dauerhaft +5% Coins (neue Stufe ${prestige + 1}).`)) return;
+    prestige++; store.set("prestige", prestige);
+    setCoins(100); sfx.win(); confetti(140); rain("♻️", "#a855f7", 50);
+    toast(`Prestige ${prestige}! Dauerhaft +${prestige * 5}% Coins.`);
+    renderPrestige(); applyTitle();
+  });
+  renderPrestige();
+  setInterval(renderPrestige, 2000); // Button-Status aktuell halten
+
+  // ---------- Rekorde ----------
+  function renderRecords() {
+    const recs = [
+      ["🏆 Größter Einzelgewinn", fmt(stats.biggestWin || 0) + " 🪙"],
+      ["🃏 Längste Higher/Lower-Serie", (stats.hlBest || 0)],
+      ["🚀 Bester Crash-Cashout", (stats.crashBest || 0).toFixed ? (stats.crashBest || 0).toFixed(2) + "x" : (stats.crashBest || 0) + "x"],
+      ["🔵 Bester Plinko-Gewinn", fmt(stats.plinkoBest || 0) + " 🪙"],
+      ["💥 Echte Blackjacks", (stats.bjBlackjack || 0)],
+      ["♻️ Prestige-Stufe", prestige]
+    ];
+    if ($("recordList")) $("recordList").innerHTML = recs.map((r) => `<div class="stat-row"><span>${r[0]}</span><b>${r[1]}</b></div>`).join("");
+  }
+  renderRecords();
 
   // Initiale Achievement-Prüfung (z.B. falls schon Level 10 erreicht)
   checkAch(); renderStats();
