@@ -233,8 +233,8 @@
     { label: "+100", weight: 1.5, coins: 100, color: "#16a34a" },
     { label: "+50", weight: 4, coins: 50, color: "#16a34a" },
     { label: "+20", weight: 10, coins: 20, color: "#15803d" },
-    { label: "+10", weight: 15, coins: 10, color: "#15803d" },
-    { label: "Niete", weight: 23, coins: 0, color: "#b91c1c" },
+    { label: "+10", weight: 10, coins: 10, color: "#15803d" },
+    { label: "Niete", weight: 28, coins: 0, color: "#b91c1c" },
     { label: "5er", weight: 23, coins: 0, color: "#ef4444" },
     { label: "Durchgefallen", weight: 23, coins: 0, color: "#991b1b" }
   ];
@@ -363,7 +363,7 @@
   $("flipTails").addEventListener("click", () => flip("Zahl"));
 
   // Zahlen raten
-  const HOUSE = 1;
+  const HOUSE = 0.9; // 10 % Hausvorteil
   function updateGuessCalc() {
     const range = Number($("guessRange").value);
     const bet = Math.floor(Number($("guessBet").value)) || 0;

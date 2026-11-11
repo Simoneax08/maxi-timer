@@ -2,7 +2,7 @@
   // Rang 1 = Ass (niedrig) ... 13 = König (hoch)
   const HL_RANKS = ["", "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
   const HL_SUITS = ["♠", "♥", "♦", "♣"];
-  const HL_MULT = 1.1; // pro Treffer, deutlich unter der echten Trefferchance -> Haus gewinnt
+  const HL_MULT = 1.14; // pro Treffer: ca. 79 % Trefferchance bei bester Wahl x 1.14 = ca. 10 % Hausvorteil
   let hlActive = false, hlRank = 0, hlSuit = 0, hlPot = 0, hlStreak = 0;
   function drawHlCard(rank, suit) {
     const el = $("hlCard");
@@ -203,8 +203,8 @@
       const tag = bjHandsArr.length > 1 ? `H${i + 1}` : "";
       if (h.bust) { parts.push(`${tag} überkauft`); }
       else if (h.blackjack) { winPayout += Math.round(h.bet * 2.5); parts.push(`${tag} Blackjack`); }
-      else if (dv > 21) { winPayout += h.bet * 2; parts.push(`${tag} Dealer bust`); }
-      else if (pv > dv) { winPayout += h.bet * 2; parts.push(`${tag} ${pv} gewinnt`); }
+      else if (dv > 21) { winPayout += Math.floor(h.bet * 1.9); parts.push(`${tag} Dealer bust`); }
+      else if (pv > dv) { winPayout += Math.floor(h.bet * 1.9); parts.push(`${tag} ${pv} gewinnt`); }
       else if (pv === dv) { pushReturn += h.bet; parts.push(`${tag} Push`); }
       else { parts.push(`${tag} ${pv} verliert`); }
     });
@@ -244,7 +244,7 @@
 
   // ---------- Mines ----------
   const MINES_TOTAL = 25;
-  const MINES_HOUSE = 0.97; // 3% Hausvorteil
+  const MINES_HOUSE = 0.90; // 10% Hausvorteil
   let minesActive = false, minesBet = 0, minesN = 0, minesField = [], minesRevealed = 0, minesMult = 1;
   // Fairer Multiplikator nach k sicheren Feldern: Produkt der Kehrwerte der Sicher-Wahrscheinlichkeiten, mal Hausfaktor
   function minesMultiplier(n, revealed) {

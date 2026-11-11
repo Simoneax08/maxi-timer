@@ -65,7 +65,7 @@
   let activeTitle = store.get("activeTitle", "");
   let prestige = store.get("prestige", 0); // Rebirth-Stufe: +5% Coins je Stufe
   // Hilfsfunktionen für Boni
-  const boxPrice = () => perks.box ? 40 : 50;
+  const boxPrice = () => perks.box ? 36 : 38; // erwarteter Verkaufswert ca. 34,1 -> ca. 10 % Hausvorteil
   const bonusPerMin = () => perks.bonus5 ? 50 : perks.bonus ? 20 : 10;
   // Dauerhafter Coin-Multiplikator aus Perks + Platin + Prestige (bewusst moderat)
   function coinMult() {

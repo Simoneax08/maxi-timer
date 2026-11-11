@@ -15,7 +15,7 @@
 @media (max-width:600px){ .chat-panel{left:8px;right:8px;width:auto} }
 
 /* ===== Chicken Road ===== */
-.road{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0;min-height:10px}
+.cr-canvas{display:block;margin:6px auto;width:100%;max-width:340px;border-radius:10px;background:#166534}
 .road-step{min-width:58px;padding:6px 4px;border-radius:8px;background:#1e293b;text-align:center;font-size:12px}
 .road-step.done{background:#16a34a;color:#fff}
 .road-step.dead{background:#dc2626;color:#fff}

@@ -265,7 +265,7 @@
 @media (max-width:600px){ .chat-panel{left:8px;right:8px;width:auto} }
 
 /* ===== Chicken Road ===== */
-.road{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0;min-height:10px}
+.cr-canvas{display:block;margin:6px auto;width:100%;max-width:340px;border-radius:10px;background:#166534}
 .road-step{min-width:58px;padding:6px 4px;border-radius:8px;background:#1e293b;text-align:center;font-size:12px}
 .road-step.done{background:#16a34a;color:#fff}
 .road-step.dead{background:#dc2626;color:#fff}
@@ -395,17 +395,15 @@
 
       <div class="game-panel hidden" id="game-chicken">
         <p class="hint">Jeder Schritt wird gefährlicher. Du kannst jederzeit kassieren, aber nur nach mindestens einem Schritt.</p>
+        <canvas id="crCanvas" width="340" height="300" class="cr-canvas"></canvas>
+        <div id="crInfo" style="font-weight:700;margin:6px 0;min-height:1.2em;"></div>
         <div id="crStartBox">
           <div class="field" style="align-items:center;margin:0 auto;"><label>Einsatz (Coins)</label><input id="crBet" type="number" min="1" value="10" style="width:140px;text-align:center;"></div>
           <button id="crStartBtn" style="background:#0ea5e9;color:#fff;margin-top:6px;">Losgehen</button>
         </div>
-        <div id="crPlay" class="hidden">
-          <div id="crInfo" style="font-weight:700;margin:6px 0;"></div>
-          <div id="crRoad" class="road"></div>
-          <div class="bet-row">
-            <button id="crWalkBtn" style="background:#22c55e;color:#052e16;">🐔 Weiter</button>
-            <button id="crCashBtn" style="background:#f59e0b;color:#1f1300;">💰 Kassieren</button>
-          </div>
+        <div id="crBtns" class="bet-row hidden">
+          <button id="crWalkBtn" style="background:#22c55e;color:#052e16;">🐔 Weiter</button>
+          <button id="crCashBtn" style="background:#f59e0b;color:#1f1300;">💰 Kassieren</button>
         </div>
         <div id="crResult"></div>
       </div>
@@ -914,7 +912,7 @@
   let activeTitle = store.get("activeTitle", "");
   let prestige = store.get("prestige", 0); // Rebirth-Stufe: +5% Coins je Stufe
   // Hilfsfunktionen für Boni
-  const boxPrice = () => perks.box ? 40 : 50;
+  const boxPrice = () => perks.box ? 36 : 38; // erwarteter Verkaufswert ca. 34,1 -> ca. 10 % Hausvorteil
   const bonusPerMin = () => perks.bonus5 ? 50 : perks.bonus ? 20 : 10;
   // Dauerhafter Coin-Multiplikator aus Perks + Platin + Prestige (bewusst moderat)
   function coinMult() {
@@ -1198,8 +1196,8 @@
     { label: "+100", weight: 1.5, coins: 100, color: "#16a34a" },
     { label: "+50", weight: 4, coins: 50, color: "#16a34a" },
     { label: "+20", weight: 10, coins: 20, color: "#15803d" },
-    { label: "+10", weight: 15, coins: 10, color: "#15803d" },
-    { label: "Niete", weight: 23, coins: 0, color: "#b91c1c" },
+    { label: "+10", weight: 10, coins: 10, color: "#15803d" },
+    { label: "Niete", weight: 28, coins: 0, color: "#b91c1c" },
     { label: "5er", weight: 23, coins: 0, color: "#ef4444" },
     { label: "Durchgefallen", weight: 23, coins: 0, color: "#991b1b" }
   ];
@@ -1328,7 +1326,7 @@
   $("flipTails").addEventListener("click", () => flip("Zahl"));
 
   // Zahlen raten
-  const HOUSE = 1;
+  const HOUSE = 0.9; // 10 % Hausvorteil
   function updateGuessCalc() {
     const range = Number($("guessRange").value);
     const bet = Math.floor(Number($("guessBet").value)) || 0;
@@ -1364,7 +1362,7 @@
   // Rang 1 = Ass (niedrig) ... 13 = König (hoch)
   const HL_RANKS = ["", "A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
   const HL_SUITS = ["♠", "♥", "♦", "♣"];
-  const HL_MULT = 1.1; // pro Treffer, deutlich unter der echten Trefferchance -> Haus gewinnt
+  const HL_MULT = 1.14; // pro Treffer: ca. 79 % Trefferchance bei bester Wahl x 1.14 = ca. 10 % Hausvorteil
   let hlActive = false, hlRank = 0, hlSuit = 0, hlPot = 0, hlStreak = 0;
   function drawHlCard(rank, suit) {
     const el = $("hlCard");
@@ -1565,8 +1563,8 @@
       const tag = bjHandsArr.length > 1 ? `H${i + 1}` : "";
       if (h.bust) { parts.push(`${tag} überkauft`); }
       else if (h.blackjack) { winPayout += Math.round(h.bet * 2.5); parts.push(`${tag} Blackjack`); }
-      else if (dv > 21) { winPayout += h.bet * 2; parts.push(`${tag} Dealer bust`); }
-      else if (pv > dv) { winPayout += h.bet * 2; parts.push(`${tag} ${pv} gewinnt`); }
+      else if (dv > 21) { winPayout += Math.floor(h.bet * 1.9); parts.push(`${tag} Dealer bust`); }
+      else if (pv > dv) { winPayout += Math.floor(h.bet * 1.9); parts.push(`${tag} ${pv} gewinnt`); }
       else if (pv === dv) { pushReturn += h.bet; parts.push(`${tag} Push`); }
       else { parts.push(`${tag} ${pv} verliert`); }
     });
@@ -1606,7 +1604,7 @@
 
   // ---------- Mines ----------
   const MINES_TOTAL = 25;
-  const MINES_HOUSE = 0.97; // 3% Hausvorteil
+  const MINES_HOUSE = 0.90; // 10% Hausvorteil
   let minesActive = false, minesBet = 0, minesN = 0, minesField = [], minesRevealed = 0, minesMult = 1;
   // Fairer Multiplikator nach k sicheren Feldern: Produkt der Kehrwerte der Sicher-Wahrscheinlichkeiten, mal Hausfaktor
   function minesMultiplier(n, revealed) {
@@ -1691,7 +1689,7 @@
   $("minesCash").addEventListener("click", () => minesCashOut(false));
 
   // ---------- Crash ----------
-  const CRASH_HOUSE = 0.95;
+  const CRASH_HOUSE = 0.90; // 10% Hausvorteil
   let crashActive = false, crashBet = 0, crashPoint = 1, crashCur = 1, crashTimer = null, crashCashed = false, crashCashMult = 0, crashCashWon = 0;
   function crashColor(m) { return m < 2 ? "#f59e0b" : m < 5 ? "#22c55e" : m < 20 ? "#3b82f6" : "#a855f7"; }
   let crashHist = [];
@@ -1785,7 +1783,7 @@
 
   // ---------- Plinko ----------
   const PLINKO_ROWS = 8;
-  const PLINKO_MULTS = [24, 3, 1, 0.6, 0.35, 0.6, 1, 3, 24]; // ~4.8% Hausvorteil (Binomial 8, 24x Jackpot)
+  const PLINKO_MULTS = [20, 3, 1, 0.6, 0.3, 0.6, 1, 3, 20]; // ca. 9.3% Hausvorteil (Binomial 8 Reihen)
   const PLINKO_COLORS = ["#f43f5e", "#a855f7", "#3b82f6", "#334155", "#1e293b", "#334155", "#3b82f6", "#a855f7", "#f43f5e"];
   let plinkoDropping = false;
   function buildPlinko() {
@@ -2310,66 +2308,128 @@
   const excuses = ["mein IntelliJ gerade indexiert.", "die PLF eh noch ewig weg ist.", "ich zuerst noch FIFA spielen muss.", "mein Laptop ein Update macht.", "ich das morgen eh in einer Stunde schaffe.", "Java mich emotional verletzt hat.", "ich zuerst meinen Schreibtisch aufräumen muss.", "Merkur rückläufig ist."];
   $("excuseBtn").addEventListener("click", () => { sfx.click(); $("excuse").textContent = "Heute kann ich nicht lernen, weil " + excuses[rnd(0, excuses.length - 1)]; });
 
-  // ---------- Chicken Road: Schritt für Schritt über die Straße ----------
-  // Jeder Schritt kann mit Gegenverkehr enden. Je weiter, desto riskanter. Jederzeit kassieren.
-  const CR_SURVIVE = (k) => Math.max(0.45, 0.96 - 0.05 * (k - 1)); // Überlebenschance bei Schritt k (ab 1)
-  let crBet = 0, crStep = 0, crMult = 1, crLive = false;
+  // ---------- Chicken Road: Huhn überquert Spur für Spur die Straße ----------
+  // Jeder Schritt kann mit einem Auto enden. Je weiter, desto riskanter. Jederzeit kassieren.
+  const CR_SURVIVE = (k) => Math.max(0.45, 0.85 - 0.05 * (k - 1)); // Überlebenschance bei Schritt k (ab 1)
+  const CR_LANE = 60, CR_BASE_Y = 260, CR_CHICK_X = 170, CR_W = 340, CR_H = 300;
+  const CR_COLORS = ["#ef4444", "#3b82f6", "#eab308", "#a855f7", "#f97316", "#e5e7eb"];
+  let crBet = 0, crStep = 0, crMult = 1, crLive = false, crBusy = false;
+  let crAnimK = 0, crAnimFrom = 0, crAnimTo = 0, crAnimT0 = 0, crAnimDur = 380;
+  let crLanes = [], crDeadLane = -1;
   function crMultAt(k) {
     if (k < 1) return 1;
     let p = 1; for (let j = 1; j <= k; j++) p *= CR_SURVIVE(j);
-    return Math.round((0.97 / p) * 100) / 100; // 3 % Hausvorteil
+    return Math.round((0.90 / p) * 100) / 100; // 10 % Hausvorteil
   }
   function crRender() {
     const risk = Math.round((1 - CR_SURVIVE(crStep + 1)) * 100);
     $("crInfo").textContent = `Schritt ${crStep} · x${crMult.toFixed(2)} · Gewinn ${fmt(Math.floor(crBet * crMult))} · nächster Schritt: ${risk} % Risiko`;
   }
-  function crShowStart(show) {
-    $("crStartBox").classList.toggle("hidden", !show);
-    $("crPlay").classList.toggle("hidden", show);
+  function crEndUI() {
+    $("crStartBox").classList.remove("hidden");
+    $("crBtns").classList.add("hidden");
+  }
+  function crLaneCars(j) {
+    if (!crLanes[j]) {
+      const n = 1 + Math.floor(Math.random() * 2), arr = [];
+      for (let i = 0; i < n; i++) arr.push({ x0: Math.random() * CR_W, dir: Math.random() < 0.5 ? 1 : -1, v: 40 + Math.random() * 90, color: CR_COLORS[Math.floor(Math.random() * CR_COLORS.length)] });
+      crLanes[j] = arr;
+    }
+    return crLanes[j];
+  }
+  function crAnimValue(now) {
+    if (crAnimFrom !== crAnimTo) {
+      const t = Math.min(1, (now - crAnimT0) / crAnimDur);
+      crAnimK = crAnimFrom + (crAnimTo - crAnimFrom) * (t * t * (3 - 2 * t)); // weicher Schritt
+    } else crAnimK = crAnimTo;
+    return crAnimK;
+  }
+  function crDraw(now) {
+    const cv = $("crCanvas"); if (!cv) return;
+    const ctx = cv.getContext("2d");
+    const k = crAnimValue(now);
+    ctx.clearRect(0, 0, CR_W, CR_H);
+    // Bildschirm-Höhe einer Welt-Höhe: das Huhn bleibt immer auf derselben Bildhöhe, die Straße scrollt
+    const sy = (h) => CR_BASE_Y - (h - k * CR_LANE);
+    const first = Math.max(0, Math.floor(k) - 1), last = Math.floor(k) + 6;
+    for (let j = first; j <= last; j++) {
+      const top = sy((j + 1) * CR_LANE), bot = sy(j * CR_LANE);
+      if (j === 0) { ctx.fillStyle = "#15803d"; ctx.fillRect(0, top, CR_W, bot - top); continue; }
+      ctx.fillStyle = "#374151"; ctx.fillRect(0, top, CR_W, bot - top);
+      ctx.strokeStyle = "#f8fafc"; ctx.lineWidth = 2; ctx.setLineDash([12, 10]);
+      ctx.beginPath(); ctx.moveTo(0, bot); ctx.lineTo(CR_W, bot); ctx.stroke(); ctx.setLineDash([]);
+      for (const c of crLaneCars(j)) {
+        const span = CR_W + 60;
+        const x = (((c.x0 + c.dir * c.v * (now / 1000)) % span) + span) % span - 30;
+        const cy = (top + bot) / 2;
+        ctx.fillStyle = c.color; ctx.fillRect(x, cy - 12, 44, 24);
+        ctx.fillStyle = "rgba(15,23,42,.6)"; ctx.fillRect(x + (c.dir > 0 ? 30 : 6), cy - 8, 8, 16);
+      }
+      if (j <= crStep) {
+        ctx.fillStyle = "#fde68a"; ctx.font = "bold 13px system-ui"; ctx.textAlign = "left"; ctx.textBaseline = "top";
+        ctx.fillText(`x${crMultAt(j).toFixed(2)}`, 6, top + 4);
+      }
+    }
+    // Huhn (oder Explosion, wenn es überfahren wurde)
+    const dead = crDeadLane >= 0 && k === crAnimTo;
+    ctx.font = dead ? "52px system-ui" : "36px system-ui";
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(dead ? "💥" : "🐔", CR_CHICK_X, CR_BASE_Y - CR_LANE / 2);
+  }
+  function crLoop() {
+    if (!$("game-chicken").classList.contains("hidden")) crDraw(performance.now());
+    requestAnimationFrame(crLoop);
   }
   function crStart() {
-    if (crLive) return;
+    if (crLive || crBusy) return;
     const bet = Math.floor(Number($("crBet").value) || 0);
     if (bet < 1) { toast("Mindestens 1 Coin."); return; }
     if (bet > coins) { toast("Zu wenig Coins."); return; }
     setCoins(coins - bet); addXPbet(bet); sfx.click();
-    crBet = bet; crStep = 0; crMult = 1; crLive = true;
-    $("crRoad").innerHTML = ""; $("crResult").textContent = "";
-    crShowStart(false); crRender();
+    crBet = bet; crStep = 0; crMult = 1; crLive = true; crDeadLane = -1;
+    crLanes = []; crAnimFrom = crAnimTo = crAnimK = 0;
+    $("crResult").textContent = "";
+    $("crStartBox").classList.add("hidden"); $("crBtns").classList.remove("hidden");
+    crRender();
   }
   function crWalk() {
-    if (!crLive) return;
+    if (!crLive || crBusy) return;
     const k = crStep + 1;
     const ok = Math.random() < CR_SURVIVE(k);
-    const cell = document.createElement("div");
-    cell.className = "road-step " + (ok ? "done" : "dead");
-    cell.textContent = (ok ? "✓ " : "💥 ") + k;
-    $("crRoad").appendChild(cell);
-    if (!ok) {
-      crLive = false; sfx.lose();
-      $("crResult").textContent = `Angefahren bei Schritt ${k}. ${fmt(crBet)} Coins weg.`;
-      crShowStart(true); return;
+    crBusy = true; sfx.click();
+    crAnimFrom = crAnimK; crAnimTo = k; crAnimT0 = performance.now(); crAnimDur = 380;
+    if (ok) {
+      setTimeout(() => { crBusy = false; crStep = k; crMult = crMultAt(k); crRender(); }, crAnimDur);
+    } else {
+      crLive = false; crDeadLane = k;
+      setTimeout(() => {
+        crBusy = false; sfx.lose();
+        $("crResult").textContent = `Angefahren bei Schritt ${k}. ${fmt(crBet)} Coins weg.`;
+        crRender(); crEndUI();
+      }, crAnimDur + 900);
     }
-    crStep = k; crMult = crMultAt(k); sfx.click(); crRender();
   }
   function crCash() {
-    if (!crLive) return;
+    if (!crLive || crBusy) return;
     if (crStep < 1) { toast("Erst mindestens einen Schritt gehen."); return; }
     const win = Math.floor(crBet * crMult);
     setCoins(coins + win); crLive = false;
     sfx.win(); rain("🪙", "#f59e0b", 20);
-    $("crResult").textContent = `Kassiert: +${fmt(win)} Coins (x${crMult.toFixed(2)})`;
-    crShowStart(true);
+    const msg = `Kassiert: +${fmt(win)} Coins bei x${crMult.toFixed(2)} (Einsatz ${fmt(crBet)})`;
+    $("crResult").textContent = msg; toast(msg);
+    crRender(); crEndUI();
   }
   if ($("crStartBtn")) {
     $("crStartBtn").addEventListener("click", crStart);
     $("crWalkBtn").addEventListener("click", crWalk);
     $("crCashBtn").addEventListener("click", crCash);
+    crRender();
+    requestAnimationFrame(crLoop);
   }
   // ---------- Pferderennen: 4 Pferde, feste Quoten, Wette nur vor dem Start ----------
   const HORSES = [
     { name: "Blitz", p: 0.42 }, { name: "Donner", p: 0.28 }, { name: "Schatten", p: 0.18 }, { name: "Wirbel", p: 0.12 }
-  ].map((h) => ({ ...h, odds: Math.round((0.96 / h.p) * 100) / 100 })); // 4 % Hausvorteil
+  ].map((h) => ({ ...h, odds: Math.round((0.90 / h.p) * 100) / 100 })); // 10 % Hausvorteil
   let hrPick = 0, hrRacing = false;
   function hrBuildUI() {
     $("hrPick").innerHTML = HORSES.map((h, i) => `<button class="hrPickBtn${i === hrPick ? " picked" : ""}" data-i="${i}">🐎 ${h.name} x${h.odds.toFixed(2)}</button>`).join("");

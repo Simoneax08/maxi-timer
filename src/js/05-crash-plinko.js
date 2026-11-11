@@ -1,5 +1,5 @@
   // ---------- Crash ----------
-  const CRASH_HOUSE = 0.95;
+  const CRASH_HOUSE = 0.90; // 10% Hausvorteil
   let crashActive = false, crashBet = 0, crashPoint = 1, crashCur = 1, crashTimer = null, crashCashed = false, crashCashMult = 0, crashCashWon = 0;
   function crashColor(m) { return m < 2 ? "#f59e0b" : m < 5 ? "#22c55e" : m < 20 ? "#3b82f6" : "#a855f7"; }
   let crashHist = [];
@@ -93,7 +93,7 @@
 
   // ---------- Plinko ----------
   const PLINKO_ROWS = 8;
-  const PLINKO_MULTS = [24, 3, 1, 0.6, 0.35, 0.6, 1, 3, 24]; // ~4.8% Hausvorteil (Binomial 8, 24x Jackpot)
+  const PLINKO_MULTS = [20, 3, 1, 0.6, 0.3, 0.6, 1, 3, 20]; // ca. 9.3% Hausvorteil (Binomial 8 Reihen)
   const PLINKO_COLORS = ["#f43f5e", "#a855f7", "#3b82f6", "#334155", "#1e293b", "#334155", "#3b82f6", "#a855f7", "#f43f5e"];
   let plinkoDropping = false;
   function buildPlinko() {

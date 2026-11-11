@@ -1,7 +1,7 @@
   // ---------- Pferderennen: 4 Pferde, feste Quoten, Wette nur vor dem Start ----------
   const HORSES = [
     { name: "Blitz", p: 0.42 }, { name: "Donner", p: 0.28 }, { name: "Schatten", p: 0.18 }, { name: "Wirbel", p: 0.12 }
-  ].map((h) => ({ ...h, odds: Math.round((0.96 / h.p) * 100) / 100 })); // 4 % Hausvorteil
+  ].map((h) => ({ ...h, odds: Math.round((0.90 / h.p) * 100) / 100 })); // 10 % Hausvorteil
   let hrPick = 0, hrRacing = false;
   function hrBuildUI() {
     $("hrPick").innerHTML = HORSES.map((h, i) => `<button class="hrPickBtn${i === hrPick ? " picked" : ""}" data-i="${i}">🐎 ${h.name} x${h.odds.toFixed(2)}</button>`).join("");
