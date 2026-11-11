@@ -560,6 +560,7 @@
   </div>
 
 <script>
+(function () { // Kapsel: Internals (setCoins, coins, store ...) aus der Konsole unerreichbar
   const $ = (id) => document.getElementById(id);
   const PLF = new Date("2027-01-13T10:45:00+01:00");
   const pad = (n, l = 2) => String(n).padStart(l, "0");
@@ -591,12 +592,14 @@
   // ---------- Globaler Reset ----------
   // Erhöhe diese Zahl, um bei JEDEM Spieler einmalig den Fortschritt zurückzusetzen
   // (Coins, Level, Inventar, Stats, Achievements, Streak usw.). Danach läuft alles normal weiter.
-  const RESET_VERSION = 1;
+  const RESET_VERSION = 2; // bump = kompletter Reset bei allen beim naechsten Laden
+  let __justReset = false;
   (function () {
     try {
       if (Number(localStorage.getItem("resetVersion")) !== RESET_VERSION) {
         localStorage.clear();
         localStorage.setItem("resetVersion", String(RESET_VERSION));
+        __justReset = true; // Coins starten dann bei 5000 statt 100
       }
     } catch {}
   })();
@@ -664,7 +667,7 @@
   }, 120);
 
   // Coins
-  let coins = store.get("coins", 100);
+  let coins = store.get("coins", __justReset ? 5000 : 100);
   function setCoins(v) { coins = v; store.set("coins", v); $("coins").textContent = "🪙 " + fmt(coins); }
   setCoins(coins);
 
@@ -2131,6 +2134,7 @@
 
   const excuses = ["mein IntelliJ gerade indexiert.", "die PLF eh noch ewig weg ist.", "ich zuerst noch FIFA spielen muss.", "mein Laptop ein Update macht.", "ich das morgen eh in einer Stunde schaffe.", "Java mich emotional verletzt hat.", "ich zuerst meinen Schreibtisch aufräumen muss.", "Merkur rückläufig ist."];
   $("excuseBtn").addEventListener("click", () => { sfx.click(); $("excuse").textContent = "Heute kann ich nicht lernen, weil " + excuses[rnd(0, excuses.length - 1)]; });
+})();
 </script>
 </body>
 </html>
