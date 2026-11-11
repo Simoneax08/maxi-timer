@@ -669,7 +669,7 @@
   setCoins(coins);
 
   // ---------- Code einlösen (1x pro Benutzer) ----------
-  const REDEEM_CODES = { "MAXI5K": 5000 };
+  const REDEEM_CODES = { "MAXI5K": 5000, "JACKPOT10K": 10000 };
   let codesUsed = store.get("codesUsed", {}); // code -> true
   if ($("redeemBtn")) {
     $("redeemBtn").addEventListener("click", () => {
