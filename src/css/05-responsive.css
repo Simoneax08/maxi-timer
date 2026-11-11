@@ -1,0 +1,22 @@
+  /* ===== Schmale / mittlere Screens: gestapeltes Layout, damit nichts überlappt ===== */
+  @media (max-width: 820px) {
+    /* Tabs und Topbar NICHT mehr fixiert, sondern gestapelt im normalen Fluss -> keine Überlappung */
+    body { padding: 12px 12px 90px; }
+    #tabs, #topbar { position: static; transform: none; top: auto; left: auto; right: auto; }
+    #userBadge { position: static; margin: 0 auto 8px; max-width: 100%; }
+    #tabs { margin: 0 auto 8px; flex-wrap: wrap; justify-content: center; max-width: 100%; }
+    #topbar { margin: 0 auto 10px; flex-wrap: wrap; justify-content: center; width: 100%; }
+    .tab { padding: 8px 13px; font-size: .88rem; }
+    #levelBox { min-width: 0; max-width: 220px; }
+    h1 { font-size: 1.5rem; }
+    #countdown { font-size: clamp(1.5rem, 9vw, 2.6rem); }
+    .card { padding: 15px 15px; }
+    #gameTabs { gap: 5px; }
+    .gtab { padding: 7px 11px; font-size: .82rem; }
+    /* Spiele etwas kompakter */
+    .wheel-wrap { width: 260px; }
+    #minesGrid { max-width: 280px; gap: 6px; }
+    .rs-item { flex: 0 0 82px; height: 66px; }
+    .bet-row { gap: 6px; }
+    button { padding: 11px 16px; }
+  }

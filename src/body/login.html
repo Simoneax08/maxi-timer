@@ -1,0 +1,36 @@
+  <!-- ===== TAB 4: LOGIN ===== -->
+  <div class="page hidden" id="page-login">
+    <h1>🔐 Konto</h1>
+
+    <div class="card" id="authLoggedOut">
+      <strong>Mit Konto spielen</strong>
+      <p class="hint">Dein Kontostand, Level und Fortschritt werden auf dem Server gespeichert. Du landest in der Rangliste und bekommst Belohnungen.</p>
+      <div class="field"><label>Benutzername</label><input id="authUser" type="text" maxlength="16" placeholder="z.B. MaxiFan" autocomplete="username"></div>
+      <div class="field" style="margin-top:8px;"><label>Passwort</label><input id="authPass" type="password" placeholder="mind. 6 Zeichen" autocomplete="current-password"></div>
+      <div class="bet-row" style="margin-top:12px;">
+        <button id="authLoginBtn" style="background:#22c55e;color:#052e16;">Einloggen</button>
+        <button id="authRegBtn" style="background:#8b5cf6;color:#fff;">Neues Konto</button>
+      </div>
+      <div id="authInfo" class="auth-info"></div>
+    </div>
+
+    <div class="card hidden" id="authLoggedIn">
+      <div class="acct-head">
+        <div class="acct-avatar" id="acctAvatar">?</div>
+        <div>
+          <div class="hint">Eingeloggt als</div>
+          <div class="acct-name" id="authName"></div>
+        </div>
+      </div>
+      <div class="acct-stats">
+        <div><span>Level</span><b id="acctLevel">-</b></div>
+        <div><span>Coins</span><b id="acctCoins">-</b></div>
+        <div><span>Prestige</span><b id="acctPrestige">-</b></div>
+      </div>
+      <button id="dailyLoginBtn" class="acct-btn" style="background:#f59e0b;color:#1f1300;">🎁 Täglicher Login-Bonus (+500)</button>
+      <div id="dailyLoginInfo" class="auth-info"></div>
+      <button id="authLogoutBtn" class="acct-btn" style="background:#334155;color:#fff;">Ausloggen</button>
+      <p class="hint" style="margin-top:8px;">Beim Ausloggen wird dein Konto gespeichert und der Stand verschwindet aus diesem Browser.</p>
+    </div>
+  </div>
+

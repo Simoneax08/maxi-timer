@@ -1,0 +1,244 @@
+  <!-- ===== TAB 2: HANDELSPLATZ ===== -->
+  <div class="page hidden" id="page-market">
+    <h1>🛒 Maxis Handelsplatz</h1>
+    <div class="sub">Abholen, drehen, handeln. Verlieren inklusive.</div>
+
+    <div class="card">
+      <strong>⏰ Minuten-Bonus</strong>
+      <p class="hint">Jede Minute 10 Coins zum Abholen. Sammelt sich an, bis du kommst.</p>
+      <button id="collectBtn">🪙 Abholen</button>
+      <div id="collectInfo"></div>
+    </div>
+
+    <div class="card">
+      <strong>🎁 Daily Chest</strong>
+      <p id="chestText">Einmal am Tag gratis Coins. Vielleicht.</p>
+      <button id="chestBtn">🎁 Truhe öffnen</button>
+      <div id="chestTimer"></div>
+    </div>
+
+
+    <div class="card">
+      <strong>🎮 Spiele</strong>
+      <div id="gameTabs">
+        <button class="gtab active" data-game="mines">💣 Mines</button>
+        <button class="gtab" data-game="crash">🚀 Crash</button>
+        <button class="gtab" data-game="plinko">🔵 Plinko</button>
+        <button class="gtab" data-game="bj">🂡 Blackjack</button>
+        <button class="gtab" data-game="hl">🃏 Higher/Lower</button>
+        <button class="gtab" data-game="wheel">🎡 Wheel</button>
+        <button class="gtab" data-game="flip">🪙 Münzwurf</button>
+        <button class="gtab" data-game="guess">🔢 Zahlen raten</button>
+      </div>
+
+      <div class="game-panel hidden" id="game-hl">
+        <p class="hint">Tippe, ob die nächste Karte höher oder tiefer ist. Jeder Treffer erhöht den Gewinn (x1.1). Gleiche Karte zählt als Treffer. Jederzeit cashen, sonst bei Fehler alles weg.</p>
+        <div id="hlStart">
+          <div class="field" style="align-items:center;margin:0 auto;"><label>Einsatz (Coins)</label><input id="hlBet" type="number" min="1" value="10" style="width:140px;text-align:center;"></div>
+          <div class="bet-row" style="margin-top:8px;">
+            <button class="betMul" data-target="hlBet" data-mul="half">÷2</button>
+            <button class="betMul" data-target="hlBet" data-mul="double">×2</button>
+            <button class="maxBet" data-target="hlBet">Max</button>
+          </div>
+          <button id="hlStartBtn" style="background:#0ea5e9;color:#fff;margin-top:6px;">Runde starten</button>
+        </div>
+        <div id="hlGame" class="hidden">
+          <div id="hlCard" class="card-face">?</div>
+          <div id="hlPot" style="font-weight:700;margin:6px 0;"></div>
+          <div class="bet-row">
+            <button id="hlHigher" style="background:#22c55e;color:#052e16;">⬆️ Höher</button>
+            <button id="hlLower" style="background:#ef4444;color:#fff;">⬇️ Tiefer</button>
+          </div>
+          <button id="hlCash" style="background:#f59e0b;color:#1f1300;">💰 Cashen</button>
+        </div>
+        <div id="hlResult"></div>
+      </div>
+
+      <div class="game-panel hidden" id="game-wheel">
+        <p class="hint">10 Coins pro Dreh.</p>
+        <div class="wheel-wrap"><div class="pointer"></div><canvas id="wheel" width="640" height="640"></canvas></div>
+        <button id="spinBtn">Drehen</button>
+        <div id="spinResult"></div>
+      </div>
+
+      <div class="game-panel hidden" id="game-flip">
+        <p class="hint">Doppelt oder nichts: tippe Kopf oder Zahl.</p>
+        <div id="flipCoin">?</div>
+        <div class="bet-row">
+          <button class="betMul" data-mul="half">÷2</button>
+          <input id="betInput" type="number" min="1" value="10" placeholder="Einsatz">
+          <button class="betMul" data-mul="double">×2</button>
+          <button class="maxBet" data-target="betInput">Max</button>
+        </div>
+        <button id="flipHeads">Kopf</button> <button id="flipTails">Zahl</button>
+        <div id="flipResult"></div>
+        <p style="margin:16px 0 4px;"><strong>🎨 Münz-Skins</strong></p>
+        <div id="coinSkinShop"></div>
+      </div>
+
+      <div class="game-panel hidden" id="game-guess">
+        <p class="hint">Je größer die Range, desto kleiner die Trefferchance und desto größer der Gewinn. Triffst du die Zahl genau, bekommst du Einsatz × Range.</p>
+        <div class="bet-row">
+          <div class="field">
+            <label>Range: Zahl von 1 bis</label>
+            <select id="guessRange">
+              <option value="10">10 (Chance 1 zu 10)</option>
+              <option value="100" selected>100 (Chance 1 zu 100)</option>
+              <option value="1000">1.000 (Chance 1 zu 1.000)</option>
+              <option value="10000">10.000</option>
+              <option value="100000">100.000</option>
+              <option value="1000000">1.000.000</option>
+            </select>
+          </div>
+        </div>
+        <div class="bet-row">
+          <div class="field"><label>Einsatz (Coins)</label><input id="guessBet" type="number" min="1" value="10"></div>
+          <button class="maxBet" data-target="guessBet">Max</button>
+          <div class="field"><label>Deine Zahl</label><input id="guessInput" type="number" min="1"></div>
+        </div>
+        <div id="guessCalc"></div>
+        <button id="guessGo">Raten</button>
+        <div id="guessResult"></div>
+      </div>
+
+      <div class="game-panel hidden" id="game-bj">
+        <p class="hint">So nah wie möglich an 21, ohne drüber. Bildkarten zählen 10, Ass 1 oder 11. Der Compiler zieht bis 17 (Soft 17 steht). Blackjack (21 mit 2 Karten) zahlt 2.5x, normaler Gewinn 2x, Push gibt den Einsatz zurück. Double Down verdoppelt den Einsatz für genau eine Karte. Bei zwei gleichen Karten kannst du splitten. Bei 21 wird automatisch gehalten.</p>
+        <div id="bjStart">
+          <div class="field" style="align-items:center;margin:0 auto;"><label>Einsatz (Coins)</label><input id="bjBet" type="number" min="1" value="10" style="width:140px;text-align:center;"></div>
+          <div class="bet-row" style="margin-top:8px;">
+            <button class="betMul" data-target="bjBet" data-mul="half">÷2</button>
+            <button class="betMul" data-target="bjBet" data-mul="double">×2</button>
+            <button class="maxBet" data-target="bjBet">Max</button>
+          </div>
+          <button id="bjDealBtn" style="background:#0ea5e9;color:#fff;margin-top:6px;">Austeilen</button>
+        </div>
+        <div id="bjTable" class="hidden">
+          <div style="font-size:.8rem;color:#94a3b8;margin-top:8px;">Compiler <span id="bjDealerVal"></span></div>
+          <div id="bjDealer" class="hand"></div>
+          <div id="bjHands"></div>
+          <div class="bet-row" id="bjActions">
+            <button id="bjHit" style="background:#22c55e;color:#052e16;">Hit</button>
+            <button id="bjStand" style="background:#ef4444;color:#fff;">Stand</button>
+            <button id="bjDouble" style="background:#f59e0b;color:#1f1300;">Double</button>
+            <button id="bjSplit" style="background:#a855f7;color:#fff;">Split</button>
+          </div>
+        </div>
+        <div id="bjResult"></div>
+      </div>
+
+      <div class="game-panel" id="game-mines">
+        <p class="hint">25 Felder, du wählst die Anzahl Minen. Jedes sichere Feld erhöht den Multiplikator; mehr Minen = größerer Zuwachs. Triffst du eine Mine, ist der Einsatz weg. Jederzeit cashen.</p>
+        <div id="minesStart">
+          <div class="bet-row">
+            <div class="field"><label>Einsatz (Coins)</label><input id="minesBet" type="number" min="1" value="10" style="width:130px;text-align:center;"></div>
+            <button class="maxBet" data-target="minesBet">Max</button>
+          </div>
+          <div class="bet-row">
+            <div class="field"><label>Minen (1-24)</label><input id="minesCount" type="number" min="1" max="24" value="3" style="width:130px;text-align:center;"></div>
+          </div>
+          <button id="minesStartBtn" style="background:#0ea5e9;color:#fff;margin-top:6px;">Spiel starten</button>
+        </div>
+        <div id="minesGame" class="hidden">
+          <div id="minesInfo" style="font-weight:700;margin:6px 0;"></div>
+          <div id="minesGrid"></div>
+          <button id="minesCash" style="background:#f59e0b;color:#1f1300;margin-top:10px;">💰 Cashen</button>
+        </div>
+        <div id="minesResult"></div>
+      </div>
+
+      <div class="game-panel hidden" id="game-crash">
+        <p class="hint">Der Multiplikator steigt live. Cashe aus, bevor die Rakete abstürzt. Stürzt sie vor deinem Cashout ab, ist der Einsatz weg. ~5% Hausvorteil.</p>
+        <div id="crashStart">
+          <div class="bet-row">
+            <div class="field"><label>Einsatz (Coins)</label><input id="crashBet" type="number" min="1" value="10" style="width:130px;text-align:center;"></div>
+            <button class="maxBet" data-target="crashBet">Max</button>
+          </div>
+          <div class="bet-row">
+            <button class="betMul" data-target="crashBet" data-mul="half">÷2</button>
+            <button class="betMul" data-target="crashBet" data-mul="double">×2</button>
+          </div>
+          <button id="crashStartBtn" style="background:#0ea5e9;color:#fff;">🚀 Starten</button>
+        </div>
+        <div id="crashGame" class="hidden">
+          <canvas id="crashCanvas"></canvas>
+          <div id="crashMult">1.00x</div>
+          <div id="crashRocket">🚀</div>
+          <button id="crashCash" style="background:#22c55e;color:#052e16;">💰 Cashen</button>
+        </div>
+        <div id="crashResult"></div>
+      </div>
+
+      <div class="game-panel hidden" id="game-plinko">
+        <p class="hint">Lass die Kugel fallen, sie landet in einem Multiplikator-Fach. Außen = hoch, Mitte = niedrig. ~5% Hausvorteil.</p>
+        <div class="bet-row">
+          <div class="field"><label>Einsatz (Coins)</label><input id="plinkoBet" type="number" min="1" value="10" style="width:130px;text-align:center;"></div>
+          <button class="maxBet" data-target="plinkoBet">Max</button>
+        </div>
+        <div class="bet-row">
+          <button class="betMul" data-target="plinkoBet" data-mul="half">÷2</button>
+          <button class="betMul" data-target="plinkoBet" data-mul="double">×2</button>
+        </div>
+        <div class="bet-row">
+          <div class="field"><label>Bälle gleichzeitig (max 20)</label><input id="plinkoBalls" type="number" min="1" max="20" value="1" style="width:110px;text-align:center;"></div>
+        </div>
+        <button id="plinkoDropBtn" style="background:#0ea5e9;color:#fff;">⬇️ Bälle fallen lassen</button>
+        <div id="plinkoBoard"><div id="plinkoBall" class="hidden"></div></div>
+        <div id="plinkoSlots"></div>
+        <div id="plinkoResult"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <strong>📦 Skin-Lootbox</strong> (50 Coins)
+      <div id="rarityInfo" class="rarity-info"></div>
+      <div class="case-window"><div id="caseStrip"></div></div>
+      <div class="bet-row" style="margin-top:12px;">
+        <button id="caseBtn">Lootbox öffnen</button>
+        <button id="caseQuickBtn" style="background:#334155;color:#fff;">⚡ Schnell</button>
+      </div>
+      <div id="caseResult"></div>
+      <p style="margin: 16px 0 4px;"><strong>🎒 Inventar</strong> (<span id="invCount"></span>)</p>
+      <p class="hint" style="margin-top:0;">Equippen oder für Coins verkaufen</p>
+      <div id="inventory"></div>
+    </div>
+
+    <div class="card">
+      <strong>🏪 Shop</strong>
+      <p class="hint">Direkt kaufen statt auf Glück hoffen. Booster, Titel und garantierte Skins.</p>
+      <div id="shopCats"></div>
+    </div>
+
+    <div class="card" id="trader">
+      <strong>🧑‍💼 Der Händler</strong>
+      <p id="traderMsg">Willkommen. Faire Preise, keine Tricks.</p>
+
+      <p style="margin:14px 0 4px;font-weight:700;">💱 Skins ankaufen (voller Verkaufswert)</p>
+      <p class="hint" style="margin-top:0;">Der Händler zahlt dir den vollen Wert für deine Skins.</p>
+      <div id="traderBuy"></div>
+
+      <p style="margin:16px 0 4px;font-weight:700;">⭐ Deal des Tages</p>
+      <div id="dailyDeal"></div>
+      <div id="tradeResult"></div>
+    </div>
+
+    <div class="card">
+      <strong>📅 Login-Streak</strong>
+      <p id="streakText" class="hint"></p>
+      <button id="streakBtn" style="background:#22c55e;color:#052e16;">Täglichen Bonus abholen</button>
+      <div id="streakInfo" style="font-size:.85rem;color:#94a3b8;margin-top:8px;"></div>
+    </div>
+
+    <div class="card">
+      <strong>🎯 Tägliche Challenges</strong>
+      <p class="hint">Drei Aufgaben pro Tag. Schaffst du sie, gibt es Coins. Setzen sich täglich neu.</p>
+      <div id="challengeList"></div>
+    </div>
+
+    <div class="card">
+      <strong>♻️ Prestige / Rebirth</strong>
+      <p id="prestigeText" class="hint"></p>
+      <button id="prestigeBtn" style="background:#a855f7;color:#fff;">Prestige</button>
+      <div id="prestigeInfo" style="font-size:.85rem;color:#94a3b8;margin-top:8px;"></div>
+    </div>
+  </div>
+

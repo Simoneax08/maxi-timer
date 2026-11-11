@@ -1,0 +1,27 @@
+  #userBadge { position: fixed; top: 14px; left: 14px; z-index: 20; display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; background: rgba(15,23,42,.7); border: 1px solid rgba(255,255,255,.1); font-weight: 700; font-size: .9rem; max-width: 180px; }
+  #userBadge.hidden { display: none; }
+  #userBadge #userBadgeName { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ub-dot { width: 9px; height: 9px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 8px #22c55e; flex: none; }
+  .auth-info { margin-top: 10px; font-size: .9rem; min-height: 1.2em; }
+  .acct-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .acct-avatar { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; font-weight: 900; font-size: 1.2rem; color: #1f1300; background: linear-gradient(135deg, #fde68a, #f59e0b); flex: none; }
+  .acct-name { font-size: 1.2rem; font-weight: 800; }
+  .acct-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+  .acct-stats > div { background: rgba(255,255,255,.04); border-radius: 12px; padding: 10px 6px; text-align: center; }
+  .acct-stats span { display: block; font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: #94a3b8; }
+  .acct-stats b { font-size: 1.05rem; font-variant-numeric: tabular-nums; }
+  .acct-btn { width: 100%; margin-top: 8px; }
+  .lb-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .lb-refresh { background: #334155; color: #fff; padding: 6px 12px; }
+  .lb-podium { display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 8px; align-items: end; margin-bottom: 14px; }
+  .lb-pod { border-radius: 14px; padding: 12px 6px; text-align: center; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08); }
+  .lb-pod .pod-medal { font-size: 1.8rem; }
+  .lb-pod .pod-name { font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lb-pod .pod-coins { font-size: .85rem; color: var(--accent); font-variant-numeric: tabular-nums; font-weight: 700; }
+  .lb-pod.gold { padding-top: 22px; background: linear-gradient(180deg, rgba(245,158,11,.25), rgba(255,255,255,.04)); border-color: rgba(245,158,11,.5); }
+  .lb-pod .pod-prize { font-size: .72rem; color: #94a3b8; margin-top: 4px; }
+  .lb-list .lb-row { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 10px; margin-bottom: 6px; background: rgba(255,255,255,.04); }
+  .lb-row .lb-rank { width: 34px; font-weight: 800; text-align: center; color: #94a3b8; }
+  .lb-row .lb-name { flex: 1; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lb-row .lb-coins { font-variant-numeric: tabular-nums; color: var(--accent); font-weight: 700; }
+  .lb-row.lb-me { background: rgba(245,158,11,.16); outline: 1px solid rgba(245,158,11,.5); }
