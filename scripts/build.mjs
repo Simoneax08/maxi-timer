@@ -15,7 +15,7 @@ const css = joinDir("src/css");
 const js = joinDir("src/js");
 const head = read("src/head.html").replace("{{CSS}}", css);
 const shell = read("src/body/shell.html");
-const pages = ["timer", "market", "stats", "login", "leaderboard", "modals"]
+const pages = ["timer", "market", "stats", "login", "leaderboard", "modals", "chat"]
   .map((p) => read(`src/body/${p}.html`)).join("\n");
 const tail = read("src/tail.html");
 

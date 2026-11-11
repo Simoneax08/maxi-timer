@@ -193,3 +193,50 @@ grant execute on function public.redeem_code(text) to authenticated;
 grant execute on function public.leaderboard_today() to anon, authenticated;
 -- Auszahlung nur serverseitig (SQL-Editor / pg_cron), nicht aus dem Browser
 revoke execute on function public.settle_daily_prizes() from public, anon, authenticated;
+
+-- 13) Automatische Tagespreise (pg_cron, stündlich, nachholend) ---------
+-- settle_daily_prizes ist idempotent: fehlende Tage werden beim nächsten Lauf nachgeholt.
+do $$ begin
+  create extension if not exists pg_cron;
+  begin perform cron.unschedule('settle-daily-prizes'); exception when others then null; end;
+  perform cron.schedule('settle-daily-prizes', '5 * * * *', 'select public.settle_daily_prizes()');
+exception when others then
+  raise notice 'pg_cron nicht verfuegbar: %', sqlerrm;
+end $$;
+
+-- 14) Live-Chat (nur eingeloggt, max. 200 Zeichen, 1 Nachricht / 2 Sek.) -
+create table if not exists public.chat_messages (
+  id bigint generated always as identity primary key,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  username text not null,
+  body text not null check (length(body) between 1 and 200),
+  created_at timestamptz not null default now()
+);
+alter table public.chat_messages enable row level security;
+drop policy if exists "chat_read" on public.chat_messages;
+create policy "chat_read" on public.chat_messages for select to authenticated using (true);
+revoke all on public.chat_messages from anon, authenticated;
+grant select on public.chat_messages to authenticated;
+
+create or replace function public.post_chat(p_body text)
+returns void language plpgsql security definer set search_path = public as $$
+declare uid uuid := auth.uid(); uname text; msg text := trim(p_body); last_at timestamptz;
+begin
+  if uid is null then raise exception 'not_logged_in'; end if;
+  if length(msg) < 1 or length(msg) > 200 then raise exception 'bad_message'; end if;
+  select username into uname from profiles where id = uid;
+  if uname is null then raise exception 'no_account'; end if;
+  select max(created_at) into last_at from chat_messages where user_id = uid;
+  if last_at is not null and now() - last_at < interval '2 seconds' then raise exception 'too_fast'; end if;
+  insert into chat_messages (user_id, username, body) values (uid, uname, msg);
+  delete from chat_messages where id in (select id from chat_messages order by id desc offset 200);
+end $$;
+revoke execute on function public.post_chat(text) from public, anon;
+grant execute on function public.post_chat(text) to authenticated;
+
+-- Echtzeit: Neue Nachrichten an alle eingeloggten Browser schicken
+do $$ begin
+  alter publication supabase_realtime add table public.chat_messages;
+exception when others then
+  raise notice 'Realtime-Publikation: %', sqlerrm;
+end $$;

@@ -91,7 +91,7 @@
     document.querySelectorAll(".gtab").forEach((x) => x.classList.remove("active"));
     t.classList.add("active");
     const g = t.dataset.game;
-    ["hl", "wheel", "flip", "guess", "bj", "mines", "crash", "plinko"].forEach((name) => $("game-" + name).classList.toggle("hidden", name !== g));
+    ["hl", "wheel", "flip", "guess", "bj", "mines", "crash", "plinko", "chicken", "horses"].forEach((name) => $("game-" + name).classList.toggle("hidden", name !== g));
     if (g === "plinko") buildPlinko();
   }));
 

@@ -29,6 +29,8 @@
         <button class="gtab" data-game="wheel">🎡 Wheel</button>
         <button class="gtab" data-game="flip">🪙 Münzwurf</button>
         <button class="gtab" data-game="guess">🔢 Zahlen raten</button>
+        <button class="gtab" data-game="chicken">🐔 Chicken Road</button>
+        <button class="gtab" data-game="horses">🐎 Pferderennen</button>
       </div>
 
       <div class="game-panel hidden" id="game-hl">
@@ -59,6 +61,32 @@
         <div class="wheel-wrap"><div class="pointer"></div><canvas id="wheel" width="640" height="640"></canvas></div>
         <button id="spinBtn">Drehen</button>
         <div id="spinResult"></div>
+      </div>
+
+      <div class="game-panel hidden" id="game-chicken">
+        <p class="hint">Jeder Schritt wird gefährlicher. Du kannst jederzeit kassieren, aber nur nach mindestens einem Schritt.</p>
+        <div id="crStartBox">
+          <div class="field" style="align-items:center;margin:0 auto;"><label>Einsatz (Coins)</label><input id="crBet" type="number" min="1" value="10" style="width:140px;text-align:center;"></div>
+          <button id="crStartBtn" style="background:#0ea5e9;color:#fff;margin-top:6px;">Losgehen</button>
+        </div>
+        <div id="crPlay" class="hidden">
+          <div id="crInfo" style="font-weight:700;margin:6px 0;"></div>
+          <div id="crRoad" class="road"></div>
+          <div class="bet-row">
+            <button id="crWalkBtn" style="background:#22c55e;color:#052e16;">🐔 Weiter</button>
+            <button id="crCashBtn" style="background:#f59e0b;color:#1f1300;">💰 Kassieren</button>
+          </div>
+        </div>
+        <div id="crResult"></div>
+      </div>
+
+      <div class="game-panel hidden" id="game-horses">
+        <p class="hint">Wähle ein Pferd. Die Quoten stehen fest. Gewettet wird nur vor dem Start.</p>
+        <div id="hrPick" class="pick-row"></div>
+        <div class="field" style="align-items:center;margin:6px auto;"><label>Einsatz (Coins)</label><input id="hrBet" type="number" min="1" value="10" style="width:140px;text-align:center;"></div>
+        <div id="hrTrack" class="horse-track"></div>
+        <button id="hrGo" style="background:#0ea5e9;color:#fff;">Wetten und Rennen starten</button>
+        <div id="hrResult"></div>
       </div>
 
       <div class="game-panel hidden" id="game-flip">

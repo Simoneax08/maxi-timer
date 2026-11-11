@@ -248,6 +248,36 @@
     .bet-row { gap: 6px; }
     button { padding: 11px 16px; }
   }
+/* ===== Chat-Panel ===== */
+.chat-panel{position:fixed;right:12px;bottom:12px;width:320px;max-width:calc(100vw - 24px);z-index:50;background:#111827;color:#e5e7eb;border:1px solid #334155;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.4);font-size:14px}
+.chat-head{width:100%;text-align:left;background:#1e293b;color:#e5e7eb;border:0;border-radius:12px 12px 0 0;padding:10px 12px;cursor:pointer}
+.chat-panel.collapsed .chat-body{display:none}
+.chat-panel.collapsed .chat-head{border-radius:12px}
+.chat-body{display:flex;flex-direction:column}
+.chat-msgs{height:260px;overflow-y:auto;padding:8px;display:flex;flex-direction:column;gap:4px}
+.chat-msg{word-break:break-word}
+.chat-msg b{color:#93c5fd}
+.chat-msg.me b{color:#f59e0b}
+.chat-hint{font-size:12px;opacity:.7;padding:4px}
+.chat-form{display:flex;gap:6px;padding:8px;border-top:1px solid #334155}
+.chat-form input{flex:1;min-width:0}
+.chat-form button{white-space:nowrap}
+@media (max-width:600px){ .chat-panel{left:8px;right:8px;width:auto} }
+
+/* ===== Chicken Road ===== */
+.road{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0;min-height:10px}
+.road-step{min-width:58px;padding:6px 4px;border-radius:8px;background:#1e293b;text-align:center;font-size:12px}
+.road-step.done{background:#16a34a;color:#fff}
+.road-step.dead{background:#dc2626;color:#fff}
+
+/* ===== Pferderennen ===== */
+.pick-row{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:6px 0}
+.pick-row button.picked{outline:3px solid #f59e0b}
+.horse-track{margin:8px 0}
+.horse-row{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:14px}
+.horse-name{width:120px;text-align:left}
+.horse-bar{flex:1;height:14px;background:#1e293b;border-radius:7px;overflow:hidden}
+.horse-bar i{display:block;height:100%;width:0;background:#f59e0b}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 </head>
@@ -329,6 +359,8 @@
         <button class="gtab" data-game="wheel">🎡 Wheel</button>
         <button class="gtab" data-game="flip">🪙 Münzwurf</button>
         <button class="gtab" data-game="guess">🔢 Zahlen raten</button>
+        <button class="gtab" data-game="chicken">🐔 Chicken Road</button>
+        <button class="gtab" data-game="horses">🐎 Pferderennen</button>
       </div>
 
       <div class="game-panel hidden" id="game-hl">
@@ -359,6 +391,32 @@
         <div class="wheel-wrap"><div class="pointer"></div><canvas id="wheel" width="640" height="640"></canvas></div>
         <button id="spinBtn">Drehen</button>
         <div id="spinResult"></div>
+      </div>
+
+      <div class="game-panel hidden" id="game-chicken">
+        <p class="hint">Jeder Schritt wird gefährlicher. Du kannst jederzeit kassieren, aber nur nach mindestens einem Schritt.</p>
+        <div id="crStartBox">
+          <div class="field" style="align-items:center;margin:0 auto;"><label>Einsatz (Coins)</label><input id="crBet" type="number" min="1" value="10" style="width:140px;text-align:center;"></div>
+          <button id="crStartBtn" style="background:#0ea5e9;color:#fff;margin-top:6px;">Losgehen</button>
+        </div>
+        <div id="crPlay" class="hidden">
+          <div id="crInfo" style="font-weight:700;margin:6px 0;"></div>
+          <div id="crRoad" class="road"></div>
+          <div class="bet-row">
+            <button id="crWalkBtn" style="background:#22c55e;color:#052e16;">🐔 Weiter</button>
+            <button id="crCashBtn" style="background:#f59e0b;color:#1f1300;">💰 Kassieren</button>
+          </div>
+        </div>
+        <div id="crResult"></div>
+      </div>
+
+      <div class="game-panel hidden" id="game-horses">
+        <p class="hint">Wähle ein Pferd. Die Quoten stehen fest. Gewettet wird nur vor dem Start.</p>
+        <div id="hrPick" class="pick-row"></div>
+        <div class="field" style="align-items:center;margin:6px auto;"><label>Einsatz (Coins)</label><input id="hrBet" type="number" min="1" value="10" style="width:140px;text-align:center;"></div>
+        <div id="hrTrack" class="horse-track"></div>
+        <button id="hrGo" style="background:#0ea5e9;color:#fff;">Wetten und Rennen starten</button>
+        <div id="hrResult"></div>
       </div>
 
       <div class="game-panel hidden" id="game-flip">
@@ -640,6 +698,17 @@
     </div>
   </div>
 
+  <!-- ===== CHAT: eingeklappt unten rechts, nur eingeloggt ===== -->
+  <div id="chatPanel" class="chat-panel collapsed">
+    <button id="chatToggle" class="chat-head">💬 Chat <span id="chatHint"></span></button>
+    <div class="chat-body">
+      <div id="chatMsgs" class="chat-msgs"></div>
+      <div class="chat-form">
+        <input id="chatInput" type="text" maxlength="200" placeholder="Nachricht (max. 200 Zeichen)" disabled>
+        <button id="chatSend" disabled>Senden</button>
+      </div>
+    </div>
+  </div>
 <script>
 (function () { // Kapsel: Internals (setCoins, coins, store ...) aus der Konsole unerreichbar
   const $ = (id) => document.getElementById(id);
@@ -734,7 +803,7 @@
     document.querySelectorAll(".gtab").forEach((x) => x.classList.remove("active"));
     t.classList.add("active");
     const g = t.dataset.game;
-    ["hl", "wheel", "flip", "guess", "bj", "mines", "crash", "plinko"].forEach((name) => $("game-" + name).classList.toggle("hidden", name !== g));
+    ["hl", "wheel", "flip", "guess", "bj", "mines", "crash", "plinko", "chicken", "horses"].forEach((name) => $("game-" + name).classList.toggle("hidden", name !== g));
     if (g === "plinko") buildPlinko();
   }));
 
@@ -2241,6 +2310,113 @@
   const excuses = ["mein IntelliJ gerade indexiert.", "die PLF eh noch ewig weg ist.", "ich zuerst noch FIFA spielen muss.", "mein Laptop ein Update macht.", "ich das morgen eh in einer Stunde schaffe.", "Java mich emotional verletzt hat.", "ich zuerst meinen Schreibtisch aufräumen muss.", "Merkur rückläufig ist."];
   $("excuseBtn").addEventListener("click", () => { sfx.click(); $("excuse").textContent = "Heute kann ich nicht lernen, weil " + excuses[rnd(0, excuses.length - 1)]; });
 
+  // ---------- Chicken Road: Schritt für Schritt über die Straße ----------
+  // Jeder Schritt kann mit Gegenverkehr enden. Je weiter, desto riskanter. Jederzeit kassieren.
+  const CR_SURVIVE = (k) => Math.max(0.45, 0.96 - 0.05 * (k - 1)); // Überlebenschance bei Schritt k (ab 1)
+  let crBet = 0, crStep = 0, crMult = 1, crLive = false;
+  function crMultAt(k) {
+    if (k < 1) return 1;
+    let p = 1; for (let j = 1; j <= k; j++) p *= CR_SURVIVE(j);
+    return Math.round((0.97 / p) * 100) / 100; // 3 % Hausvorteil
+  }
+  function crRender() {
+    const risk = Math.round((1 - CR_SURVIVE(crStep + 1)) * 100);
+    $("crInfo").textContent = `Schritt ${crStep} · x${crMult.toFixed(2)} · Gewinn ${fmt(Math.floor(crBet * crMult))} · nächster Schritt: ${risk} % Risiko`;
+  }
+  function crShowStart(show) {
+    $("crStartBox").classList.toggle("hidden", !show);
+    $("crPlay").classList.toggle("hidden", show);
+  }
+  function crStart() {
+    if (crLive) return;
+    const bet = Math.floor(Number($("crBet").value) || 0);
+    if (bet < 1) { toast("Mindestens 1 Coin."); return; }
+    if (bet > coins) { toast("Zu wenig Coins."); return; }
+    setCoins(coins - bet); addXPbet(bet); sfx.click();
+    crBet = bet; crStep = 0; crMult = 1; crLive = true;
+    $("crRoad").innerHTML = ""; $("crResult").textContent = "";
+    crShowStart(false); crRender();
+  }
+  function crWalk() {
+    if (!crLive) return;
+    const k = crStep + 1;
+    const ok = Math.random() < CR_SURVIVE(k);
+    const cell = document.createElement("div");
+    cell.className = "road-step " + (ok ? "done" : "dead");
+    cell.textContent = (ok ? "✓ " : "💥 ") + k;
+    $("crRoad").appendChild(cell);
+    if (!ok) {
+      crLive = false; sfx.lose();
+      $("crResult").textContent = `Angefahren bei Schritt ${k}. ${fmt(crBet)} Coins weg.`;
+      crShowStart(true); return;
+    }
+    crStep = k; crMult = crMultAt(k); sfx.click(); crRender();
+  }
+  function crCash() {
+    if (!crLive) return;
+    if (crStep < 1) { toast("Erst mindestens einen Schritt gehen."); return; }
+    const win = Math.floor(crBet * crMult);
+    setCoins(coins + win); crLive = false;
+    sfx.win(); rain("🪙", "#f59e0b", 20);
+    $("crResult").textContent = `Kassiert: +${fmt(win)} Coins (x${crMult.toFixed(2)})`;
+    crShowStart(true);
+  }
+  if ($("crStartBtn")) {
+    $("crStartBtn").addEventListener("click", crStart);
+    $("crWalkBtn").addEventListener("click", crWalk);
+    $("crCashBtn").addEventListener("click", crCash);
+  }
+  // ---------- Pferderennen: 4 Pferde, feste Quoten, Wette nur vor dem Start ----------
+  const HORSES = [
+    { name: "Blitz", p: 0.42 }, { name: "Donner", p: 0.28 }, { name: "Schatten", p: 0.18 }, { name: "Wirbel", p: 0.12 }
+  ].map((h) => ({ ...h, odds: Math.round((0.96 / h.p) * 100) / 100 })); // 4 % Hausvorteil
+  let hrPick = 0, hrRacing = false;
+  function hrBuildUI() {
+    $("hrPick").innerHTML = HORSES.map((h, i) => `<button class="hrPickBtn${i === hrPick ? " picked" : ""}" data-i="${i}">🐎 ${h.name} x${h.odds.toFixed(2)}</button>`).join("");
+    $("hrTrack").innerHTML = HORSES.map((h, i) => `<div class="horse-row"><span class="horse-name">🐎 ${h.name}</span><div class="horse-bar"><i id="hrBar${i}"></i></div></div>`).join("");
+  }
+  function hrStart() {
+    if (hrRacing) return;
+    const bet = Math.floor(Number($("hrBet").value) || 0);
+    if (bet < 1) { toast("Mindestens 1 Coin."); return; }
+    if (bet > coins) { toast("Zu wenig Coins."); return; }
+    setCoins(coins - bet); addXPbet(bet); sfx.click();
+    // Sieger zuerst auslosen, dann das Rennen dazu zeigen
+    const r = Math.random(); let acc = 0, winner = HORSES.length - 1;
+    for (let i = 0; i < HORSES.length; i++) { acc += HORSES[i].p; if (r < acc) { winner = i; break; } }
+    const T = 3000;
+    const finish = HORSES.map((_, i) => i === winner ? T : T + 200 + Math.random() * 1200);
+    const end = Math.max(...finish);
+    hrRacing = true; $("hrGo").disabled = true; $("hrResult").textContent = "Rennen läuft...";
+    HORSES.forEach((_, i) => { $("hrBar" + i).style.width = "0%"; });
+    const t0 = performance.now();
+    const tick = () => {
+      const t = performance.now() - t0;
+      HORSES.forEach((_, i) => { $("hrBar" + i).style.width = Math.min(100, (t / finish[i]) * 100) + "%"; });
+      if (t < end) requestAnimationFrame(tick); else hrFinish(winner, bet);
+    };
+    requestAnimationFrame(tick);
+  }
+  function hrFinish(winner, bet) {
+    hrRacing = false; $("hrGo").disabled = false;
+    if (winner === hrPick) {
+      const win = Math.floor(bet * HORSES[winner].odds);
+      setCoins(coins + win); sfx.win(); rain("🏆", "#f59e0b", 24);
+      $("hrResult").textContent = `${HORSES[winner].name} gewinnt! +${fmt(win)} Coins`;
+    } else {
+      sfx.lose();
+      $("hrResult").textContent = `${HORSES[winner].name} gewinnt. ${fmt(bet)} Coins weg.`;
+    }
+  }
+  if ($("hrGo")) {
+    hrBuildUI();
+    $("hrGo").addEventListener("click", hrStart);
+    $("hrPick").addEventListener("click", (e) => {
+      const b = e.target.closest(".hrPickBtn");
+      if (!b || hrRacing) return;
+      hrPick = Number(b.dataset.i); hrBuildUI();
+    });
+  }
   // ================= Supabase: Konto, Belohnungen, Tagesrangliste =================
   // Alle Kontostände und Belohnungen kommen vom Server (RPC-Funktionen aus supabase/schema.sql).
   // Der Browser darf nicht direkt in die Tabellen schreiben.
@@ -2476,8 +2652,62 @@
         }
         renderAuth();
         loadLeaderboard();
+        chatSetAccess(); chatLoad(); chatConnect();
       }
     } catch (e) {}
+  }
+
+  // ---------- Live-Chat (nur eingeloggt, 200 Zeichen, 1 Nachricht alle 2 Sek.) ----------
+  const chatPanel = $("chatPanel"), chatMsgs = $("chatMsgs"), chatInput = $("chatInput"), chatSend = $("chatSend"), chatHint = $("chatHint");
+  let chatLast = 0, chatReady = false, chatLastId = 0;
+  function chatAddMsg(r) {
+    if (!chatMsgs) return;
+    const row = document.createElement("div");
+    row.className = "chat-msg" + (authUsername && r.username === authUsername ? " me" : "");
+    const who = document.createElement("b"); who.textContent = (r.username || "?") + ": ";
+    const txt = document.createElement("span"); txt.textContent = r.body || "";
+    row.append(who, txt);
+    chatMsgs.appendChild(row);
+    chatMsgs.scrollTop = chatMsgs.scrollHeight;
+  }
+  function chatSetAccess() {
+    const on = accountMode && !!authUserId;
+    if (chatInput) chatInput.disabled = !on;
+    if (chatSend) chatSend.disabled = !on;
+    if (chatHint) chatHint.textContent = on ? "" : "🔒 Login nötig";
+    if (!on && chatMsgs) chatMsgs.innerHTML = '<div class="chat-hint">Zum Chatten bitte einloggen.</div>';
+  }
+  async function chatLoad() {
+    if (!sb || !accountMode) return;
+    const { data, error } = await sb.from("chat_messages").select("id,username,body,created_at").order("id", { ascending: false }).limit(50);
+    if (error || !chatMsgs) return;
+    chatMsgs.innerHTML = "";
+    (data || []).slice().sort((x, y) => Number(x.id) - Number(y.id)).forEach((r) => { chatLastId = Math.max(chatLastId, Number(r.id) || 0); chatAddMsg(r); });
+  }
+  function chatConnect() {
+    if (chatReady || !sb) return;
+    chatReady = true;
+    sb.channel("chat-room").on("postgres_changes", { event: "INSERT", schema: "public", table: "chat_messages" }, (p) => { if (Number(p.new.id) > chatLastId) { chatLastId = Number(p.new.id); chatAddMsg(p.new); } }).subscribe();
+  }
+  async function chatSendMsg() {
+    const body = (chatInput.value || "").trim();
+    if (!body || !accountMode) return;
+    if (body.length > 200) { chatHint.textContent = "Max. 200 Zeichen."; return; }
+    if (Date.now() - chatLast < 2000) { chatHint.textContent = "Kurz warten..."; return; }
+    chatLast = Date.now();
+    const { error } = await sb.rpc("post_chat", { p_body: body });
+    if (error) { chatHint.textContent = errText(error); return; }
+    chatInput.value = ""; chatHint.textContent = "";
+    await chatLoad(); // sofort sichtbar, auch ohne Realtime (doppelte werden über die ID verhindert)
+  }
+  if (chatPanel) {
+    $("chatToggle").addEventListener("click", () => {
+      chatPanel.classList.toggle("collapsed");
+      if (!chatPanel.classList.contains("collapsed")) chatMsgs.scrollTop = chatMsgs.scrollHeight;
+    });
+    chatSend.addEventListener("click", chatSendMsg);
+    chatInput.addEventListener("keydown", (e) => { if (e.key === "Enter") chatSendMsg(); });
+    chatSetAccess();
   }
 
   if ($("authLoginBtn")) $("authLoginBtn").addEventListener("click", doLogin);

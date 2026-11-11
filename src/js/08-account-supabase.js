@@ -233,8 +233,62 @@
         }
         renderAuth();
         loadLeaderboard();
+        chatSetAccess(); chatLoad(); chatConnect();
       }
     } catch (e) {}
+  }
+
+  // ---------- Live-Chat (nur eingeloggt, 200 Zeichen, 1 Nachricht alle 2 Sek.) ----------
+  const chatPanel = $("chatPanel"), chatMsgs = $("chatMsgs"), chatInput = $("chatInput"), chatSend = $("chatSend"), chatHint = $("chatHint");
+  let chatLast = 0, chatReady = false, chatLastId = 0;
+  function chatAddMsg(r) {
+    if (!chatMsgs) return;
+    const row = document.createElement("div");
+    row.className = "chat-msg" + (authUsername && r.username === authUsername ? " me" : "");
+    const who = document.createElement("b"); who.textContent = (r.username || "?") + ": ";
+    const txt = document.createElement("span"); txt.textContent = r.body || "";
+    row.append(who, txt);
+    chatMsgs.appendChild(row);
+    chatMsgs.scrollTop = chatMsgs.scrollHeight;
+  }
+  function chatSetAccess() {
+    const on = accountMode && !!authUserId;
+    if (chatInput) chatInput.disabled = !on;
+    if (chatSend) chatSend.disabled = !on;
+    if (chatHint) chatHint.textContent = on ? "" : "🔒 Login nötig";
+    if (!on && chatMsgs) chatMsgs.innerHTML = '<div class="chat-hint">Zum Chatten bitte einloggen.</div>';
+  }
+  async function chatLoad() {
+    if (!sb || !accountMode) return;
+    const { data, error } = await sb.from("chat_messages").select("id,username,body,created_at").order("id", { ascending: false }).limit(50);
+    if (error || !chatMsgs) return;
+    chatMsgs.innerHTML = "";
+    (data || []).slice().sort((x, y) => Number(x.id) - Number(y.id)).forEach((r) => { chatLastId = Math.max(chatLastId, Number(r.id) || 0); chatAddMsg(r); });
+  }
+  function chatConnect() {
+    if (chatReady || !sb) return;
+    chatReady = true;
+    sb.channel("chat-room").on("postgres_changes", { event: "INSERT", schema: "public", table: "chat_messages" }, (p) => { if (Number(p.new.id) > chatLastId) { chatLastId = Number(p.new.id); chatAddMsg(p.new); } }).subscribe();
+  }
+  async function chatSendMsg() {
+    const body = (chatInput.value || "").trim();
+    if (!body || !accountMode) return;
+    if (body.length > 200) { chatHint.textContent = "Max. 200 Zeichen."; return; }
+    if (Date.now() - chatLast < 2000) { chatHint.textContent = "Kurz warten..."; return; }
+    chatLast = Date.now();
+    const { error } = await sb.rpc("post_chat", { p_body: body });
+    if (error) { chatHint.textContent = errText(error); return; }
+    chatInput.value = ""; chatHint.textContent = "";
+    await chatLoad(); // sofort sichtbar, auch ohne Realtime (doppelte werden über die ID verhindert)
+  }
+  if (chatPanel) {
+    $("chatToggle").addEventListener("click", () => {
+      chatPanel.classList.toggle("collapsed");
+      if (!chatPanel.classList.contains("collapsed")) chatMsgs.scrollTop = chatMsgs.scrollHeight;
+    });
+    chatSend.addEventListener("click", chatSendMsg);
+    chatInput.addEventListener("keydown", (e) => { if (e.key === "Enter") chatSendMsg(); });
+    chatSetAccess();
   }
 
   if ($("authLoginBtn")) $("authLoginBtn").addEventListener("click", doLogin);
