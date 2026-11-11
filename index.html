@@ -22,7 +22,6 @@
   button:active:not(:disabled) { transform: translateY(0); }
   button:disabled { opacity: .55; cursor: not-allowed; }
   input, select { font: inherit; padding: 11px; border-radius: 10px; border: 1px solid rgba(255,255,255,.12); background: #0b1120; color: var(--text, #fff); }
-  #readyBtn { background: #22c55e; color: #052e16; position: fixed; transition: left .15s, top .15s; z-index: 10; box-shadow: 0 6px 20px rgba(34,197,94,.4); }
   #excuseBtn { background: #6366f1; color: #fff; margin-top: 12px; }
   #learnBtn { background: #0ea5e9; color: #fff; margin-top: 12px; }
   #spinBtn { background: var(--accent); color: #1f1300; margin-top: 12px; }
@@ -45,6 +44,8 @@
   #boostLabel { font-size: .68rem; color: #c084fc; font-weight: 700; }
   #boostBar { height: 5px; background: #1e293b; border-radius: 3px; overflow: hidden; }
   #boostFill { height: 100%; width: 100%; background: linear-gradient(90deg, #a855f7, #c084fc); transition: width .9s linear; }
+  #winBoostBadge { background: linear-gradient(135deg, #22c55e, #16a34a); color: #052e16; font-weight: 800; font-size: .78rem; padding: 7px 12px; border-radius: 999px; box-shadow: 0 2px 10px rgba(34,197,94,.4); }
+  #winBoostBadge.hidden { display: none; }
   #tabs { position: fixed; top: 12px; left: 50%; transform: translateX(-50%); z-index: 20; display: flex; gap: 4px; background: rgba(15,23,42,.7); backdrop-filter: blur(8px); padding: 5px; border-radius: 999px; border: 1px solid rgba(255,255,255,.08); box-shadow: 0 4px 20px rgba(0,0,0,.35); }
   .tab { background: transparent; color: #cbd5e1; padding: 9px 18px; border-radius: 999px; font-size: .95rem; }
   .tab:hover:not(.active) { transform: none; background: rgba(255,255,255,.06); }
@@ -141,6 +142,16 @@
   .modal-box .big-xp > div { height: 100%; background: #22c55e; transition: width .4s; }
   .reward-row { display: flex; justify-content: space-between; padding: 9px 12px; border-radius: 10px; background: #0b1120; margin-top: 8px; border: 1px solid rgba(255,255,255,.07); }
   .stat-row { display: flex; justify-content: space-between; padding: 9px 12px; border-radius: 10px; background: #0b1120; margin-top: 8px; border: 1px solid rgba(255,255,255,.07); font-size: .9rem; }
+  .stat-big-row { display: flex; gap: 10px; margin-bottom: 14px; }
+  .stat-big { flex: 1; background: linear-gradient(160deg, #0f1a30, #0b1120); border: 1px solid rgba(255,255,255,.1); border-radius: 14px; padding: 14px 8px; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .stat-big .sb-ic { font-size: 1.5rem; }
+  .stat-big .sb-val { font-size: 1.25rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+  .stat-big .sb-lbl { font-size: .68rem; color: #94a3b8; text-align: center; }
+  .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .stat-tile { background: #0b1120; border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 12px 6px; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .stat-tile .st-ic { font-size: 1.3rem; }
+  .stat-tile .st-val { font-size: 1.1rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .stat-tile .st-lbl { font-size: .66rem; color: #94a3b8; text-align: center; }
   .stat-row b { color: var(--accent); }
   .ach { display: flex; gap: 12px; align-items: center; padding: 11px 12px; border-radius: 12px; background: #0b1120; margin-top: 10px; border: 1px solid rgba(255,255,255,.08); }
   .ach.done { border-color: #22c55e; background: linear-gradient(90deg, rgba(34,197,94,.1), #0b1120); }
@@ -167,6 +178,28 @@
   .rs-item .rs-amt { font-size: .72rem; opacity: .85; }
   #rsResult { min-height: 1.3em; font-weight: 800; margin-top: 10px; text-align: center; }
   @keyframes burst { 0% { opacity: 0; transform: translate(-50%,-50%) scale(.4); } 25% { opacity: 1; transform: translate(-50%,-50%) scale(1.15); } 70% { opacity: 1; transform: translate(-50%,-60%) scale(1); } 100% { opacity: 0; transform: translate(-50%,-85%) scale(.95); } }
+
+  /* ===== Handy-Layout ===== */
+  @media (max-width: 620px) {
+    /* Tabs und Topbar NICHT mehr fixiert, sondern gestapelt im normalen Fluss -> keine Überlappung */
+    body { padding: 12px 12px 90px; }
+    #tabs, #topbar { position: static; transform: none; top: auto; left: auto; right: auto; }
+    #tabs { margin: 0 auto 8px; flex-wrap: wrap; justify-content: center; max-width: 100%; }
+    #topbar { margin: 0 auto 10px; flex-wrap: wrap; justify-content: center; width: 100%; }
+    .tab { padding: 8px 13px; font-size: .88rem; }
+    #levelBox { min-width: 0; }
+    h1 { font-size: 1.5rem; }
+    #countdown { font-size: clamp(1.5rem, 9vw, 2.6rem); }
+    .card { padding: 15px 15px; }
+    #gameTabs { gap: 5px; }
+    .gtab { padding: 7px 11px; font-size: .82rem; }
+    /* Spiele etwas kompakter */
+    .wheel-wrap { width: 260px; }
+    #minesGrid { max-width: 280px; gap: 6px; }
+    .rs-item { flex: 0 0 82px; height: 66px; }
+    .bet-row { gap: 6px; }
+    button { padding: 11px 16px; }
+  }
 </style>
 </head>
 <body>
@@ -189,6 +222,7 @@
     </div>
     <button id="soundToggle">🔊</button>
     <div id="coins">🪙 0</div>
+    <div id="winBoostBadge" class="hidden"></div>
   </div>
 
   <!-- ===== TAB 1: TIMER ===== -->
@@ -361,7 +395,10 @@
       <strong>📦 Skin-Lootbox</strong> (50 Coins)
       <div id="rarityInfo" class="rarity-info"></div>
       <div class="case-window"><div id="caseStrip"></div></div>
-      <button id="caseBtn">Lootbox öffnen</button>
+      <div class="bet-row" style="margin-top:12px;">
+        <button id="caseBtn">Lootbox öffnen</button>
+        <button id="caseQuickBtn" style="background:#334155;color:#fff;">⚡ Schnell</button>
+      </div>
       <div id="caseResult"></div>
       <p style="margin: 16px 0 4px;"><strong>🎒 Inventar</strong> (<span id="invCount"></span>)</p>
       <p class="hint" style="margin-top:0;">Equippen oder für Coins verkaufen</p>
@@ -410,7 +447,6 @@
     </div>
   </div>
 
-  <button id="readyBtn">Ich bin bereit</button>
   <div id="toast"></div>
   <div id="claimBurst"><div class="amt"></div><div class="lbl"></div></div>
 
@@ -499,7 +535,6 @@
   updateSoundBtn();
   $("soundToggle").addEventListener("click", () => { soundOn = !soundOn; store.set("soundOn", soundOn); updateSoundBtn(); if (soundOn) sfx.click(); });
 
-  function setReadyVisible(show) { $("readyBtn").style.display = show ? "" : "none"; }
   document.querySelectorAll(".tab").forEach((t) => t.addEventListener("click", () => {
     sfx.click();
     document.querySelectorAll(".tab").forEach((x) => x.classList.remove("active"));
@@ -508,7 +543,6 @@
     $("page-timer").classList.toggle("hidden", which !== "timer");
     $("page-market").classList.toggle("hidden", which !== "market");
     $("page-stats").classList.toggle("hidden", which !== "stats");
-    setReadyVisible(which === "timer");
     if (which === "stats") { renderStats(); renderAch(); }
   }));
 
@@ -580,7 +614,7 @@
       inv["platin"] = (inv["platin"] || 0) + 1; if (typeof saveInv === "function") saveInv();
       if (typeof renderInventory === "function") renderInventory();
       rain("💎", "#e0e7ff", 60); sfx.win();
-      toast("ALLE Achievements! Platin-Skin + dauerhaft 1.02x Coins freigeschaltet!");
+      toast("ALLE Achievements! Platin-Skin + dauerhaft 1.1x Coins freigeschaltet!");
     }
     if (typeof renderAch === "function") renderAch();
   }
@@ -588,17 +622,21 @@
   // Level
   // Shop-/Booster-State früh deklariert (von Level & addXP genutzt)
   let xpBoostUntil = store.get("xpBoostUntil", 0);
-  let nextWinX2 = store.get("nextWinX2", false); // einmaliger Coins-Booster: nächster Gewinn x2
+  let nextWinMult = store.get("nextWinMult", 1); // einmaliger Coins-Booster: nächster Gewinn x2/x10
   let perks = store.get("perks", {});
   let ownedTitles = store.get("titles", []);
   let activeTitle = store.get("activeTitle", "");
   // Hilfsfunktionen für Boni
   const boxPrice = () => perks.box ? 40 : 50;
-  const bonusPerMin = () => perks.bonus ? 20 : 10;
-  // Gewinn-Coins gutschreiben: Perk (+10%) immer, nextWinX2 einmalig verdoppelnd
+  const bonusPerMin = () => perks.bonus5 ? 50 : perks.bonus ? 20 : 10;
+  // Dauerhafter Coin-Multiplikator aus Perks + Platin (bewusst moderat, kein OP-Farmen)
+  function coinMult() {
+    return (perks.coins ? 1.1 : 1) * (perks.coins15 ? 1.15 : 1) * (allAchBonus ? 1.1 : 1);
+  }
+  // Gewinn-Coins gutschreiben (nur bei echtem Gewinn aufrufen, nicht bei Push)
   function addWin(base) {
-    let total = Math.floor(base * (perks.coins ? 1.1 : 1) * (allAchBonus ? 1.02 : 1));
-    if (nextWinX2) { total *= 2; nextWinX2 = false; store.set("nextWinX2", false); toast("Coins-Booster: Gewinn verdoppelt!"); }
+    let total = Math.floor(base * coinMult());
+    if (nextWinMult > 1) { total = Math.floor(total * nextWinMult); toast(`Coins-Booster: Gewinn x${nextWinMult}!`); nextWinMult = 1; store.set("nextWinMult", 1); if (typeof updateWinBoost === "function") updateWinBoost(); }
     setCoins(coins + total);
     if (total > (stats.biggestWin || 0)) { stats.biggestWin = total; saveStats(); }
     checkAch();
@@ -748,6 +786,13 @@
   }
   updateBoostBar(); setInterval(updateBoostBar, 1000);
 
+  // Anzeige für den einmaligen Coins-Booster (nächster Gewinn)
+  function updateWinBoost() {
+    if (nextWinMult > 1) { $("winBoostBadge").classList.remove("hidden"); $("winBoostBadge").textContent = `💰 Nächster Gewinn x${nextWinMult}`; }
+    else { $("winBoostBadge").classList.add("hidden"); }
+  }
+  updateWinBoost();
+
   function rain(text, color, count = 40) {
     for (let i = 0; i < count; i++) {
       const el = document.createElement("span"); el.className = "drop"; el.textContent = text;
@@ -844,15 +889,16 @@
 
   // Wheel of Fortune
   const cv = $("wheel"), ctx = cv.getContext("2d"), C = 320, rad = (d) => d * Math.PI / 180;
+  // Ausbalanciert auf ~5% Hausvorteil (Einsatz 10, erwartete Auszahlung 9.5)
   const wheelSegs = [
     { label: "BESTANDEN", weight: 0.5, coins: 500, color: "#22c55e", pass: true },
-    { label: "+100", weight: 1, coins: 100, color: "#16a34a" },
-    { label: "Niete", weight: 27, coins: 0, color: "#b91c1c" },
-    { label: "+20", weight: 5, coins: 20, color: "#15803d" },
-    { label: "5er", weight: 26, coins: 0, color: "#ef4444" },
-    { label: "+50", weight: 2.5, coins: 50, color: "#16a34a" },
-    { label: "Durchgefallen", weight: 26.5, coins: 0, color: "#991b1b" },
-    { label: "+10", weight: 11, coins: 10, color: "#15803d" }
+    { label: "+100", weight: 1.5, coins: 100, color: "#16a34a" },
+    { label: "+50", weight: 4, coins: 50, color: "#16a34a" },
+    { label: "+20", weight: 10, coins: 20, color: "#15803d" },
+    { label: "+10", weight: 15, coins: 10, color: "#15803d" },
+    { label: "Niete", weight: 23, coins: 0, color: "#b91c1c" },
+    { label: "5er", weight: 23, coins: 0, color: "#ef4444" },
+    { label: "Durchgefallen", weight: 23, coins: 0, color: "#991b1b" }
   ];
   // gleich große Segmente fürs Zeichnen, Gewicht nur fürs Ergebnis
   const totalW = wheelSegs.reduce((a, s) => a + s.weight, 0);
@@ -1209,37 +1255,41 @@
     bjRenderDealer(false); addXP(4);
     if (anyAlive) { while (bjHandValue(bjDealer) < 17) bjDealer.push(bjDraw()); bjRenderDealer(false); }
     const dv = bjHandValue(bjDealer);
-    let payout = 0, parts = [];
+    // winPayout = echte Gewinne (werden geboostet) · pushReturn = zurück­gegebener Einsatz (KEIN Boost)
+    let winPayout = 0, pushReturn = 0, parts = [];
     bjHandsArr.forEach((h, i) => {
       const pv = bjHandValue(h.cards);
       const tag = bjHandsArr.length > 1 ? `H${i + 1}` : "";
       if (h.bust) { parts.push(`${tag} überkauft`); }
-      else if (h.blackjack) { payout += Math.round(h.bet * 2.5); parts.push(`${tag} Blackjack`); }
-      else if (dv > 21) { payout += h.bet * 2; parts.push(`${tag} Dealer bust`); }
-      else if (pv > dv) { payout += h.bet * 2; parts.push(`${tag} ${pv} gewinnt`); }
-      else if (pv === dv) { payout += h.bet; parts.push(`${tag} Push`); }
+      else if (h.blackjack) { winPayout += Math.round(h.bet * 2.5); parts.push(`${tag} Blackjack`); }
+      else if (dv > 21) { winPayout += h.bet * 2; parts.push(`${tag} Dealer bust`); }
+      else if (pv > dv) { winPayout += h.bet * 2; parts.push(`${tag} ${pv} gewinnt`); }
+      else if (pv === dv) { pushReturn += h.bet; parts.push(`${tag} Push`); }
       else { parts.push(`${tag} ${pv} verliert`); }
     });
     const totalBet = bjHandsArr.reduce((a, h) => a + h.bet, 0);
-    bjFinishResolved(payout, totalBet, `Compiler ${dv}. ` + parts.join(", ") + ".");
+    bjFinishResolved(winPayout, pushReturn, totalBet, `Compiler ${dv}. ` + parts.join(", ") + ".");
   }
 
   // Für die direkten Blackjack-Fälle beim Austeilen
   function bjFinish(msg, color) {
     const h = bjHandsArr[0];
-    let payout = 0;
-    if (h.blackjack) payout = Math.round(h.bet * 2.5);
-    else if (color === "#94a3b8") payout = h.bet; // Push
-    bjFinishResolved(payout, h.bet, msg, color);
+    let winPayout = 0, pushReturn = 0;
+    if (h.blackjack) winPayout = Math.round(h.bet * 2.5);
+    else if (color === "#94a3b8") pushReturn = h.bet; // Push: nur Einsatz zurück
+    bjFinishResolved(winPayout, pushReturn, h.bet, msg, color);
   }
-  function bjFinishResolved(payout, totalBet, msg, color) {
+  function bjFinishResolved(winPayout, pushReturn, totalBet, msg, color) {
     bjActive = false;
     $("bjActions").classList.remove("hidden");
     $("bjStart").classList.remove("hidden");
     bjRenderHands();
+    const payout = winPayout + pushReturn;
     const net = payout - totalBet;
     let c = color || (net > 0 ? "#22c55e" : net === 0 ? "#94a3b8" : "#ef4444");
-    if (payout > 0) { addWin(payout); sfx.win(); if (net > 0) rain("🪙", "#f59e0b", 20); }
+    // echte Gewinne über addWin (mit Boostern), Push-Rückgabe direkt ohne Boost
+    if (winPayout > 0) { addWin(winPayout); sfx.win(); if (net > 0) rain("🪙", "#f59e0b", 20); }
+    if (pushReturn > 0) setCoins(coins + pushReturn);
     if (net < 0) { sfx.lose(); stats.totalLost = (stats.totalLost || 0) + (totalBet - Math.max(0, payout)); saveStats(); checkAch(); }
     // Ergebnis-Zeile: Einsatz, Auszahlung und Netto klar anzeigen
     let summary;
@@ -1338,12 +1388,13 @@
   $("minesCash").addEventListener("click", () => minesCashOut(false));
 
   // Skins + Lootbox
+  // Fairere Verkaufspreise: erwarteter Wert pro Box ~42 bei 50 Einsatz (~16% Hausvorteil)
   const RARITIES = {
-    common: { name: "Gewöhnlich", color: "#9ca3af", weight: 55, sell: 5 },
-    rare: { name: "Selten", color: "#3b82f6", weight: 27, sell: 15 },
-    epic: { name: "Episch", color: "#a855f7", weight: 12, sell: 40 },
-    legendary: { name: "Legendär", color: "#f59e0b", weight: 5, sell: 120 },
-    mythic: { name: "Mythisch", color: "#ef4444", weight: 1, sell: 400 }
+    common: { name: "Gewöhnlich", color: "#9ca3af", weight: 55, sell: 10 },
+    rare: { name: "Selten", color: "#3b82f6", weight: 27, sell: 30 },
+    epic: { name: "Episch", color: "#a855f7", weight: 12, sell: 80 },
+    legendary: { name: "Legendär", color: "#f59e0b", weight: 5, sell: 220 },
+    mythic: { name: "Mythisch", color: "#ef4444", weight: 1, sell: 800 }
   };
   const SKINS = [
     { id: "standard", name: "Standard", rarity: "common", bg: "#0b1120", card: "#111a2e", text: "#f9fafb", start: true },
@@ -1375,7 +1426,8 @@
     const root = document.documentElement.style;
     root.setProperty("--bg", s.bg); root.setProperty("--card", s.card); root.setProperty("--text", s.text);
     root.setProperty("--font", s.font || "system-ui, sans-serif"); root.setProperty("--radius", s.radius || "16px");
-    root.setProperty("--align", s.align || "center"); root.setProperty("--talign", s.talign || "center");
+    // Layout bleibt immer zentriert, egal welcher Skin
+    root.setProperty("--align", "center"); root.setProperty("--talign", "center");
     root.setProperty("--border", s.start ? "rgba(255,255,255,.07)" : "rgba(255,255,255,.14)");
     document.body.classList.toggle("skin-anim", !!s.anim);
     equipped = s.id; store.set("equipped", s.id); renderInventory();
@@ -1415,43 +1467,59 @@
   let caseOpening = false;
   function updateCaseBtn() { $("caseBtn").textContent = `Lootbox öffnen (${boxPrice()} Coins)`; }
   updateCaseBtn();
-  $("caseBtn").addEventListener("click", () => {
+  function caseReveal(winner) {
+    caseOpening = false; addXP(10);
+    const r = RARITIES[winner.rarity]; const had = (inv[winner.id] || 0) > 0;
+    inv[winner.id] = (inv[winner.id] || 0) + 1; saveInv(); renderInventory();
+    $("caseResult").style.color = r.color;
+    $("caseResult").textContent = had ? `${winner.name} (${r.name}) - schon wieder. Jetzt x${inv[winner.id]}. Verkaufen für ${r.sell}?` : `NEU: ${winner.name} (${r.name})! Equippen oder verkaufen.`;
+    if (winner.rarity === "legendary" || winner.rarity === "mythic") { rain("✨", r.color, 50); sfx.win(); } else sfx.coin();
+  }
+  function openCase(quick) {
     if (caseOpening) return;
     const price = boxPrice();
     if (coins < price) { $("caseResult").style.color = ""; $("caseResult").textContent = `${price} Coins nötig. Hol den Minuten-Bonus.`; return; }
     setCoins(coins - price); caseOpening = true; sfx.click(); bump("boxes"); stats.totalLost = (stats.totalLost || 0) + price; saveStats();
     const winner = rollSkin();
+    if (quick) {
+      // Schnell: Gewinnfeld direkt in die Mitte setzen, keine lange Animation
+      const strip = $("caseStrip"); strip.style.transition = "none"; strip.style.transform = "translateX(0)"; strip.innerHTML = "";
+      strip.appendChild(caseItem(winner));
+      caseReveal(winner);
+      return;
+    }
     const strip = $("caseStrip"); const WIN_IDX = 35;
     strip.innerHTML = ""; strip.style.transition = "none"; strip.style.transform = "translateX(0)";
     for (let i = 0; i < 40; i++) strip.appendChild(caseItem(i === WIN_IDX ? winner : rollSkin()));
     const offset = 11 + WIN_IDX * 100 + 46 - strip.parentElement.clientWidth / 2 + rnd(-30, 30);
     $("caseResult").style.color = ""; $("caseResult").textContent = "Lootbox öffnet sich...";
     strip.offsetWidth; strip.style.transition = "transform 4.5s cubic-bezier(.12,.8,.2,1)"; strip.style.transform = `translateX(-${offset}px)`;
-    setTimeout(() => {
-      caseOpening = false; addXP(10);
-      const r = RARITIES[winner.rarity]; const had = (inv[winner.id] || 0) > 0;
-      inv[winner.id] = (inv[winner.id] || 0) + 1; saveInv(); renderInventory();
-      $("caseResult").style.color = r.color;
-      $("caseResult").textContent = had ? `${winner.name} (${r.name}) - schon wieder. Jetzt x${inv[winner.id]}. Verkaufen für ${r.sell}?` : `NEU: ${winner.name} (${r.name})! Equippen oder verkaufen.`;
-      if (winner.rarity === "legendary" || winner.rarity === "mythic") { rain("✨", r.color, 50); sfx.win(); } else sfx.coin();
-    }, 4700);
-  });
+    setTimeout(() => caseReveal(winner), 4700);
+  }
+  $("caseBtn").addEventListener("click", () => openCase(false));
+  $("caseQuickBtn").addEventListener("click", () => openCase(true));
 
   // ---------- Shop ----------
   const SHOP = {
     "⚡ Booster": [
       { id: "xp5", icon: "⚡", title: "XP-Booster", desc: "Doppelte XP für 5 Minuten.", price: 300, buy: () => { xpBoostUntil = Date.now() + 5*60000; store.set("xpBoostUntil", xpBoostUntil); updateBoostBar(); toast("XP-Booster aktiv für 5 Min!"); } },
-      { id: "coins2x", icon: "💰", title: "Coins-Booster", desc: "Verdoppelt deinen nächsten Gewinn (egal welches Spiel). Einmalig.", price: 5000, buy: () => { nextWinX2 = true; store.set("nextWinX2", true); toast("Nächster Gewinn x2!"); } }
+      { id: "coins13", icon: "💰", title: "Coins-Booster x1.3", desc: "Erhöht deinen nächsten echten Gewinn um das 1.3-fache. Push zählt nicht. Einmalig.", price: 5000, buy: () => { nextWinMult = 1.3; store.set("nextWinMult", 1.3); updateWinBoost(); toast("Nächster Gewinn x1.3!"); } }
     ],
     "💎 Perks (dauerhaft, sehr teuer)": [
       { id: "p_coins", icon: "📈", title: "Perk: +10% Coins für immer", desc: "Dauerhaft 10% mehr Coins aus allen Spielen.", price: 20000, perk: "coins" },
       { id: "p_box", icon: "📦", title: "Perk: Lootbox -20%", desc: "Lootbox kostet dauerhaft nur noch 40 statt 50.", price: 15000, perk: "box" },
       { id: "p_bonus", icon: "⏰", title: "Perk: Minuten-Bonus x2", desc: "Dauerhaft 20 statt 10 Coins pro Minute.", price: 25000, perk: "bonus" }
     ],
+    "🐋 High Roller (für die Reichen)": [
+      { id: "p_coins15", icon: "📊", title: "Perk: +15% Coins", desc: "Dauerhaft 15% mehr Coins. Stapelt mit den anderen Coin-Perks.", price: 150000, perk: "coins15" },
+      { id: "p_bonus5", icon: "⏱️", title: "Perk: Minuten-Bonus x5", desc: "Dauerhaft 50 statt 10 Coins pro Minute.", price: 400000, perk: "bonus5" },
+      { id: "cash1m", icon: "💸", title: "1 Mio Coins", desc: "Direkt 1.000.000 Coins. Kostet 1.25 Mio. Der Shop gewinnt immer.", price: 1250000, repeat: true, buy: () => { setCoins(coins + 1000000); toast("+1.000.000 Coins!"); } }
+    ],
     "🎖️ Titel (zum Flexen)": [
       { id: "t_durchfaller", icon: "🏅", title: "Titel: Durchfaller des Jahres", desc: "Steht oben neben deinem Level.", price: 800, title_val: "Durchfaller des Jahres" },
       { id: "t_coinmillionaer", icon: "🤑", title: "Titel: Coin-Millionär", desc: "Auch wenn du keine Million hast.", price: 2000, title_val: "Coin-Millionär" },
-      { id: "t_javagott", icon: "☕", title: "Titel: Java-Gott", desc: "Der höchste Titel. Verdient hast du ihn nicht.", price: 5000, title_val: "Java-Gott" }
+      { id: "t_javagott", icon: "☕", title: "Titel: Java-Gott", desc: "Der höchste Titel. Verdient hast du ihn nicht.", price: 5000, title_val: "Java-Gott" },
+      { id: "t_whale", icon: "🐋", title: "Titel: Der Wal", desc: "Für die, die zu viele Coins haben.", price: 500000, title_val: "Der Wal" }
     ],
     "🎨 Garantierte Skins": [
       { id: "s_epic", icon: "🟣", title: "Zufälliger Episch-Skin", desc: "Garantiert Episch. Günstiger als Lootbox-Pech.", price: 300, skin_rarity: "epic" },
@@ -1564,20 +1632,26 @@
 
   // ---------- Statistik- und Achievement-Anzeige ----------
   function renderStats() {
-    const rows = [
-      ["Spiele gespielt", stats.games || 0],
-      ["Größter Einzelgewinn", fmt(stats.biggestWin || 0) + " 🪙"],
-      ["Coins insgesamt verspielt", fmt(stats.totalLost || 0) + " 🪙"],
-      ["Beste Higher/Lower-Serie", stats.hlBest || 0],
-      ["Wheel gedreht", stats.spins || 0],
-      ["Lootboxen geöffnet", stats.boxes || 0],
-      ["Münzwürfe", stats.flips || 0],
-      ["Blackjack gespielt", stats.bjPlayed || 0],
-      ["Echte Blackjacks", stats.bjBlackjack || 0],
-      ["Mines gespielt", stats.minesPlayed || 0],
-      ["Aktuelles Level", level]
+    // Hervorgehobene Kennzahlen oben, Rest als Kacheln
+    const big = [
+      { ic: "🪙", label: "Coins", val: fmt(coins), col: "#f59e0b" },
+      { ic: "🏆", label: "Größter Gewinn", val: fmt(stats.biggestWin || 0), col: "#22c55e" },
+      { ic: "⭐", label: "Level", val: level, col: "#a855f7" }
     ];
-    $("statList").innerHTML = rows.map((r) => `<div class="stat-row"><span>${r[0]}</span><b>${r[1]}</b></div>`).join("");
+    const tiles = [
+      { ic: "🎮", label: "Spiele gespielt", val: fmt(stats.games || 0) },
+      { ic: "💸", label: "Coins verspielt", val: fmt(stats.totalLost || 0) },
+      { ic: "🃏", label: "Beste H/L-Serie", val: stats.hlBest || 0 },
+      { ic: "🎡", label: "Wheel-Spins", val: stats.spins || 0 },
+      { ic: "📦", label: "Lootboxen", val: stats.boxes || 0 },
+      { ic: "🪙", label: "Münzwürfe", val: stats.flips || 0 },
+      { ic: "🂡", label: "Blackjack", val: stats.bjPlayed || 0 },
+      { ic: "💥", label: "Echte Blackjacks", val: stats.bjBlackjack || 0 },
+      { ic: "💣", label: "Mines", val: stats.minesPlayed || 0 }
+    ];
+    const bigHtml = big.map((b) => `<div class="stat-big"><div class="sb-ic">${b.ic}</div><div class="sb-val" style="color:${b.col}">${b.val}</div><div class="sb-lbl">${b.label}</div></div>`).join("");
+    const tilesHtml = tiles.map((t) => `<div class="stat-tile"><span class="st-ic">${t.ic}</span><span class="st-val">${t.val}</span><span class="st-lbl">${t.label}</span></div>`).join("");
+    $("statList").innerHTML = `<div class="stat-big-row">${bigHtml}</div><div class="stat-grid">${tilesHtml}</div>`;
   }
   function renderAch() {
     const have = ACHIEVEMENTS.filter((a) => achDone[a.id]).length;
@@ -1632,15 +1706,6 @@
 
   const excuses = ["mein IntelliJ gerade indexiert.", "die PLF eh noch ewig weg ist.", "ich zuerst noch FIFA spielen muss.", "mein Laptop ein Update macht.", "ich das morgen eh in einer Stunde schaffe.", "Java mich emotional verletzt hat.", "ich zuerst meinen Schreibtisch aufräumen muss.", "Merkur rückläufig ist."];
   $("excuseBtn").addEventListener("click", () => { sfx.click(); $("excuse").textContent = "Heute kann ich nicht lernen, weil " + excuses[rnd(0, excuses.length - 1)]; });
-
-  const btn = $("readyBtn");
-  const fleeTexts = ["Ich bin bereit", "Sicher?", "Nö", "Lern lieber", "Fang mich doch", "Java > du"];
-  const place = (x, y) => { btn.style.left = x + "px"; btn.style.top = y + "px"; };
-  place(innerWidth / 2 - 80, innerHeight - 80);
-  function flee() { place(Math.random() * (innerWidth - btn.offsetWidth), Math.random() * (innerHeight - btn.offsetHeight)); btn.textContent = fleeTexts[rnd(0, fleeTexts.length - 1)]; }
-  btn.addEventListener("mouseenter", flee);
-  btn.addEventListener("touchstart", (e) => { e.preventDefault(); flee(); }, { passive: false });
-  btn.addEventListener("click", () => alert("Nein. Bist du nicht."));
 </script>
 </body>
 </html>
