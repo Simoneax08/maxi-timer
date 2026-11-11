@@ -123,6 +123,11 @@
   #caseStrip { display: flex; gap: 8px; padding: 11px; will-change: transform; }
   .case-item { flex: 0 0 92px; height: 90px; border-radius: 10px; background: #0f1627; color: #f9fafb; border-bottom: 5px solid; display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 700; padding: 6px; text-align: center; }
   .rarity-info { font-size: .8rem; margin-top: 10px; line-height: 1.7; }
+  .lb-row { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 10px; margin-bottom: 6px; background: rgba(255,255,255,.04); }
+  .lb-row .lb-rank { width: 36px; font-weight: 800; text-align: center; }
+  .lb-row .lb-name { flex: 1; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lb-row .lb-coins { font-variant-numeric: tabular-nums; color: var(--accent); font-weight: 700; }
+  .lb-row.lb-me { background: rgba(245,158,11,.16); outline: 1px solid rgba(245,158,11,.5); }
   #inventory, #coinSkinShop, #shopGrid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 12px; }
   .inv-item { background: #0b1120; color: #f9fafb; border: 2px solid; border-radius: 12px; padding: 10px 12px; font-size: .8rem; display: flex; flex-direction: column; gap: 7px; align-items: center; min-width: 130px; }
   .inv-item.equipped { outline: 3px solid #facc15; outline-offset: 1px; }
@@ -221,6 +226,7 @@
     button { padding: 11px 16px; }
   }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 </head>
 <body>
   <div id="loader">
@@ -233,6 +239,7 @@
     <button class="tab active" data-tab="timer">⏳ Countdown</button>
     <button class="tab" data-tab="market">🛒 Handelsplatz</button>
     <button class="tab" data-tab="stats">📊 Stats</button>
+    <button class="tab" data-tab="leaderboard">🏆 Rangliste</button>
   </div>
   <div id="topbar">
     <div id="levelBox">
@@ -529,6 +536,40 @@
     </div>
   </div>
 
+  <!-- ===== TAB 4: RANGLISTE ===== -->
+  <div class="page hidden" id="page-leaderboard">
+    <h1>🏆 Rangliste</h1>
+
+    <div class="card" id="authCard">
+      <div id="authLoggedOut">
+        <strong>Login / Registrieren</strong>
+        <p class="hint">Mit Account kommst du in die globale Rangliste und bekommst Belohnungen. Dein Fortschritt wird gespeichert.</p>
+        <div class="field"><label>Benutzername</label><input id="authUser" type="text" maxlength="16" placeholder="dein Name"></div>
+        <div class="field" style="margin-top:8px;"><label>Passwort</label><input id="authPass" type="password" placeholder="mind. 6 Zeichen"></div>
+        <div class="bet-row" style="margin-top:10px;">
+          <button id="authLoginBtn" style="background:#22c55e;color:#052e16;">Einloggen</button>
+          <button id="authRegBtn" style="background:#8b5cf6;color:#fff;">Registrieren</button>
+        </div>
+        <div id="authInfo" style="margin-top:8px;"></div>
+      </div>
+      <div id="authLoggedIn" class="hidden">
+        <strong>Eingeloggt als <span id="authName" style="color:var(--accent);"></span></strong>
+        <p class="hint">Dein Fortschritt wird automatisch synchronisiert.</p>
+        <button id="dailyLoginBtn" style="background:#f59e0b;color:#1f1300;">🎁 Täglichen Login-Bonus holen (+500)</button>
+        <div id="dailyLoginInfo" style="margin-top:6px;"></div>
+        <button id="authLogoutBtn" style="background:#334155;color:#fff;margin-top:12px;">Ausloggen</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <strong>Top 20 nach Coins</strong>
+        <button id="lbRefresh" style="background:#334155;color:#fff;padding:6px 12px;">↻ Aktualisieren</button>
+      </div>
+      <div id="lbList" style="margin-top:12px;">Noch nicht geladen.</div>
+    </div>
+  </div>
+
   <div id="toast"></div>
   <div id="claimBurst"><div class="amt"></div><div class="lbl"></div></div>
 
@@ -639,8 +680,10 @@
     $("page-timer").classList.toggle("hidden", which !== "timer");
     $("page-market").classList.toggle("hidden", which !== "market");
     $("page-stats").classList.toggle("hidden", which !== "stats");
+    $("page-leaderboard").classList.toggle("hidden", which !== "leaderboard");
     if (which === "stats") { renderStats(); renderAch(); renderRecords(); }
     if (which === "market") { renderChallenges(); renderPrestige(); }
+    if (which === "leaderboard") { renderAuth(); loadLeaderboard(); }
   }));
 
   // Spiele-Unterreiter
@@ -668,7 +711,8 @@
 
   // Coins
   let coins = store.get("coins", __justReset ? 5000 : 100);
-  function setCoins(v) { coins = v; store.set("coins", v); $("coins").textContent = "🪙 " + fmt(coins); }
+  let syncDirty = false;
+  function setCoins(v) { coins = v; store.set("coins", v); $("coins").textContent = "🪙 " + fmt(coins); syncDirty = true; }
   setCoins(coins);
 
   // ---------- Code einlösen (1x pro Benutzer) ----------
@@ -1732,11 +1776,13 @@
   // Skins + Lootbox
   // Fairere Verkaufspreise: erwarteter Wert pro Box ~42 bei 50 Einsatz (~16% Hausvorteil)
   const RARITIES = {
-    common: { name: "Gewöhnlich", color: "#9ca3af", weight: 55, sell: 10 },
-    rare: { name: "Selten", color: "#3b82f6", weight: 27, sell: 30 },
-    epic: { name: "Episch", color: "#a855f7", weight: 12, sell: 80 },
-    legendary: { name: "Legendär", color: "#f59e0b", weight: 5, sell: 220 },
-    mythic: { name: "Mythisch", color: "#ef4444", weight: 1, sell: 800 }
+    common: { name: "Gewöhnlich", color: "#9ca3af", weight: 50, sell: 10 },
+    uncommon: { name: "Ungewöhnlich", color: "#22c55e", weight: 25, sell: 18 },
+    rare: { name: "Selten", color: "#3b82f6", weight: 15, sell: 40 },
+    epic: { name: "Episch", color: "#a855f7", weight: 7, sell: 95 },
+    legendary: { name: "Legendär", color: "#f59e0b", weight: 2.4, sell: 260 },
+    mythic: { name: "Mythisch", color: "#ef4444", weight: 0.5, sell: 750 },
+    exotic: { name: "Exotisch", color: "#f0abfc", weight: 0.1, sell: 2000 }
   };
   const SKINS = [
     { id: "standard", name: "Standard", rarity: "common", bg: "#0b1120", card: "#111a2e", text: "#f9fafb", start: true },
@@ -1758,7 +1804,26 @@
     { id: "lava", name: "Lava", rarity: "epic", bg: "linear-gradient(180deg, #450a0a, #b91c1c, #f59e0b)", card: "rgba(0,0,0,.4)", text: "#fff7ed", radius: "16px" },
     { id: "ocean", name: "Tiefsee", rarity: "rare", bg: "linear-gradient(180deg, #082f49, #0e7490, #155e75)", card: "rgba(0,0,0,.35)", text: "#e0f2fe", radius: "18px" },
     { id: "galaxy", name: "Galaxie", rarity: "legendary", bg: "linear-gradient(135deg, #1e1b4b, #4c1d95, #be185d, #1e1b4b)", card: "rgba(0,0,0,.5)", text: "#ede9fe", anim: true, radius: "22px" },
-    { id: "holo", name: "Hologramm", rarity: "mythic", bg: "linear-gradient(135deg, #22d3ee, #a78bfa, #f0abfc, #86efac, #22d3ee)", card: "rgba(10,10,25,.55)", text: "#ffffff", anim: true, radius: "20px" }
+    { id: "holo", name: "Hologramm", rarity: "mythic", bg: "linear-gradient(135deg, #22d3ee, #a78bfa, #f0abfc, #86efac, #22d3ee)", card: "rgba(10,10,25,.55)", text: "#ffffff", anim: true, radius: "20px" },
+    // --- Ungewöhnlich ---
+    { id: "mint", name: "Minze", rarity: "uncommon", bg: "linear-gradient(135deg, #064e3b, #10b981)", card: "rgba(0,0,0,.35)", text: "#ecfdf5", radius: "16px" },
+    { id: "army", name: "Tarnfleck", rarity: "uncommon", bg: "#1a2e05", card: "#2f3d1a", text: "#d9f99d", font: "'Courier New', monospace" },
+    { id: "slate", name: "Schiefer", rarity: "uncommon", bg: "linear-gradient(135deg, #334155, #475569)", card: "rgba(0,0,0,.3)", text: "#e2e8f0", radius: "14px" },
+    { id: "sand", name: "Wüstensand", rarity: "uncommon", bg: "linear-gradient(135deg, #78350f, #b45309, #d97706)", card: "rgba(0,0,0,.3)", text: "#fffbeb", radius: "16px" },
+    // --- Selten ---
+    { id: "terminal", name: "Terminal", rarity: "rare", bg: "#020617", card: "#0f172a", text: "#38bdf8", font: "'Courier New', monospace", radius: "4px", align: "flex-start", talign: "left" },
+    { id: "rose", name: "Rosé", rarity: "rare", bg: "linear-gradient(135deg, #4c0519, #9f1239)", card: "rgba(0,0,0,.35)", text: "#ffe4e6", radius: "18px" },
+    // --- Episch ---
+    { id: "aurora", name: "Aurora", rarity: "epic", bg: "linear-gradient(135deg, #042f2e, #0d9488, #6366f1)", card: "rgba(0,0,0,.4)", text: "#ccfbf1", radius: "20px" },
+    { id: "candy", name: "Zuckerwatte", rarity: "epic", bg: "linear-gradient(135deg, #f0abfc, #818cf8, #5eead4)", card: "rgba(17,24,39,.55)", text: "#1e1b4b", radius: "22px" },
+    // --- Legendär ---
+    { id: "inferno", name: "Inferno", rarity: "legendary", bg: "linear-gradient(135deg, #450a0a, #dc2626, #f59e0b, #450a0a)", card: "rgba(0,0,0,.5)", text: "#fff7ed", anim: true, radius: "18px" },
+    { id: "emerald", name: "Smaragd", rarity: "legendary", bg: "linear-gradient(135deg, #064e3b, #059669, #a7f3d0, #064e3b)", card: "rgba(0,0,0,.5)", text: "#ecfdf5", anim: true, radius: "18px" },
+    // --- Mythisch ---
+    { id: "prisma", name: "Prisma", rarity: "mythic", bg: "linear-gradient(135deg, #0ea5e9, #8b5cf6, #ec4899, #f59e0b, #0ea5e9)", card: "rgba(10,10,25,.55)", text: "#ffffff", anim: true, radius: "20px" },
+    // --- Exotisch ---
+    { id: "singularity", name: "Singularität", rarity: "exotic", bg: "radial-gradient(circle at 50% 40%, #000000, #1e1b4b, #4c1d95, #000000)", card: "rgba(139,92,246,.15)", text: "#e9d5ff", anim: true, radius: "24px" },
+    { id: "goldrush", name: "Goldrausch", rarity: "exotic", bg: "linear-gradient(135deg, #713f12, #fbbf24, #fde68a, #fbbf24, #713f12)", card: "rgba(0,0,0,.45)", text: "#451a03", font: "Georgia, serif", anim: true, radius: "20px" }
   ];
   const skinById = (id) => SKINS.find((s) => s.id === id) || SKINS[0];
   let inv = store.get("inv", null);
@@ -1821,7 +1886,7 @@
     inv[winner.id] = (inv[winner.id] || 0) + 1; saveInv(); renderInventory();
     $("caseResult").style.color = r.color;
     $("caseResult").textContent = had ? `${winner.name} (${r.name}) - schon wieder. Jetzt x${inv[winner.id]}. Verkaufen für ${r.sell}?` : `NEU: ${winner.name} (${r.name})! Equippen oder verkaufen.`;
-    if (winner.rarity === "legendary" || winner.rarity === "mythic") { rain("✨", r.color, 50); sfx.win(); } else sfx.coin();
+    if (winner.rarity === "legendary" || winner.rarity === "mythic" || winner.rarity === "exotic") { rain("✨", r.color, 50); sfx.win(); } else sfx.coin();
   }
   function openCase(quick) {
     if (caseOpening) return;
@@ -2134,6 +2199,128 @@
 
   const excuses = ["mein IntelliJ gerade indexiert.", "die PLF eh noch ewig weg ist.", "ich zuerst noch FIFA spielen muss.", "mein Laptop ein Update macht.", "ich das morgen eh in einer Stunde schaffe.", "Java mich emotional verletzt hat.", "ich zuerst meinen Schreibtisch aufräumen muss.", "Merkur rückläufig ist."];
   $("excuseBtn").addEventListener("click", () => { sfx.click(); $("excuse").textContent = "Heute kann ich nicht lernen, weil " + excuses[rnd(0, excuses.length - 1)]; });
+
+  // ================= Supabase: Login + Leaderboard + Belohnungen =================
+  const SUPA_URL = "https://pknlztebsrhesoqdltkk.supabase.co";
+  const SUPA_KEY = "sb_publishable_CBl9B4dl5ko3A17XBoIUVg_CJ1SDQaA";
+  let sb = null;
+  try { if (window.supabase && window.supabase.createClient) sb = window.supabase.createClient(SUPA_URL, SUPA_KEY); } catch (e) {}
+  let authUserId = null, authUsername = null;
+  const emailFor = (u) => u.toLowerCase().replace(/[^a-z0-9_]/g, "") + "@maxi-timer.local";
+  function escapeHtml(s) { return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+
+  function renderAuth() {
+    const on = !!authUserId;
+    if ($("authLoggedOut")) $("authLoggedOut").classList.toggle("hidden", on);
+    if ($("authLoggedIn")) $("authLoggedIn").classList.toggle("hidden", !on);
+    if (on && $("authName")) $("authName").textContent = authUsername || "?";
+  }
+
+  async function pushProfile() {
+    if (!sb || !authUserId) return;
+    try {
+      await sb.from("profiles").update({
+        coins: coins, level: level, prestige: prestige,
+        best_win: stats.biggestWin || 0, updated_at: new Date().toISOString()
+      }).eq("id", authUserId);
+    } catch (e) {}
+  }
+
+  async function doRegister() {
+    const info = $("authInfo");
+    if (!sb) { info.style.color = "#ef4444"; info.textContent = "Keine Verbindung zum Server."; return; }
+    const u = ($("authUser").value || "").trim(), p = $("authPass").value || "";
+    if (u.length < 3) { info.style.color = "#ef4444"; info.textContent = "Name mind. 3 Zeichen."; return; }
+    if (p.length < 6) { info.style.color = "#ef4444"; info.textContent = "Passwort mind. 6 Zeichen."; return; }
+    info.style.color = ""; info.textContent = "Erstelle Account...";
+    try {
+      const { data, error } = await sb.auth.signUp({ email: emailFor(u), password: p });
+      if (error) { info.style.color = "#ef4444"; info.textContent = /registered|exists|already/i.test(error.message) ? "Name schon vergeben." : ("Fehler: " + error.message); return; }
+      if (!data.session) {
+        const si = await sb.auth.signInWithPassword({ email: emailFor(u), password: p });
+        if (si.error) { info.style.color = "#ef4444"; info.textContent = "Account erstellt, aber Login blockiert (E-Mail-Bestätigung aktiv)."; return; }
+      }
+      authUserId = (data.user && data.user.id) || null; authUsername = u;
+      await sb.from("profiles").upsert({ id: authUserId, username: u, coins: coins, level: level, prestige: prestige, best_win: stats.biggestWin || 0, updated_at: new Date().toISOString() });
+      setCoins(coins + 2000); // Willkommensbonus
+      info.style.color = "#22c55e"; info.textContent = "Willkommen! +2000 Bonus. Du bist in der Rangliste.";
+      sfx.win(); rain("🎉", "#f59e0b", 24);
+      renderAuth(); await pushProfile(); loadLeaderboard();
+    } catch (e) { info.style.color = "#ef4444"; info.textContent = "Fehler: " + e.message; }
+  }
+
+  async function doLogin() {
+    const info = $("authInfo");
+    if (!sb) { info.style.color = "#ef4444"; info.textContent = "Keine Verbindung zum Server."; return; }
+    const u = ($("authUser").value || "").trim(), p = $("authPass").value || "";
+    if (!u || !p) { info.style.color = "#ef4444"; info.textContent = "Name und Passwort eingeben."; return; }
+    info.style.color = ""; info.textContent = "Logge ein...";
+    try {
+      const { data, error } = await sb.auth.signInWithPassword({ email: emailFor(u), password: p });
+      if (error) { info.style.color = "#ef4444"; info.textContent = "Falscher Name oder Passwort."; return; }
+      authUserId = data.user.id; authUsername = u;
+      const { data: prof } = await sb.from("profiles").select("*").eq("id", authUserId).single();
+      if (prof) { authUsername = prof.username || u; if ((prof.coins || 0) > coins) setCoins(prof.coins); }
+      else { await sb.from("profiles").insert({ id: authUserId, username: u, coins: coins, level: level, prestige: prestige, best_win: stats.biggestWin || 0 }); }
+      info.style.color = "#22c55e"; info.textContent = "Eingeloggt. Viel Glück.";
+      renderAuth(); await pushProfile(); loadLeaderboard();
+    } catch (e) { info.style.color = "#ef4444"; info.textContent = "Fehler: " + e.message; }
+  }
+
+  async function doLogout() {
+    await pushProfile();
+    try { if (sb) await sb.auth.signOut(); } catch (e) {}
+    authUserId = null; authUsername = null; renderAuth();
+    if ($("authInfo")) { $("authInfo").style.color = ""; $("authInfo").textContent = "Ausgeloggt."; }
+  }
+
+  function claimDailyLogin() {
+    const info = $("dailyLoginInfo");
+    const today = new Date().toISOString().slice(0, 10);
+    if (store.get("lastLoginBonus", "") === today) { info.style.color = "#ef4444"; info.textContent = "Heute schon geholt. Komm morgen wieder."; return; }
+    store.set("lastLoginBonus", today);
+    setCoins(coins + 500);
+    info.style.color = "#22c55e"; info.textContent = "+500 Coins! Bis morgen.";
+    sfx.win(); rain("🪙", "#f59e0b", 16); pushProfile();
+  }
+
+  async function loadLeaderboard() {
+    const el = $("lbList"); if (!el) return;
+    if (!sb) { el.textContent = "Keine Verbindung zum Server."; return; }
+    el.textContent = "Lade...";
+    try {
+      const { data, error } = await sb.from("profiles").select("username,coins,level").order("coins", { ascending: false }).limit(20);
+      if (error) { el.textContent = "Fehler beim Laden."; return; }
+      if (!data || !data.length) { el.textContent = "Noch keine Spieler. Sei der Erste!"; return; }
+      el.innerHTML = data.map((r, i) => {
+        const me = authUsername && r.username && r.username.toLowerCase() === authUsername.toLowerCase();
+        const rank = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : ("#" + (i + 1));
+        return `<div class="lb-row${me ? " lb-me" : ""}"><span class="lb-rank">${rank}</span><span class="lb-name">${escapeHtml(r.username || "?")}</span><span class="lb-coins">🪙 ${fmt(r.coins || 0)}</span></div>`;
+      }).join("");
+    } catch (e) { el.textContent = "Fehler: " + e.message; }
+  }
+
+  async function initAuth() {
+    if (!sb) return;
+    try {
+      const { data } = await sb.auth.getSession();
+      if (data && data.session && data.session.user) {
+        authUserId = data.session.user.id;
+        const { data: prof } = await sb.from("profiles").select("username,coins").eq("id", authUserId).single();
+        if (prof) { authUsername = prof.username; if ((prof.coins || 0) > coins) setCoins(prof.coins); }
+        renderAuth();
+      }
+    } catch (e) {}
+  }
+
+  if ($("authLoginBtn")) $("authLoginBtn").addEventListener("click", doLogin);
+  if ($("authRegBtn")) $("authRegBtn").addEventListener("click", doRegister);
+  if ($("authLogoutBtn")) $("authLogoutBtn").addEventListener("click", doLogout);
+  if ($("dailyLoginBtn")) $("dailyLoginBtn").addEventListener("click", claimDailyLogin);
+  if ($("lbRefresh")) $("lbRefresh").addEventListener("click", () => { sfx.click(); loadLeaderboard(); });
+  setInterval(() => { if (syncDirty && authUserId) { syncDirty = false; pushProfile(); } }, 8000);
+  window.addEventListener("beforeunload", () => { if (authUserId) pushProfile(); });
+  initAuth();
 })();
 </script>
 </body>
