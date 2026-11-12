@@ -188,27 +188,6 @@
     else { $("learnBtn").textContent = "Schon wieder? Sicher nicht."; }
   });
 
-  // Minuten-Bonus: einmal pro Minute abholbar, sammelt sich NICHT an
-  if (!store.get("lastBonus", null)) store.set("lastBonus", Date.now() - 60000);
-  function bonusReady() { return Date.now() - store.get("lastBonus", Date.now()) >= 60000; }
-  function updateCollect() {
-    if (bonusReady()) {
-      $("collectBtn").disabled = false; $("collectBtn").textContent = `🪙 ${bonusPerMin()} Coins abholen`;
-      $("collectInfo").textContent = "Jetzt abholen, sonst verfällt die Minute.";
-    } else {
-      $("collectBtn").disabled = true;
-      const secs = 60 - Math.floor((Date.now() - store.get("lastBonus", Date.now())) / 1000);
-      $("collectBtn").textContent = `🪙 Nächste in ${secs}s`;
-      $("collectInfo").textContent = "Pro Minute gibt es genau einmal. Verpasst ist verpasst.";
-    }
-  }
-  updateCollect(); setInterval(updateCollect, 1000);
-  $("collectBtn").addEventListener("click", () => {
-    if (!bonusReady()) return;
-    setCoins(coins + bonusPerMin()); addXP(1); sfx.coin(); rain("🪙", "#22c55e", 12);
-    store.set("lastBonus", Date.now()); updateCollect();
-  });
-
   // Daily Chest
   function updateChest() {
     if (store.get("chestDay", "") === todayKey()) {

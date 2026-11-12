@@ -243,6 +243,8 @@
   let chatLast = 0, chatReady = false, chatLastId = 0;
   function chatAddMsg(r) {
     if (!chatMsgs) return;
+    if (r.kind === "rain") { chatMsgs.appendChild(chatRainCard(r)); chatMsgs.scrollTop = chatMsgs.scrollHeight; chatRainTick(); return; }
+    if (r.kind === "rain_end") { const e = document.createElement("div"); e.className = "chat-rain-end"; e.textContent = r.body || ""; chatMsgs.appendChild(e); chatMsgs.scrollTop = chatMsgs.scrollHeight; return; }
     const row = document.createElement("div");
     row.className = "chat-msg" + (authUsername && r.username === authUsername ? " me" : "");
     const time = document.createElement("span"); time.className = "chat-time";
@@ -254,6 +256,30 @@
     chatMsgs.appendChild(row);
     chatMsgs.scrollTop = chatMsgs.scrollHeight;
   }
+  // Goldene Rain-Karte im Chat: Countdown, Joinen und Spenden direkt hier
+  function chatRainCard(r) {
+    const m = r.meta || {};
+    const card = document.createElement("div");
+    card.className = "chat-rain";
+    card.dataset.round = m.round_id || ""; card.dataset.closes = m.closes_at || 0;
+    card.innerHTML = '<div class="cr-title">🌧️ RAKEBACK RAIN</div><div class="cr-body"></div><div class="cr-timer"></div><div class="cr-actions"><input class="cr-don" type="number" min="1" placeholder="Spende"><button class="cr-donate">💸</button><button class="cr-join">Joinen</button></div>';
+    card.querySelector(".cr-body").textContent = r.body || "";
+    card.querySelector(".cr-join").addEventListener("click", () => rainJoinNow(m.round_id));
+    card.querySelector(".cr-donate").addEventListener("click", () => {
+      const inp = card.querySelector(".cr-don");
+      rainDonateNow(m.round_id, Math.floor(Number(inp.value) || 0), inp);
+    });
+    return card;
+  }
+  function chatRainTick() {
+    document.querySelectorAll(".chat-rain").forEach((c) => {
+      const left = Math.max(0, Math.floor((Number(c.dataset.closes) - (Date.now() + rainOffset)) / 1000));
+      const open = left > 0;
+      c.querySelector(".cr-timer").textContent = open ? `Joinen noch ${rainFmt(left)}` : "Beendet";
+      c.classList.toggle("ended", !open);
+      c.querySelectorAll("button,input").forEach((el) => { el.disabled = !open || !sb || !authUserId; });
+    });
+  }
   function chatSetAccess() {
     const on = accountMode && !!authUserId;
     if (chatInput) chatInput.disabled = !on;
@@ -263,7 +289,7 @@
   }
   async function chatLoad() {
     if (!sb || !accountMode) return;
-    const { data, error } = await sb.from("chat_messages").select("id,username,body,created_at").order("id", { ascending: false }).limit(50);
+    const { data, error } = await sb.from("chat_messages").select("id,username,body,created_at,kind,meta").order("id", { ascending: false }).limit(50);
     if (error || !chatMsgs) return;
     chatMsgs.innerHTML = "";
     (data || []).slice().sort((x, y) => Number(x.id) - Number(y.id)).forEach((r) => { chatLastId = Math.max(chatLastId, Number(r.id) || 0); chatAddMsg(r); });
@@ -308,5 +334,89 @@
   // Beim Schließen: best effort, der Browser kann die Anfrage abbrechen
   window.addEventListener("beforeunload", () => { if (accountMode) flushAccount(); });
   loadLeaderboard();
+  // ---------- Rakeback Rain (Logik liegt auf dem Server, schema.sql Abschnitt 15) ----------
+  let rainData = null, rainOffset = 0;
+  const rainSecs = (ms) => Math.max(0, Math.floor((ms - (Date.now() + rainOffset)) / 1000));
+  const rainFmt = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+  const RAIN_ERR = { round_closed: "Die Runde ist schon zu.", no_wager: "Du hast seit dem letzten Join noch nicht gewettet.", already_joined: "Du bist schon dabei.", insufficient: "Zu wenig Coins.", bad_values: "Ungültiger Betrag." };
+  const rainErr = (e) => { const m = (e && e.message) || ""; const k = Object.keys(RAIN_ERR).find((x) => m.includes(x)); return k ? RAIN_ERR[k] : "Das hat nicht geklappt."; };
+  function renderRain() {
+    const badge = $("rainBadge"); if (!badge) return;
+    const d = rainData, timer = $("rainTimer"), info = $("rainInfo"), join = $("rainJoinBtn"), don = $("rainDonateBtn"), inp = $("rainDonate");
+    if (!sb || !authUserId || !d) {
+      badge.textContent = "Login nötig"; badge.className = "rain-badge";
+      timer.textContent = ""; $("rainPool").textContent = "";
+      info.textContent = "Logg dich ein, um mitzuspielen.";
+      join.disabled = true; don.disabled = true; inp.disabled = true; return;
+    }
+    $("rainPool").textContent = `Pot: ${fmt(d.pool)} Coins`;
+    if (d.open) {
+      badge.textContent = "LIVE"; badge.className = "rain-badge live";
+      timer.textContent = `Joinen noch ${rainFmt(rainSecs(d.closes_at))}`;
+      join.disabled = d.joined || d.my_wager <= 0;
+      join.textContent = d.joined ? "✅ Dabei" : "🌧️ Joinen";
+      don.disabled = false; inp.disabled = false;
+      info.textContent = d.joined ? "Du bist dabei. Auszahlung nach Ende der Runde."
+        : d.my_wager > 0 ? `Deine Basis: ${fmt(d.my_wager)} Coins Einsatz seit dem letzten Join.`
+        : "Du hast seit dem letzten Join noch nicht gewettet.";
+    } else {
+      badge.textContent = "Bald"; badge.className = "rain-badge";
+      timer.textContent = `Nächster Rain in ${rainFmt(rainSecs(d.next_at))}`;
+      join.disabled = true; join.textContent = "🌧️ Joinen"; don.disabled = true; inp.disabled = true;
+      info.textContent = "Ein Rain startet alle 10 Minuten und ist 3 Minuten offen.";
+    }
+  }
+  async function rainPoll() {
+    if (!sb || !authUserId) { rainData = null; renderRain(); return; }
+    const { data, error } = await sb.rpc("rain_status");
+    if (error || !data) return;
+    rainOffset = Number(data.server_now) - Date.now();
+    rainData = data; renderRain();
+    if (data.payout_round && data.payout > 0 && data.payout_round !== store.get("rainSeen", 0)) {
+      store.set("rainSeen", data.payout_round);
+      await refreshCoinsFromServer();
+      toast(`🌧️ Rain: +${fmt(data.payout)} Coins!`); rain("🌧️", "#60a5fa", 30);
+    }
+  }
+  if ($("rainJoinBtn")) {
+    $("rainJoinBtn").addEventListener("click", async () => {
+      if (!rainData || !rainData.open) return;
+      await flushAccount();
+      const { error } = await sb.rpc("rain_join", { p_round: rainData.round_id });
+      if (error) toast(rainErr(error)); else { sfx.win(); toast("🌧️ Du bist dabei!"); }
+      rainPoll();
+    });
+    $("rainDonateBtn").addEventListener("click", async () => {
+      if (!rainData || !rainData.open) return;
+      const amt = Math.floor(Number($("rainDonate").value) || 0);
+      if (amt < 1) { toast("Betrag eingeben."); return; }
+      if (amt > coins) { toast("Zu wenig Coins."); return; }
+      await flushAccount();
+      const { error } = await sb.rpc("rain_donate", { p_round: rainData.round_id, p_amount: amt });
+      if (error) toast(rainErr(error));
+      else { sfx.coin(); $("rainDonate").value = ""; toast(`💸 ${fmt(amt)} Coins in den Pot`); }
+      await refreshCoinsFromServer(); rainPoll();
+    });
+  }
+  async function rainJoinNow(roundId) {
+    if (!sb || !authUserId || !roundId) return;
+    await flushAccount();
+    const { error } = await sb.rpc("rain_join", { p_round: Number(roundId) });
+    if (error) toast(rainErr(error)); else { sfx.win(); toast("🌧️ Du bist dabei!"); }
+    rainPoll();
+  }
+  async function rainDonateNow(roundId, amt, inp) {
+    if (!sb || !authUserId || !roundId) return;
+    if (amt < 1) { toast("Betrag eingeben."); return; }
+    if (amt > coins) { toast("Zu wenig Coins."); return; }
+    await flushAccount();
+    const { error } = await sb.rpc("rain_donate", { p_round: Number(roundId), p_amount: amt });
+    if (error) toast(rainErr(error)); else { sfx.coin(); if (inp) inp.value = ""; toast(`💸 ${fmt(amt)} Coins in den Pot`); }
+    await refreshCoinsFromServer(); rainPoll();
+  }
+  setInterval(chatRainTick, 1000);
+  setInterval(renderRain, 1000);
+  setInterval(rainPoll, 5000);
+  rainPoll();
   initAuth();
 })();

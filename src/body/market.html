@@ -3,11 +3,17 @@
     <h1>🛒 Maxis Handelsplatz</h1>
     <div class="sub">Abholen, drehen, handeln. Verlieren inklusive.</div>
 
-    <div class="card">
-      <strong>⏰ Minuten-Bonus</strong>
-      <p class="hint">Jede Minute 10 Coins zum Abholen. Sammelt sich an, bis du kommst.</p>
-      <button id="collectBtn">🪙 Abholen</button>
-      <div id="collectInfo"></div>
+    <div class="card rain-card">
+      <div class="rain-head"><strong>🌧️ Rakeback Rain</strong><span id="rainBadge" class="rain-badge">--</span></div>
+      <p class="hint">Alle 10 Minuten startet ein Rain, 3 Minuten zum Joinen. Der Pot wird anteilig nach deinen Einsätzen seit deinem letzten Join verteilt. Spenden füllen den Pot.</p>
+      <div id="rainTimer" class="rain-timer"></div>
+      <div id="rainPool" class="rain-pool"></div>
+      <div class="rain-actions">
+        <input id="rainDonate" type="number" min="1" placeholder="Spende" disabled>
+        <button id="rainDonateBtn" disabled>💸 Spenden</button>
+        <button id="rainJoinBtn" disabled>🌧️ Joinen</button>
+      </div>
+      <div id="rainInfo" class="hint"></div>
     </div>
 
     <div class="card">

@@ -14,6 +14,7 @@ create table if not exists public.profiles (
   updated_at timestamptz not null default now()
 );
 alter table public.profiles add column if not exists last_login_day date;
+alter table public.profiles add column if not exists wagered_since_rain bigint not null default 0;
 
 create table if not exists public.daily_stats (
   user_id uuid not null references auth.users(id) on delete cascade,
@@ -93,7 +94,8 @@ begin
   select coins into c from profiles where id = uid for update;
   if c is null then raise exception 'no_account'; end if;
   if c - p_wagered + p_won < 0 then raise exception 'insufficient'; end if;
-  update profiles set coins = c - p_wagered + p_won, updated_at = now()
+  update profiles set coins = c - p_wagered + p_won, updated_at = now(),
+    wagered_since_rain = wagered_since_rain + p_wagered
     where id = uid returning coins into c;
   if p_wagered > 0 then
     insert into daily_stats (user_id, day, wagered) values (uid, today, p_wagered)
@@ -239,4 +241,133 @@ do $$ begin
   alter publication supabase_realtime add table public.chat_messages;
 exception when others then
   raise notice 'Realtime-Publikation: %', sqlerrm;
+end $$;
+
+-- 15) Rakeback Rain: alle 10 Min (Wiener Zeit :00, :10, ...) 3 Min zum Joinen.
+--     Pot = Spenden der Spieler. Auszahlung anteilig nach den Einsaetzen seit dem letzten Join.
+create table if not exists public.rain_rounds (
+  id bigint generated always as identity primary key,
+  opens_at timestamptz not null,
+  closes_at timestamptz not null,
+  pool bigint not null default 0 check (pool >= 0),
+  settled boolean not null default false
+);
+create table if not exists public.rain_joins (
+  round_id bigint not null references public.rain_rounds(id) on delete cascade,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  wager bigint not null default 0,
+  payout bigint not null default 0,
+  primary key (round_id, user_id)
+);
+alter table public.rain_rounds enable row level security;
+alter table public.rain_joins enable row level security;
+revoke all on public.rain_rounds, public.rain_joins from anon, authenticated;
+
+-- Rain-Meldungen laufen ueber den Chat (kind = rain / rain_end, ohne Absender)
+alter table public.chat_messages add column if not exists kind text not null default 'chat';
+alter table public.chat_messages add column if not exists meta jsonb;
+alter table public.chat_messages alter column user_id drop not null;
+
+-- Status fuer den Browser: aktuelle Runde, eigene Basis, letzte Auszahlung
+create or replace function public.rain_status()
+returns json language plpgsql stable security definer set search_path = public as $$
+declare uid uuid := auth.uid(); r rain_rounds; mine bigint; pay record; nxt timestamptz;
+begin
+  if uid is null then raise exception 'not_logged_in'; end if;
+  select * into r from rain_rounds where not settled and closes_at > now() order by id desc limit 1;
+  select wagered_since_rain into mine from profiles where id = uid;
+  select rr.id as round_id, j.payout into pay from rain_joins j join rain_rounds rr on rr.id = j.round_id
+    where j.user_id = uid and rr.settled and j.payout > 0 order by rr.id desc limit 1;
+  nxt := date_trunc('hour', now()) + ((floor(extract(minute from now()) / 10) + 1) * 10) * interval '1 minute';
+  return json_build_object(
+    'server_now', extract(epoch from now()) * 1000,
+    'open', r.id is not null,
+    'round_id', r.id,
+    'closes_at', extract(epoch from r.closes_at) * 1000,
+    'next_at', extract(epoch from nxt) * 1000,
+    'pool', coalesce(r.pool, 0),
+    'joined', coalesce(exists(select 1 from rain_joins where round_id = r.id and user_id = uid), false),
+    'my_wager', coalesce(mine, 0),
+    'payout_round', pay.round_id,
+    'payout', coalesce(pay.payout, 0)
+  );
+end $$;
+
+-- Mitmachen: Einsaetze seit dem letzten Join werden als Basis gemerkt und zurueckgesetzt
+create or replace function public.rain_join(p_round bigint)
+returns bigint language plpgsql security definer set search_path = public as $$
+declare uid uuid := auth.uid(); w bigint;
+begin
+  if uid is null then raise exception 'not_logged_in'; end if;
+  if not exists (select 1 from rain_rounds where id = p_round and not settled and closes_at > now()) then
+    raise exception 'round_closed';
+  end if;
+  if exists (select 1 from rain_joins where round_id = p_round and user_id = uid) then raise exception 'already_joined'; end if;
+  select wagered_since_rain into w from profiles where id = uid for update;
+  if coalesce(w, 0) <= 0 then raise exception 'no_wager'; end if;
+  insert into rain_joins (round_id, user_id, wager) values (p_round, uid, w);
+  update profiles set wagered_since_rain = 0 where id = uid;
+  return w;
+exception when unique_violation then
+  raise exception 'already_joined';
+end $$;
+
+-- Spenden: Coins wandern vom Konto in den Pot der offenen Runde
+create or replace function public.rain_donate(p_round bigint, p_amount bigint)
+returns bigint language plpgsql security definer set search_path = public as $$
+declare uid uuid := auth.uid(); c bigint;
+begin
+  if uid is null then raise exception 'not_logged_in'; end if;
+  if p_amount is null or p_amount < 1 or p_amount > 1000000000000 then raise exception 'bad_values'; end if;
+  if not exists (select 1 from rain_rounds where id = p_round and not settled and closes_at > now()) then
+    raise exception 'round_closed';
+  end if;
+  select coins into c from profiles where id = uid for update;
+  if c is null or c < p_amount then raise exception 'insufficient'; end if;
+  update profiles set coins = coins - p_amount, updated_at = now() where id = uid returning coins into c;
+  update rain_rounds set pool = pool + p_amount where id = p_round;
+  return c;
+end $$;
+
+-- Minuetlich vom Cron aufgerufen: faellige Runden auszahlen, zur 10er-Marke neue Runde oeffnen
+create or replace function public.rain_tick()
+returns void language plpgsql security definer set search_path = public as $$
+declare r record; j record; tot bigint; share bigint; nr rain_rounds;
+begin
+  for r in select * from rain_rounds where not settled and closes_at <= now() order by id loop
+    select coalesce(sum(wager), 0) into tot from rain_joins where round_id = r.id;
+    if tot > 0 and r.pool > 0 then
+      for j in select user_id, wager from rain_joins where round_id = r.id and wager > 0 loop
+        share := floor(r.pool * j.wager / tot);
+        update rain_joins set payout = share where round_id = r.id and user_id = j.user_id;
+        update profiles set coins = coins + share, updated_at = now() where id = j.user_id;
+      end loop;
+    end if;
+    update rain_rounds set settled = true where id = r.id;
+    insert into chat_messages (user_id, username, body, kind)
+      values (null, 'Rain', '🌧️ Rain beendet: ' || r.pool || ' Coins an ' ||
+        (select count(*) from rain_joins where round_id = r.id and payout > 0) || ' Spieler verteilt', 'rain_end');
+  end loop;
+  if extract(minute from now())::int % 10 = 0
+     and not exists (select 1 from rain_rounds where opens_at > now() - interval '5 minutes') then
+    insert into rain_rounds (opens_at, closes_at) values (now(), now() + interval '3 minutes') returning * into nr;
+    insert into chat_messages (user_id, username, body, kind, meta)
+      values (null, 'Rain', '🌧️ RAKEBACK RAIN! 3 Minuten zum Joinen', 'rain',
+        jsonb_build_object('round_id', nr.id, 'closes_at', extract(epoch from nr.closes_at) * 1000));
+  end if;
+end $$;
+
+revoke execute on function public.rain_status() from public, anon;
+revoke execute on function public.rain_join(bigint) from public, anon;
+revoke execute on function public.rain_donate(bigint, bigint) from public, anon;
+revoke execute on function public.rain_tick() from public, anon, authenticated;
+grant execute on function public.rain_status() to authenticated;
+grant execute on function public.rain_join(bigint) to authenticated;
+grant execute on function public.rain_donate(bigint, bigint) to authenticated;
+
+do $$ begin
+  begin perform cron.unschedule('rain-tick'); exception when others then null; end;
+  perform cron.schedule('rain-tick', '* * * * *', 'select public.rain_tick()');
+exception when others then
+  raise notice 'pg_cron nicht verfuegbar: %', sqlerrm;
 end $$;

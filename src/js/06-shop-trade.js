@@ -6,11 +6,9 @@
     "💎 Perks (dauerhaft, sehr teuer)": [
       { id: "p_coins", icon: "📈", title: "Perk: +2% Coins für immer", desc: "Dauerhaft 2% mehr Coins aus allen Spielen.", price: 20000, perk: "coins" },
       { id: "p_box", icon: "📦", title: "Perk: Lootbox günstiger", desc: "Lootbox kostet dauerhaft nur noch 34 statt 38.", price: 15000, perk: "box" },
-      { id: "p_bonus", icon: "⏰", title: "Perk: Minuten-Bonus x2", desc: "Dauerhaft 20 statt 10 Coins pro Minute.", price: 25000, perk: "bonus" }
     ],
     "🐋 High Roller (für die Reichen)": [
       { id: "p_coins15", icon: "📊", title: "Perk: +3% Coins", desc: "Dauerhaft 3% mehr Coins. Stapelt mit den anderen Coin-Perks.", price: 150000, perk: "coins15" },
-      { id: "p_bonus5", icon: "⏱️", title: "Perk: Minuten-Bonus x5", desc: "Dauerhaft 50 statt 10 Coins pro Minute.", price: 400000, perk: "bonus5" },
       { id: "cash1m", icon: "💸", title: "1 Mio Coins", desc: "Direkt 1.000.000 Coins. Kostet 1.25 Mio. Der Shop gewinnt immer.", price: 1250000, repeat: true, buy: () => { setCoins(coins + 1000000); toast("+1.000.000 Coins!"); } }
     ],
     "🎖️ Titel (zum Flexen)": [
@@ -35,7 +33,7 @@
     if (item.skin_id && (inv[item.skin_id] || 0) > 0) { toast("Hast du schon."); }
     setCoins(coins - item.price); sfx.coin();
     if (item.buy) item.buy();
-    if (item.perk) { perks[item.perk] = true; store.set("perks", perks); updateCaseBtn(); updateCollect(); toast("Perk dauerhaft freigeschaltet!"); rain("💎", "#22d3ee", 30); }
+    if (item.perk) { perks[item.perk] = true; store.set("perks", perks); updateCaseBtn(); toast("Perk dauerhaft freigeschaltet!"); rain("💎", "#22d3ee", 30); }
     if (item.title_val) { ownedTitles.push(item.id); store.set("titles", ownedTitles); activeTitle = item.title_val; store.set("activeTitle", activeTitle); applyTitle(); toast("Titel freigeschaltet!"); }
     if (item.skin_rarity) { const pool = SKINS.filter((s) => !s.start && s.rarity === item.skin_rarity); const s = pool[rnd(0, pool.length - 1)]; inv[s.id] = (inv[s.id]||0)+1; saveInv(); renderInventory(); rain("✨", RARITIES[item.skin_rarity].color, 40); toast(`${s.name} erhalten!`); }
     if (item.skin_id) { inv[item.skin_id] = (inv[item.skin_id]||0)+1; saveInv(); renderInventory(); rain("✨", "#ef4444", 50); toast("Bestanden-Skin erhalten!"); }
