@@ -201,7 +201,7 @@
       if (!data || !data.length) { el.textContent = "Heute noch keine Einsätze. Sei der Erste!"; if (pod) pod.innerHTML = ""; return; }
       const isMe = (r) => authUsername && r.username && r.username.toLowerCase() === authUsername.toLowerCase();
       const top3 = data.slice(0, 3);
-      const prizes = ["100.000", "50.000", "20.000"];
+      const prizes = ["1.000.000", "500.000", "250.000", "100.000", "50.000"];
       if (pod) {
         // Podium: Reihenfolge 2 - 1 - 3 fürs Layout
         const order = [1, 0, 2].filter((i) => top3[i]);
@@ -212,7 +212,7 @@
         }).join("");
       }
       const rest = data.slice(3);
-      el.innerHTML = rest.length ? rest.map((r, i) => `<div class="lb-row${isMe(r) ? " lb-me" : ""}"><span class="lb-rank">#${i + 4}</span><span class="lb-name">${escapeHtml(r.username || "?")}</span><span class="lb-coins">🎲 ${fmt(r.wagered || 0)}</span></div>`).join("") : "";
+      el.innerHTML = rest.length ? rest.map((r, i) => `<div class="lb-row${isMe(r) ? " lb-me" : ""}"><span class="lb-rank">#${i + 4}</span><span class="lb-name">${escapeHtml(r.username || "?")}</span><span class="lb-coins">🎲 ${fmt(r.wagered || 0)}</span>${i + 3 < 5 ? `<span class="lb-prize">Preis ${prizes[i + 3]}</span>` : ""}</div>`).join("") : "";
     } catch (e) { el.textContent = "Fehler: " + e.message; }
   }
 

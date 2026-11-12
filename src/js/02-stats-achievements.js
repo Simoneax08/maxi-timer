@@ -51,7 +51,7 @@
       inv["platin"] = (inv["platin"] || 0) + 1; if (typeof saveInv === "function") saveInv();
       if (typeof renderInventory === "function") renderInventory();
       rain("💎", "#e0e7ff", 60); sfx.win();
-      toast("ALLE Achievements! Platin-Skin + dauerhaft 1.1x Coins freigeschaltet!");
+      toast("ALLE Achievements! Platin-Skin + dauerhaft 1.02x Coins freigeschaltet!");
     }
     if (typeof renderAch === "function") renderAch();
   }
@@ -65,11 +65,12 @@
   let activeTitle = store.get("activeTitle", "");
   let prestige = store.get("prestige", 0); // Rebirth-Stufe: +5% Coins je Stufe
   // Hilfsfunktionen für Boni
-  const boxPrice = () => perks.box ? 36 : 38; // erwarteter Verkaufswert ca. 34,1 -> ca. 10 % Hausvorteil
+  const boxPrice = () => perks.box ? 34 : 38; // erwarteter Verkaufswert ca. 34,1: ohne Perk ca. 10 % Hausvorteil, mit Perk fair
   const bonusPerMin = () => perks.bonus5 ? 50 : perks.bonus ? 20 : 10;
   // Dauerhafter Coin-Multiplikator aus Perks + Platin + Prestige (bewusst moderat)
   function coinMult() {
-    return (perks.coins ? 1.1 : 1) * (perks.coins15 ? 1.15 : 1) * (allAchBonus ? 1.1 : 1) * (1 + prestige * 0.05);
+    // Gesamtbonus gedeckelt auf 1.11 (~ fair bei 90 % Auszahlung): Perks + Achievements + Rebirths ergeben nie einen Vorteil
+    return Math.min(1.11, (perks.coins ? 1.03 : 1) * (perks.coins15 ? 1.02 : 1) * (allAchBonus ? 1.02 : 1) * (1 + prestige * 0.005));
   }
   // Gewinn-Coins gutschreiben (nur bei echtem Gewinn aufrufen, nicht bei Push)
   function addWin(base) {
@@ -84,6 +85,8 @@
   }
 
   let level = store.get("level", 1), xp = store.get("xp", 0);
+  // Gesamte Spielzeit in Sekunden (nur, wenn der Tab sichtbar ist)
+  setInterval(() => { if (document.visibilityState === "visible") store.set("playtime", store.get("playtime", 0) + 1); }, 1000);
   let claimedLevel = store.get("claimedLevel", 1); // bis zu diesem Level ist alles abgeholt
   const xpNeeded = (lvl) => 50 + (lvl - 1) * 40;
   // Bessere Level-Belohnungen: wachsen deutlich mit dem Level

@@ -91,7 +91,7 @@
     document.querySelectorAll(".gtab").forEach((x) => x.classList.remove("active"));
     t.classList.add("active");
     const g = t.dataset.game;
-    ["hl", "wheel", "flip", "guess", "bj", "mines", "crash", "plinko", "chicken", "horses"].forEach((name) => $("game-" + name).classList.toggle("hidden", name !== g));
+    ["hl", "wheel", "flip", "guess", "bj", "mines", "crash", "plinko", "chicken", "horses", "scratch", "ssp"].forEach((name) => $("game-" + name).classList.toggle("hidden", name !== g));
     if (g === "plinko") buildPlinko();
   }));
 
@@ -99,14 +99,6 @@
   document.querySelectorAll(".maxBet").forEach((b) => b.addEventListener("click", () => {
     sfx.click(); $(b.dataset.target).value = coins;
   }));
-
-  // Ladebildschirm
-  let lp = 0;
-  const li = setInterval(() => {
-    lp = Math.min(99, lp + Math.random() * 8);
-    $("loadFill").style.width = lp + "%"; $("loadText").textContent = Math.floor(lp) + " %";
-    if (lp >= 99) { clearInterval(li); setTimeout(() => { $("loadText").textContent = "Fehler: Keine Daten gefunden"; $("loadText").style.color = "#ef4444"; setTimeout(() => $("loader").remove(), 1800); }, 1500); }
-  }, 120);
 
   // Coins
   // accountMode: eingeloggt. Dann merkt sich setCoins Einsätze (pendingWager)

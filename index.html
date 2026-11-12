@@ -279,15 +279,40 @@
 .horse-name{width:120px;text-align:left}
 .horse-bar{flex:1;height:14px;background:#1e293b;border-radius:7px;overflow:hidden}
 .horse-bar i{display:block;height:100%;width:0;background:#f59e0b}
+
+/* ===== Rubbellos ===== */
+.scr-cells{display:flex;gap:10px;justify-content:center;margin:12px 0}
+.scr-cell{width:86px;height:86px;border-radius:14px;border:0;background:linear-gradient(135deg,#94a3b8,#475569);font-size:34px;cursor:pointer;transition:transform .25s}
+.scr-cell:not(.open):hover{transform:scale(1.06)}
+.scr-cell.open{background:#fef3c7;animation:scrFlip .5s both}
+@keyframes scrFlip{0%{transform:rotateY(90deg)}100%{transform:rotateY(0)}}
+
+/* ===== Schere Stein Papier ===== */
+.ssp-arena{display:flex;align-items:center;justify-content:space-around;margin:12px 0;text-align:center}
+.ssp-hand{font-size:56px;min-height:70px}
+.ssp-hand:not(:empty){animation:sspShake .35s ease-in-out 2}
+.ssp-vs{font-weight:800;opacity:.6}
+@keyframes sspShake{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+/* ===== Login-Streak als Kalender ===== */
+.streak-week{display:flex;gap:6px;justify-content:center;margin:10px 0 6px}
+.sw-day{display:flex;flex-direction:column;align-items:center;gap:4px;width:44px;padding:6px 0;border-radius:12px;background:#1e293b;animation:swIn .45s both}
+.sw-day.done{background:#f97316;color:#fff}
+.sw-day.today{outline:2px solid #22c55e}
+.sw-name{font-size:12px;opacity:.85}
+.sw-dot{font-size:18px;min-height:22px}
+.sw-day.done .sw-dot{animation:flame 1.4s ease-in-out infinite}
+@keyframes swIn{from{opacity:0;transform:translateY(8px) scale(.9)}to{opacity:1;transform:none}}
+@keyframes flame{0%,100%{transform:scale(1) rotate(-4deg)}50%{transform:scale(1.15) rotate(4deg)}}
+.streak-flame{text-align:center;font-size:20px;margin-bottom:6px}
+.streak-flame b{color:#f97316}
+
+/* ===== Rangliste: Preis neben dem Platz ===== */
+.lb-prize{margin-left:auto;color:#f59e0b;font-size:12px;font-weight:700;padding-left:8px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 </head>
 <body>
-  <div id="loader">
-    <div>Lade Maxis Java-Kenntnisse...</div>
-    <div class="bar"><div id="loadFill"></div></div>
-    <div id="loadText">0 %</div>
-  </div>
 
   <div id="userBadge" class="hidden"><span class="ub-dot"></span><span id="userBadgeName"></span></div>
   <div id="tabs">
@@ -362,6 +387,8 @@
         <button class="gtab" data-game="guess">🔢 Zahlen raten</button>
         <button class="gtab" data-game="chicken">🐔 Chicken Road</button>
         <button class="gtab" data-game="horses">🐎 Pferderennen</button>
+        <button class="gtab" data-game="scratch">🎟️ Rubbellos</button>
+        <button class="gtab" data-game="ssp">✂️ Schere Stein Papier</button>
       </div>
 
       <div class="game-panel hidden" id="game-hl">
@@ -400,11 +427,12 @@
         <div id="crInfo" style="font-weight:700;margin:6px 0;min-height:1.2em;"></div>
         <div id="crStartBox">
           <div class="field" style="align-items:center;margin:0 auto;"><label>Einsatz (Coins)</label><input id="crBet" type="number" min="1" value="10" style="width:140px;text-align:center;"></div>
+          <div class="bet-row"><button class="betMul" data-target="crBet" data-mul="half">÷2</button><button class="betMul" data-target="crBet" data-mul="double">×2</button><button class="maxBet" data-target="crBet">Max</button></div>
           <button id="crStartBtn" style="background:#0ea5e9;color:#fff;margin-top:6px;">Losgehen</button>
         </div>
-        <div id="crBtns" class="bet-row hidden">
-          <button id="crWalkBtn" style="background:#22c55e;color:#052e16;">🐔 Weiter</button>
-          <button id="crCashBtn" style="background:#f59e0b;color:#1f1300;">💰 Kassieren</button>
+        <div id="crBtns" class="bet-row hidden" style="align-items:center;">
+          <button id="crWalkBtn" style="flex:1;background:#22c55e;color:#052e16;">🐔 Weiter</button>
+          <button id="crCashBtn" style="flex:0 0 auto;padding:6px 10px;font-size:13px;background:#f59e0b;color:#1f1300;">💰 Kassieren</button>
         </div>
         <div id="crResult"></div>
       </div>
@@ -413,9 +441,39 @@
         <p class="hint">Wähle ein Pferd. Die Quoten stehen fest. Gewettet wird nur vor dem Start.</p>
         <div id="hrPick" class="pick-row"></div>
         <div class="field" style="align-items:center;margin:6px auto;"><label>Einsatz (Coins)</label><input id="hrBet" type="number" min="1" value="10" style="width:140px;text-align:center;"></div>
+        <div class="bet-row"><button class="betMul" data-target="hrBet" data-mul="half">÷2</button><button class="betMul" data-target="hrBet" data-mul="double">×2</button><button class="maxBet" data-target="hrBet">Max</button></div>
         <div id="hrTrack" class="horse-track"></div>
         <button id="hrGo" style="background:#0ea5e9;color:#fff;">Wetten und Rennen starten</button>
         <div id="hrResult"></div>
+      </div>
+
+      <div class="game-panel hidden" id="game-scratch">
+        <p class="hint">Kaufe ein Los und rubbel die 3 Felder frei. Drei gleiche gewinnen: 🍀 x3, 💎 x12, 🎰 x14.</p>
+        <div class="field" style="align-items:center;margin:0 auto;"><label>Einsatz (Coins)</label><input id="scrBet" type="number" min="1" value="10" style="width:140px;text-align:center;"></div>
+        <div class="bet-row"><button class="betMul" data-target="scrBet" data-mul="half">÷2</button><button class="betMul" data-target="scrBet" data-mul="double">×2</button><button class="maxBet" data-target="scrBet">Max</button></div>
+        <div id="scrCells" class="scr-cells"></div>
+        <div class="bet-row">
+          <button id="scrBuyBtn" style="background:#0ea5e9;color:#fff;">🎟️ Los kaufen</button>
+          <button id="scrAllBtn" style="background:#334155;color:#e5e7eb;">Alle aufdecken</button>
+        </div>
+        <div id="scrResult"></div>
+      </div>
+
+      <div class="game-panel hidden" id="game-ssp">
+        <p class="hint">Schere, Stein, Papier gegen den Computer. Sieg: 1,7x. Unentschieden: Einsatz zurück.</p>
+        <div class="field" style="align-items:center;margin:0 auto;"><label>Einsatz (Coins)</label><input id="sspBet" type="number" min="1" value="10" style="width:140px;text-align:center;"></div>
+        <div class="bet-row"><button class="betMul" data-target="sspBet" data-mul="half">÷2</button><button class="betMul" data-target="sspBet" data-mul="double">×2</button><button class="maxBet" data-target="sspBet">Max</button></div>
+        <div class="ssp-arena">
+          <div><div>Du</div><div id="sspMe" class="ssp-hand">❔</div></div>
+          <div class="ssp-vs">VS</div>
+          <div><div>Computer</div><div id="sspBot" class="ssp-hand">❔</div></div>
+        </div>
+        <div class="bet-row" style="justify-content:center;">
+          <button class="sspPick" data-i="0" style="font-size:24px;">✊</button>
+          <button class="sspPick" data-i="1" style="font-size:24px;">✋</button>
+          <button class="sspPick" data-i="2" style="font-size:24px;">✌️</button>
+        </div>
+        <div id="sspResult"></div>
       </div>
 
       <div class="game-panel hidden" id="game-flip">
@@ -450,7 +508,7 @@
         </div>
         <div class="bet-row">
           <div class="field"><label>Einsatz (Coins)</label><input id="guessBet" type="number" min="1" value="10"></div>
-          <button class="maxBet" data-target="guessBet">Max</button>
+          <button class="betMul" data-target="guessBet" data-mul="half">÷2</button><button class="betMul" data-target="guessBet" data-mul="double">×2</button><button class="maxBet" data-target="guessBet">Max</button>
           <div class="field"><label>Deine Zahl</label><input id="guessInput" type="number" min="1"></div>
         </div>
         <div id="guessCalc"></div>
@@ -488,7 +546,7 @@
         <div id="minesStart">
           <div class="bet-row">
             <div class="field"><label>Einsatz (Coins)</label><input id="minesBet" type="number" min="1" value="10" style="width:130px;text-align:center;"></div>
-            <button class="maxBet" data-target="minesBet">Max</button>
+            <button class="betMul" data-target="minesBet" data-mul="half">÷2</button><button class="betMul" data-target="minesBet" data-mul="double">×2</button><button class="maxBet" data-target="minesBet">Max</button>
           </div>
           <div class="bet-row">
             <div class="field"><label>Minen (1-24)</label><input id="minesCount" type="number" min="1" max="24" value="3" style="width:130px;text-align:center;"></div>
@@ -504,7 +562,7 @@
       </div>
 
       <div class="game-panel hidden" id="game-crash">
-        <p class="hint">Der Multiplikator steigt live. Cashe aus, bevor die Rakete abstürzt. Stürzt sie vor deinem Cashout ab, ist der Einsatz weg. ~5% Hausvorteil.</p>
+        <p class="hint">Der Multiplikator steigt live. Cashe aus, bevor die Rakete abstürzt. Stürzt sie vor deinem Cashout ab, ist der Einsatz weg. ~10% Hausvorteil.</p>
         <div id="crashStart">
           <div class="bet-row">
             <div class="field"><label>Einsatz (Coins)</label><input id="crashBet" type="number" min="1" value="10" style="width:130px;text-align:center;"></div>
@@ -526,7 +584,7 @@
       </div>
 
       <div class="game-panel hidden" id="game-plinko">
-        <p class="hint">Lass die Kugel fallen, sie landet in einem Multiplikator-Fach. Außen = hoch, Mitte = niedrig. ~5% Hausvorteil.</p>
+        <p class="hint">Lass die Kugel fallen, sie landet in einem Multiplikator-Fach. Außen = hoch, Mitte = niedrig, ×2-Fächer liegen zwischen Mitte und Rand. ~10% Hausvorteil.</p>
         <div class="bet-row">
           <div class="field"><label>Einsatz (Coins)</label><input id="plinkoBet" type="number" min="1" value="10" style="width:130px;text-align:center;"></div>
           <button class="maxBet" data-target="plinkoBet">Max</button>
@@ -581,6 +639,8 @@
     <div class="card">
       <strong>📅 Login-Streak</strong>
       <p id="streakText" class="hint"></p>
+      <div id="streakWeek" class="streak-week"></div>
+      <div class="streak-flame">🔥 <b id="streakNum">0</b> Tage Serie</div>
       <button id="streakBtn" style="background:#22c55e;color:#052e16;">Täglichen Bonus abholen</button>
       <div id="streakInfo" style="font-size:.85rem;color:#94a3b8;margin-top:8px;"></div>
     </div>
@@ -802,7 +862,7 @@
     document.querySelectorAll(".gtab").forEach((x) => x.classList.remove("active"));
     t.classList.add("active");
     const g = t.dataset.game;
-    ["hl", "wheel", "flip", "guess", "bj", "mines", "crash", "plinko", "chicken", "horses"].forEach((name) => $("game-" + name).classList.toggle("hidden", name !== g));
+    ["hl", "wheel", "flip", "guess", "bj", "mines", "crash", "plinko", "chicken", "horses", "scratch", "ssp"].forEach((name) => $("game-" + name).classList.toggle("hidden", name !== g));
     if (g === "plinko") buildPlinko();
   }));
 
@@ -810,14 +870,6 @@
   document.querySelectorAll(".maxBet").forEach((b) => b.addEventListener("click", () => {
     sfx.click(); $(b.dataset.target).value = coins;
   }));
-
-  // Ladebildschirm
-  let lp = 0;
-  const li = setInterval(() => {
-    lp = Math.min(99, lp + Math.random() * 8);
-    $("loadFill").style.width = lp + "%"; $("loadText").textContent = Math.floor(lp) + " %";
-    if (lp >= 99) { clearInterval(li); setTimeout(() => { $("loadText").textContent = "Fehler: Keine Daten gefunden"; $("loadText").style.color = "#ef4444"; setTimeout(() => $("loader").remove(), 1800); }, 1500); }
-  }, 120);
 
   // Coins
   // accountMode: eingeloggt. Dann merkt sich setCoins Einsätze (pendingWager)
@@ -899,7 +951,7 @@
       inv["platin"] = (inv["platin"] || 0) + 1; if (typeof saveInv === "function") saveInv();
       if (typeof renderInventory === "function") renderInventory();
       rain("💎", "#e0e7ff", 60); sfx.win();
-      toast("ALLE Achievements! Platin-Skin + dauerhaft 1.1x Coins freigeschaltet!");
+      toast("ALLE Achievements! Platin-Skin + dauerhaft 1.02x Coins freigeschaltet!");
     }
     if (typeof renderAch === "function") renderAch();
   }
@@ -913,11 +965,12 @@
   let activeTitle = store.get("activeTitle", "");
   let prestige = store.get("prestige", 0); // Rebirth-Stufe: +5% Coins je Stufe
   // Hilfsfunktionen für Boni
-  const boxPrice = () => perks.box ? 36 : 38; // erwarteter Verkaufswert ca. 34,1 -> ca. 10 % Hausvorteil
+  const boxPrice = () => perks.box ? 34 : 38; // erwarteter Verkaufswert ca. 34,1: ohne Perk ca. 10 % Hausvorteil, mit Perk fair
   const bonusPerMin = () => perks.bonus5 ? 50 : perks.bonus ? 20 : 10;
   // Dauerhafter Coin-Multiplikator aus Perks + Platin + Prestige (bewusst moderat)
   function coinMult() {
-    return (perks.coins ? 1.1 : 1) * (perks.coins15 ? 1.15 : 1) * (allAchBonus ? 1.1 : 1) * (1 + prestige * 0.05);
+    // Gesamtbonus gedeckelt auf 1.11 (~ fair bei 90 % Auszahlung): Perks + Achievements + Rebirths ergeben nie einen Vorteil
+    return Math.min(1.11, (perks.coins ? 1.03 : 1) * (perks.coins15 ? 1.02 : 1) * (allAchBonus ? 1.02 : 1) * (1 + prestige * 0.005));
   }
   // Gewinn-Coins gutschreiben (nur bei echtem Gewinn aufrufen, nicht bei Push)
   function addWin(base) {
@@ -932,6 +985,8 @@
   }
 
   let level = store.get("level", 1), xp = store.get("xp", 0);
+  // Gesamte Spielzeit in Sekunden (nur, wenn der Tab sichtbar ist)
+  setInterval(() => { if (document.visibilityState === "visible") store.set("playtime", store.get("playtime", 0) + 1); }, 1000);
   let claimedLevel = store.get("claimedLevel", 1); // bis zu diesem Level ist alles abgeholt
   const xpNeeded = (lvl) => 50 + (lvl - 1) * 40;
   // Bessere Level-Belohnungen: wachsen deutlich mit dem Level
@@ -1745,7 +1800,7 @@
     if (bet > coins) { $("crashResult").style.color = ""; $("crashResult").textContent = "So viele Coins hast du nicht."; return; }
     setCoins(coins - bet); sfx.click(); addXPbet(bet); bump("crashPlayed");
     crashBet = bet; crashActive = true; crashCashed = false; crashCur = 1;
-    // Absturzpunkt ziehen (5% Hausvorteil, ~5% Instant-Crash bei 1.00)
+    // Absturzpunkt ziehen (10% Hausvorteil, ~10% Instant-Crash bei 1.00)
     const u = Math.random();
     crashPoint = u < (1 - CRASH_HOUSE) ? 1.00 : Math.min(1000, CRASH_HOUSE / (1 - u));
     $("crashStart").classList.add("hidden"); $("crashGame").classList.remove("hidden");
@@ -1793,7 +1848,7 @@
 
   // ---------- Plinko ----------
   const PLINKO_ROWS = 8;
-  const PLINKO_MULTS = [20, 3, 1, 0.6, 0.3, 0.6, 1, 3, 20]; // ca. 9.3% Hausvorteil (Binomial 8 Reihen)
+  const PLINKO_MULTS = [20, 3, 2, 0.2, 0.12, 0.2, 2, 3, 20]; // ca. 9.8% Hausvorteil (Binomial 8 Reihen)
   const PLINKO_COLORS = ["#f43f5e", "#a855f7", "#3b82f6", "#334155", "#1e293b", "#334155", "#3b82f6", "#a855f7", "#f43f5e"];
   let plinkoDropping = false;
   function buildPlinko() {
@@ -1963,8 +2018,27 @@
     document.body.classList.toggle("skin-anim", !!s.anim);
     equipped = s.id; store.set("equipped", s.id); renderInventory();
   }
+  // Alle Loot-Items auf einmal verkaufen (ausgerüsteter Skin bleibt)
+  function sellAllLoot() {
+    let total = 0, n = 0;
+    Object.keys(inv).forEach((id) => {
+      if (id === "standard" || id === equipped || !(inv[id] > 0)) return;
+      const r = RARITIES[skinById(id).rarity];
+      total += r.sell * inv[id]; n += inv[id];
+      delete inv[id];
+    });
+    if (!n) { toast("Keine Loot-Items zum Verkaufen."); return; }
+    saveInv(); setCoins(coins + total); sfx.coin();
+    $("caseResult").style.color = "#22c55e";
+    $("caseResult").textContent = `${n} Items verkauft für +${fmt(total)} Coins.`;
+    renderInventory();
+  }
   function renderInventory() {
     $("inventory").innerHTML = "";
+    const sellAllBtn = document.createElement("button");
+    sellAllBtn.className = "sellBtn"; sellAllBtn.textContent = "🗑️ Alle Loot-Items verkaufen";
+    sellAllBtn.style.gridColumn = "1 / -1"; sellAllBtn.addEventListener("click", sellAllLoot);
+    $("inventory").appendChild(sellAllBtn);
     SKINS.filter((s) => (inv[s.id] || 0) > 0).forEach((s) => {
       const r = RARITIES[s.rarity];
       const wrap = document.createElement("div"); wrap.className = "inv-item" + (s.id === equipped ? " equipped" : ""); wrap.style.borderColor = r.color;
@@ -2037,12 +2111,12 @@
       { id: "coins13", icon: "💰", title: "Coins-Booster x1.3", desc: "Erhöht deinen nächsten echten Gewinn um das 1.3-fache. Push zählt nicht. Einmalig.", price: 5000, buy: () => { nextWinMult = 1.3; store.set("nextWinMult", 1.3); updateWinBoost(); toast("Nächster Gewinn x1.3!"); } }
     ],
     "💎 Perks (dauerhaft, sehr teuer)": [
-      { id: "p_coins", icon: "📈", title: "Perk: +10% Coins für immer", desc: "Dauerhaft 10% mehr Coins aus allen Spielen.", price: 20000, perk: "coins" },
-      { id: "p_box", icon: "📦", title: "Perk: Lootbox -20%", desc: "Lootbox kostet dauerhaft nur noch 40 statt 50.", price: 15000, perk: "box" },
+      { id: "p_coins", icon: "📈", title: "Perk: +3% Coins für immer", desc: "Dauerhaft 3% mehr Coins aus allen Spielen.", price: 20000, perk: "coins" },
+      { id: "p_box", icon: "📦", title: "Perk: Lootbox günstiger", desc: "Lootbox kostet dauerhaft nur noch 34 statt 38.", price: 15000, perk: "box" },
       { id: "p_bonus", icon: "⏰", title: "Perk: Minuten-Bonus x2", desc: "Dauerhaft 20 statt 10 Coins pro Minute.", price: 25000, perk: "bonus" }
     ],
     "🐋 High Roller (für die Reichen)": [
-      { id: "p_coins15", icon: "📊", title: "Perk: +15% Coins", desc: "Dauerhaft 15% mehr Coins. Stapelt mit den anderen Coin-Perks.", price: 150000, perk: "coins15" },
+      { id: "p_coins15", icon: "📊", title: "Perk: +2% Coins", desc: "Dauerhaft 2% mehr Coins. Stapelt mit den anderen Coin-Perks.", price: 150000, perk: "coins15" },
       { id: "p_bonus5", icon: "⏱️", title: "Perk: Minuten-Bonus x5", desc: "Dauerhaft 50 statt 10 Coins pro Minute.", price: 400000, perk: "bonus5" },
       { id: "cash1m", icon: "💸", title: "1 Mio Coins", desc: "Direkt 1.000.000 Coins. Kostet 1.25 Mio. Der Shop gewinnt immer.", price: 1250000, repeat: true, buy: () => { setCoins(coins + 1000000); toast("+1.000.000 Coins!"); } }
     ],
@@ -2161,6 +2235,8 @@
   }
   renderTraderBuy(); renderDailyDeal();
 
+  // Spielzeit als "x h y min"
+  function fmtPlay(sec) { const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60); return h ? `${h} h ${m} min` : `${m} min`; }
   // ---------- Statistik- und Achievement-Anzeige ----------
   function renderStats() {
     // Hervorgehobene Kennzahlen oben, Rest als Kacheln
@@ -2179,7 +2255,8 @@
       { ic: "🂡", label: "Blackjack", val: stats.bjPlayed || 0 },
       { ic: "💣", label: "Mines", val: stats.minesPlayed || 0 },
       { ic: "🚀", label: "Crash", val: stats.crashPlayed || 0 },
-      { ic: "🔵", label: "Plinko", val: stats.plinkoPlayed || 0 }
+      { ic: "🔵", label: "Plinko", val: stats.plinkoPlayed || 0 },
+      { ic: "⏱️", label: "Spielzeit", val: fmtPlay(store.get("playtime", 0)) }
     ];
     const bigHtml = big.map((b) => `<div class="stat-big"><div class="sb-ic">${b.ic}</div><div class="sb-val" style="color:${b.col}">${b.val}</div><div class="sb-lbl">${b.label}</div></div>`).join("");
     const tilesHtml = tiles.map((t) => `<div class="stat-tile"><span class="st-ic">${t.ic}</span><span class="st-val">${t.val}</span><span class="st-lbl">${t.label}</span></div>`).join("");
@@ -2224,9 +2301,28 @@
     store.set("streak", streak); store.set("streakDay", todayKey());
     setCoins(coins + reward); addXP(10); sfx.coin(); rain("🪙", "#22c55e", 20);
     toast(`Login-Streak Tag ${streak}: +${fmt(reward)} Coins!`);
-    renderStreak();
+    renderStreak(); renderStreakWeek();
   });
+  // Kalender der letzten 7 Tage: Flamme = Tag gehört zur aktuellen Serie
+  function renderStreakWeek() {
+    const box = $("streakWeek"); if (!box) return;
+    const streak = store.get("streak", 0), last = store.get("streakDay", "");
+    const parse = (k) => { const [y, m, d] = k.split("-").map(Number); return new Date(y, m - 1, d); };
+    const lastD = last ? parse(last) : null;
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const names = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+    let html = "";
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today); d.setDate(today.getDate() - i);
+      const diff = lastD ? Math.round((lastD - d) / 86400000) : -1; // 0 = dieser Tag ist der letzte Serientag
+      const done = !!lastD && diff >= 0 && diff < streak;
+      html += `<div class="sw-day${done ? " done" : ""}${i === 0 ? " today" : ""}" style="animation-delay:${(6 - i) * 70}ms"><span class="sw-name">${names[d.getDay()]}</span><span class="sw-dot">${done ? "🔥" : ""}</span></div>`;
+    }
+    box.innerHTML = html;
+    if ($("streakNum")) $("streakNum").textContent = streak;
+  }
   renderStreak();
+  renderStreakWeek();
 
   // ---------- Tägliche Challenges ----------
   // Pool fester Challenges; 3 pro Tag werden deterministisch aus dem Datum gewählt
@@ -2273,7 +2369,7 @@
   // ---------- Prestige / Rebirth ----------
   const PRESTIGE_COST = 5000000;
   function renderPrestige() {
-    $("prestigeText").innerHTML = `Ab ${fmt(PRESTIGE_COST)} Coins kannst du Prestigen: Coins werden zurückgesetzt, dafür gibt es dauerhaft <b>+5% Coins</b> pro Stufe (stapelt). Aktuelle Prestige-Stufe: <b>${prestige}</b> (+${prestige * 5}%).`;
+    $("prestigeText").innerHTML = `Ab ${fmt(PRESTIGE_COST)} Coins kannst du Prestigen: Coins werden zurückgesetzt, dafür gibt es dauerhaft <b>+0.5% Coins</b> pro Stufe (stapelt). Aktuelle Prestige-Stufe: <b>${prestige}</b> (+${(prestige * 0.5).toFixed(1)}%).`;
     if (coins >= PRESTIGE_COST) {
       $("prestigeBtn").disabled = false; $("prestigeBtn").textContent = `Prestige (Stufe ${prestige + 1})`;
       $("prestigeInfo").textContent = "Skins, Level, Perks und Achievements bleiben erhalten.";
@@ -2284,10 +2380,10 @@
   }
   $("prestigeBtn").addEventListener("click", () => {
     if (coins < PRESTIGE_COST) return;
-    if (!confirm(`Wirklich prestigen? Deine ${fmt(coins)} Coins werden auf 100 zurückgesetzt. Du bekommst dauerhaft +5% Coins (neue Stufe ${prestige + 1}).`)) return;
+    if (!confirm(`Wirklich prestigen? Deine ${fmt(coins)} Coins werden auf 100 zurückgesetzt. Du bekommst dauerhaft +0.5% Coins (neue Stufe ${prestige + 1}).`)) return;
     prestige++; store.set("prestige", prestige);
     setCoins(100); sfx.win(); confetti(140); rain("♻️", "#a855f7", 50);
-    toast(`Prestige ${prestige}! Dauerhaft +${prestige * 5}% Coins.`);
+    toast(`Prestige ${prestige}! Dauerhaft +${(prestige * 0.5).toFixed(1)}% Coins.`);
     renderPrestige(); applyTitle();
   });
   renderPrestige();
@@ -2333,7 +2429,7 @@
   }
   function crRender() {
     const risk = Math.round((1 - CR_SURVIVE(crStep + 1)) * 100);
-    const cash = Math.floor(crBet * crMult);
+    const cash = Math.floor(crBet * crMult * coinMult());
     $("crInfo").textContent = `Schritt ${crStep} · x${crMult.toFixed(2)} · nächster Schritt: ${risk} % Risiko`;
     $("crCashBtn").textContent = crStep >= 1 ? `💰 Kassieren (${fmt(cash)} Coins · x${crMult.toFixed(2)})` : "💰 Kassieren";
     $("crCashBtn").disabled = crStep < 1;
@@ -2425,8 +2521,7 @@
   function crCash() {
     if (!crLive || crBusy) return;
     if (crStep < 1) { toast("Erst mindestens einen Schritt gehen."); return; }
-    const win = Math.floor(crBet * crMult);
-    setCoins(coins + win); crLive = false;
+    const win = addWin(crBet * crMult); crLive = false;
     sfx.win(); rain("🪙", "#f59e0b", 20);
     const msg = `Kassiert: +${fmt(win)} Coins bei x${crMult.toFixed(2)} (Einsatz ${fmt(crBet)})`;
     $("crResult").textContent = msg; toast(msg);
@@ -2473,8 +2568,7 @@
   function hrFinish(winner, bet) {
     hrRacing = false; $("hrGo").disabled = false;
     if (winner === hrPick) {
-      const win = Math.floor(bet * HORSES[winner].odds);
-      setCoins(coins + win); sfx.win(); rain("🏆", "#f59e0b", 24);
+      const win = addWin(bet * HORSES[winner].odds); sfx.win(); rain("🏆", "#f59e0b", 24);
       $("hrResult").textContent = `${HORSES[winner].name} gewinnt! +${fmt(win)} Coins`;
     } else {
       sfx.lose();
@@ -2490,6 +2584,79 @@
       hrPick = Number(b.dataset.i); hrBuildUI();
     });
   }
+  // ---------- Rubbellos: 3 Felder freirubbeln, 3 gleiche gewinnen ----------
+  // Erwarteter Wert: 0.45^3 x3 + 0.35^3 x12 + 0.2^3 x14 = 0.90 (10 % Hausvorteil)
+  const SCR_SYMS = [{ ic: "🍀", p: 0.45, mult: 3 }, { ic: "💎", p: 0.35, mult: 12 }, { ic: "🎰", p: 0.2, mult: 14 }];
+  let scrBet = 0, scrCells = [], scrOpen = [], scrLive = false;
+  function scrPick() { const r = Math.random(); let acc = 0; for (const s of SCR_SYMS) { acc += s.p; if (r < acc) return s; } return SCR_SYMS[SCR_SYMS.length - 1]; }
+  function scrRender() {
+    const box = $("scrCells"); box.innerHTML = "";
+    scrCells.forEach((sym, i) => {
+      const c = document.createElement("button");
+      c.className = "scr-cell" + (scrOpen[i] ? " open" : "");
+      c.textContent = scrOpen[i] ? sym.ic : "❔";
+      c.addEventListener("click", () => scrReveal(i));
+      box.appendChild(c);
+    });
+  }
+  function scrBuy() {
+    if (scrLive) return;
+    const bet = Math.floor(Number($("scrBet").value) || 0);
+    if (bet < 1) { toast("Mindestens 1 Coin."); return; }
+    if (bet > coins) { toast("Zu wenig Coins."); return; }
+    setCoins(coins - bet); addXPbet(bet); sfx.click();
+    scrBet = bet; scrCells = [scrPick(), scrPick(), scrPick()]; scrOpen = [false, false, false]; scrLive = true;
+    $("scrResult").textContent = ""; scrRender();
+    $("scrBuyBtn").disabled = true; $("scrAllBtn").disabled = false;
+  }
+  function scrReveal(i) {
+    if (!scrLive || scrOpen[i]) return;
+    scrOpen[i] = true; sfx.click(); scrRender();
+    if (scrOpen.every(Boolean)) scrFinish();
+  }
+  function scrFinish() {
+    scrLive = false;
+    const [a, b, c] = scrCells;
+    let msg;
+    if (a === b && b === c) {
+      const won = addWin(scrBet * a.mult);
+      sfx.win(); rain(a.ic, "#f59e0b", 24);
+      msg = `${a.ic} ${a.ic} ${a.ic}! Gewinn +${fmt(won)} Coins (x${a.mult})`;
+    } else { sfx.lose(); msg = `Keine Drillingsreihe. ${fmt(scrBet)} Coins weg.`; }
+    $("scrResult").textContent = msg; toast(msg);
+    $("scrBuyBtn").disabled = false; $("scrAllBtn").disabled = true;
+  }
+  if ($("scrBuyBtn")) {
+    $("scrBuyBtn").addEventListener("click", scrBuy);
+    $("scrAllBtn").addEventListener("click", () => { if (!scrLive) return; scrOpen = [true, true, true]; scrRender(); scrFinish(); });
+    $("scrAllBtn").disabled = true;
+  }
+  // ---------- Schere Stein Papier gegen den Computer ----------
+  // Sieg zahlt 1.7x (inkl. Einsatz), Unentschieden gibt den Einsatz zurück. Erwarteter Wert: (1.7 + 1) / 3 = 0.9
+  const SSP = [{ ic: "✊", name: "Stein" }, { ic: "✋", name: "Papier" }, { ic: "✌️", name: "Schere" }];
+  const SSP_BEATS = [2, 0, 1]; // Stein schlägt Schere, Papier schlägt Stein, Schere schlägt Papier
+  let sspBusy = false;
+  function sspPlay(me) {
+    if (sspBusy) return;
+    const bet = Math.floor(Number($("sspBet").value) || 0);
+    if (bet < 1) { toast("Mindestens 1 Coin."); return; }
+    if (bet > coins) { toast("Zu wenig Coins."); return; }
+    sspBusy = true;
+    setCoins(coins - bet); addXPbet(bet); sfx.click();
+    const bot = Math.floor(Math.random() * 3);
+    $("sspMe").textContent = SSP[me].ic; $("sspBot").textContent = "❔";
+    $("sspResult").textContent = "...";
+    setTimeout(() => {
+      $("sspBot").textContent = SSP[bot].ic;
+      let msg;
+      if (SSP_BEATS[me] === bot) { const won = addWin(bet * 1.7); sfx.win(); rain("🏆", "#f59e0b", 20); msg = `${SSP[me].name} schlägt ${SSP[bot].name}! +${fmt(won)} Coins`; }
+      else if (me === bot) { setCoins(coins + bet); sfx.click(); msg = "Unentschieden. Einsatz zurück."; }
+      else { sfx.lose(); msg = `${SSP[bot].name} schlägt ${SSP[me].name}. ${fmt(bet)} Coins weg.`; }
+      $("sspResult").textContent = msg;
+      sspBusy = false;
+    }, 700);
+  }
+  document.querySelectorAll(".sspPick").forEach((b) => b.addEventListener("click", () => sspPlay(Number(b.dataset.i))));
   // ================= Supabase: Konto, Belohnungen, Tagesrangliste =================
   // Alle Kontostände und Belohnungen kommen vom Server (RPC-Funktionen aus supabase/schema.sql).
   // Der Browser darf nicht direkt in die Tabellen schreiben.
@@ -2693,7 +2860,7 @@
       if (!data || !data.length) { el.textContent = "Heute noch keine Einsätze. Sei der Erste!"; if (pod) pod.innerHTML = ""; return; }
       const isMe = (r) => authUsername && r.username && r.username.toLowerCase() === authUsername.toLowerCase();
       const top3 = data.slice(0, 3);
-      const prizes = ["100.000", "50.000", "20.000"];
+      const prizes = ["1.000.000", "500.000", "250.000", "100.000", "50.000"];
       if (pod) {
         // Podium: Reihenfolge 2 - 1 - 3 fürs Layout
         const order = [1, 0, 2].filter((i) => top3[i]);
@@ -2704,7 +2871,7 @@
         }).join("");
       }
       const rest = data.slice(3);
-      el.innerHTML = rest.length ? rest.map((r, i) => `<div class="lb-row${isMe(r) ? " lb-me" : ""}"><span class="lb-rank">#${i + 4}</span><span class="lb-name">${escapeHtml(r.username || "?")}</span><span class="lb-coins">🎲 ${fmt(r.wagered || 0)}</span></div>`).join("") : "";
+      el.innerHTML = rest.length ? rest.map((r, i) => `<div class="lb-row${isMe(r) ? " lb-me" : ""}"><span class="lb-rank">#${i + 4}</span><span class="lb-name">${escapeHtml(r.username || "?")}</span><span class="lb-coins">🎲 ${fmt(r.wagered || 0)}</span>${i + 3 < 5 ? `<span class="lb-prize">Preis ${prizes[i + 3]}</span>` : ""}</div>`).join("") : "";
     } catch (e) { el.textContent = "Fehler: " + e.message; }
   }
 

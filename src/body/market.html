@@ -31,6 +31,8 @@
         <button class="gtab" data-game="guess">🔢 Zahlen raten</button>
         <button class="gtab" data-game="chicken">🐔 Chicken Road</button>
         <button class="gtab" data-game="horses">🐎 Pferderennen</button>
+        <button class="gtab" data-game="scratch">🎟️ Rubbellos</button>
+        <button class="gtab" data-game="ssp">✂️ Schere Stein Papier</button>
       </div>
 
       <div class="game-panel hidden" id="game-hl">
@@ -69,11 +71,12 @@
         <div id="crInfo" style="font-weight:700;margin:6px 0;min-height:1.2em;"></div>
         <div id="crStartBox">
           <div class="field" style="align-items:center;margin:0 auto;"><label>Einsatz (Coins)</label><input id="crBet" type="number" min="1" value="10" style="width:140px;text-align:center;"></div>
+          <div class="bet-row"><button class="betMul" data-target="crBet" data-mul="half">÷2</button><button class="betMul" data-target="crBet" data-mul="double">×2</button><button class="maxBet" data-target="crBet">Max</button></div>
           <button id="crStartBtn" style="background:#0ea5e9;color:#fff;margin-top:6px;">Losgehen</button>
         </div>
-        <div id="crBtns" class="bet-row hidden">
-          <button id="crWalkBtn" style="background:#22c55e;color:#052e16;">🐔 Weiter</button>
-          <button id="crCashBtn" style="background:#f59e0b;color:#1f1300;">💰 Kassieren</button>
+        <div id="crBtns" class="bet-row hidden" style="align-items:center;">
+          <button id="crWalkBtn" style="flex:1;background:#22c55e;color:#052e16;">🐔 Weiter</button>
+          <button id="crCashBtn" style="flex:0 0 auto;padding:6px 10px;font-size:13px;background:#f59e0b;color:#1f1300;">💰 Kassieren</button>
         </div>
         <div id="crResult"></div>
       </div>
@@ -82,9 +85,39 @@
         <p class="hint">Wähle ein Pferd. Die Quoten stehen fest. Gewettet wird nur vor dem Start.</p>
         <div id="hrPick" class="pick-row"></div>
         <div class="field" style="align-items:center;margin:6px auto;"><label>Einsatz (Coins)</label><input id="hrBet" type="number" min="1" value="10" style="width:140px;text-align:center;"></div>
+        <div class="bet-row"><button class="betMul" data-target="hrBet" data-mul="half">÷2</button><button class="betMul" data-target="hrBet" data-mul="double">×2</button><button class="maxBet" data-target="hrBet">Max</button></div>
         <div id="hrTrack" class="horse-track"></div>
         <button id="hrGo" style="background:#0ea5e9;color:#fff;">Wetten und Rennen starten</button>
         <div id="hrResult"></div>
+      </div>
+
+      <div class="game-panel hidden" id="game-scratch">
+        <p class="hint">Kaufe ein Los und rubbel die 3 Felder frei. Drei gleiche gewinnen: 🍀 x3, 💎 x12, 🎰 x14.</p>
+        <div class="field" style="align-items:center;margin:0 auto;"><label>Einsatz (Coins)</label><input id="scrBet" type="number" min="1" value="10" style="width:140px;text-align:center;"></div>
+        <div class="bet-row"><button class="betMul" data-target="scrBet" data-mul="half">÷2</button><button class="betMul" data-target="scrBet" data-mul="double">×2</button><button class="maxBet" data-target="scrBet">Max</button></div>
+        <div id="scrCells" class="scr-cells"></div>
+        <div class="bet-row">
+          <button id="scrBuyBtn" style="background:#0ea5e9;color:#fff;">🎟️ Los kaufen</button>
+          <button id="scrAllBtn" style="background:#334155;color:#e5e7eb;">Alle aufdecken</button>
+        </div>
+        <div id="scrResult"></div>
+      </div>
+
+      <div class="game-panel hidden" id="game-ssp">
+        <p class="hint">Schere, Stein, Papier gegen den Computer. Sieg: 1,7x. Unentschieden: Einsatz zurück.</p>
+        <div class="field" style="align-items:center;margin:0 auto;"><label>Einsatz (Coins)</label><input id="sspBet" type="number" min="1" value="10" style="width:140px;text-align:center;"></div>
+        <div class="bet-row"><button class="betMul" data-target="sspBet" data-mul="half">÷2</button><button class="betMul" data-target="sspBet" data-mul="double">×2</button><button class="maxBet" data-target="sspBet">Max</button></div>
+        <div class="ssp-arena">
+          <div><div>Du</div><div id="sspMe" class="ssp-hand">❔</div></div>
+          <div class="ssp-vs">VS</div>
+          <div><div>Computer</div><div id="sspBot" class="ssp-hand">❔</div></div>
+        </div>
+        <div class="bet-row" style="justify-content:center;">
+          <button class="sspPick" data-i="0" style="font-size:24px;">✊</button>
+          <button class="sspPick" data-i="1" style="font-size:24px;">✋</button>
+          <button class="sspPick" data-i="2" style="font-size:24px;">✌️</button>
+        </div>
+        <div id="sspResult"></div>
       </div>
 
       <div class="game-panel hidden" id="game-flip">
@@ -119,7 +152,7 @@
         </div>
         <div class="bet-row">
           <div class="field"><label>Einsatz (Coins)</label><input id="guessBet" type="number" min="1" value="10"></div>
-          <button class="maxBet" data-target="guessBet">Max</button>
+          <button class="betMul" data-target="guessBet" data-mul="half">÷2</button><button class="betMul" data-target="guessBet" data-mul="double">×2</button><button class="maxBet" data-target="guessBet">Max</button>
           <div class="field"><label>Deine Zahl</label><input id="guessInput" type="number" min="1"></div>
         </div>
         <div id="guessCalc"></div>
@@ -157,7 +190,7 @@
         <div id="minesStart">
           <div class="bet-row">
             <div class="field"><label>Einsatz (Coins)</label><input id="minesBet" type="number" min="1" value="10" style="width:130px;text-align:center;"></div>
-            <button class="maxBet" data-target="minesBet">Max</button>
+            <button class="betMul" data-target="minesBet" data-mul="half">÷2</button><button class="betMul" data-target="minesBet" data-mul="double">×2</button><button class="maxBet" data-target="minesBet">Max</button>
           </div>
           <div class="bet-row">
             <div class="field"><label>Minen (1-24)</label><input id="minesCount" type="number" min="1" max="24" value="3" style="width:130px;text-align:center;"></div>
@@ -173,7 +206,7 @@
       </div>
 
       <div class="game-panel hidden" id="game-crash">
-        <p class="hint">Der Multiplikator steigt live. Cashe aus, bevor die Rakete abstürzt. Stürzt sie vor deinem Cashout ab, ist der Einsatz weg. ~5% Hausvorteil.</p>
+        <p class="hint">Der Multiplikator steigt live. Cashe aus, bevor die Rakete abstürzt. Stürzt sie vor deinem Cashout ab, ist der Einsatz weg. ~10% Hausvorteil.</p>
         <div id="crashStart">
           <div class="bet-row">
             <div class="field"><label>Einsatz (Coins)</label><input id="crashBet" type="number" min="1" value="10" style="width:130px;text-align:center;"></div>
@@ -195,7 +228,7 @@
       </div>
 
       <div class="game-panel hidden" id="game-plinko">
-        <p class="hint">Lass die Kugel fallen, sie landet in einem Multiplikator-Fach. Außen = hoch, Mitte = niedrig. ~5% Hausvorteil.</p>
+        <p class="hint">Lass die Kugel fallen, sie landet in einem Multiplikator-Fach. Außen = hoch, Mitte = niedrig, ×2-Fächer liegen zwischen Mitte und Rand. ~10% Hausvorteil.</p>
         <div class="bet-row">
           <div class="field"><label>Einsatz (Coins)</label><input id="plinkoBet" type="number" min="1" value="10" style="width:130px;text-align:center;"></div>
           <button class="maxBet" data-target="plinkoBet">Max</button>
@@ -250,6 +283,8 @@
     <div class="card">
       <strong>📅 Login-Streak</strong>
       <p id="streakText" class="hint"></p>
+      <div id="streakWeek" class="streak-week"></div>
+      <div class="streak-flame">🔥 <b id="streakNum">0</b> Tage Serie</div>
       <button id="streakBtn" style="background:#22c55e;color:#052e16;">Täglichen Bonus abholen</button>
       <div id="streakInfo" style="font-size:.85rem;color:#94a3b8;margin-top:8px;"></div>
     </div>

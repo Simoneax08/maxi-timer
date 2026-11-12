@@ -5,12 +5,12 @@
       { id: "coins13", icon: "💰", title: "Coins-Booster x1.3", desc: "Erhöht deinen nächsten echten Gewinn um das 1.3-fache. Push zählt nicht. Einmalig.", price: 5000, buy: () => { nextWinMult = 1.3; store.set("nextWinMult", 1.3); updateWinBoost(); toast("Nächster Gewinn x1.3!"); } }
     ],
     "💎 Perks (dauerhaft, sehr teuer)": [
-      { id: "p_coins", icon: "📈", title: "Perk: +10% Coins für immer", desc: "Dauerhaft 10% mehr Coins aus allen Spielen.", price: 20000, perk: "coins" },
-      { id: "p_box", icon: "📦", title: "Perk: Lootbox -20%", desc: "Lootbox kostet dauerhaft nur noch 40 statt 50.", price: 15000, perk: "box" },
+      { id: "p_coins", icon: "📈", title: "Perk: +3% Coins für immer", desc: "Dauerhaft 3% mehr Coins aus allen Spielen.", price: 20000, perk: "coins" },
+      { id: "p_box", icon: "📦", title: "Perk: Lootbox günstiger", desc: "Lootbox kostet dauerhaft nur noch 34 statt 38.", price: 15000, perk: "box" },
       { id: "p_bonus", icon: "⏰", title: "Perk: Minuten-Bonus x2", desc: "Dauerhaft 20 statt 10 Coins pro Minute.", price: 25000, perk: "bonus" }
     ],
     "🐋 High Roller (für die Reichen)": [
-      { id: "p_coins15", icon: "📊", title: "Perk: +15% Coins", desc: "Dauerhaft 15% mehr Coins. Stapelt mit den anderen Coin-Perks.", price: 150000, perk: "coins15" },
+      { id: "p_coins15", icon: "📊", title: "Perk: +2% Coins", desc: "Dauerhaft 2% mehr Coins. Stapelt mit den anderen Coin-Perks.", price: 150000, perk: "coins15" },
       { id: "p_bonus5", icon: "⏱️", title: "Perk: Minuten-Bonus x5", desc: "Dauerhaft 50 statt 10 Coins pro Minute.", price: 400000, perk: "bonus5" },
       { id: "cash1m", icon: "💸", title: "1 Mio Coins", desc: "Direkt 1.000.000 Coins. Kostet 1.25 Mio. Der Shop gewinnt immer.", price: 1250000, repeat: true, buy: () => { setCoins(coins + 1000000); toast("+1.000.000 Coins!"); } }
     ],

@@ -151,7 +151,7 @@ end $$;
 -- ausgezahlt wurden. Wird beim Laden der Rangliste aufgerufen, ist idempotent.
 create or replace function public.settle_daily_prizes()
 returns void language plpgsql security definer set search_path = public as $$
-declare d date; r record; i int; prizes bigint[] := array[100000, 50000, 20000];
+declare d date; r record; i int; prizes bigint[] := array[1000000, 500000, 250000, 100000, 50000];
 begin
   for d in select (public.vienna_today() - g)::date from generate_series(1, 7) g loop
     insert into daily_prizes (day) values (d) on conflict (day) do nothing;
@@ -159,7 +159,7 @@ begin
       i := 0;
       for r in select user_id from daily_stats
                where day = d and wagered > 0
-               order by wagered desc limit 3 loop
+               order by wagered desc limit 5 loop
         i := i + 1;
         update profiles set coins = coins + prizes[i], updated_at = now() where id = r.user_id;
       end loop;

@@ -1,3 +1,5 @@
+  // Spielzeit als "x h y min"
+  function fmtPlay(sec) { const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60); return h ? `${h} h ${m} min` : `${m} min`; }
   // ---------- Statistik- und Achievement-Anzeige ----------
   function renderStats() {
     // Hervorgehobene Kennzahlen oben, Rest als Kacheln
@@ -16,7 +18,8 @@
       { ic: "🂡", label: "Blackjack", val: stats.bjPlayed || 0 },
       { ic: "💣", label: "Mines", val: stats.minesPlayed || 0 },
       { ic: "🚀", label: "Crash", val: stats.crashPlayed || 0 },
-      { ic: "🔵", label: "Plinko", val: stats.plinkoPlayed || 0 }
+      { ic: "🔵", label: "Plinko", val: stats.plinkoPlayed || 0 },
+      { ic: "⏱️", label: "Spielzeit", val: fmtPlay(store.get("playtime", 0)) }
     ];
     const bigHtml = big.map((b) => `<div class="stat-big"><div class="sb-ic">${b.ic}</div><div class="sb-val" style="color:${b.col}">${b.val}</div><div class="sb-lbl">${b.label}</div></div>`).join("");
     const tilesHtml = tiles.map((t) => `<div class="stat-tile"><span class="st-ic">${t.ic}</span><span class="st-val">${t.val}</span><span class="st-lbl">${t.label}</span></div>`).join("");
@@ -61,9 +64,28 @@
     store.set("streak", streak); store.set("streakDay", todayKey());
     setCoins(coins + reward); addXP(10); sfx.coin(); rain("🪙", "#22c55e", 20);
     toast(`Login-Streak Tag ${streak}: +${fmt(reward)} Coins!`);
-    renderStreak();
+    renderStreak(); renderStreakWeek();
   });
+  // Kalender der letzten 7 Tage: Flamme = Tag gehört zur aktuellen Serie
+  function renderStreakWeek() {
+    const box = $("streakWeek"); if (!box) return;
+    const streak = store.get("streak", 0), last = store.get("streakDay", "");
+    const parse = (k) => { const [y, m, d] = k.split("-").map(Number); return new Date(y, m - 1, d); };
+    const lastD = last ? parse(last) : null;
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const names = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+    let html = "";
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today); d.setDate(today.getDate() - i);
+      const diff = lastD ? Math.round((lastD - d) / 86400000) : -1; // 0 = dieser Tag ist der letzte Serientag
+      const done = !!lastD && diff >= 0 && diff < streak;
+      html += `<div class="sw-day${done ? " done" : ""}${i === 0 ? " today" : ""}" style="animation-delay:${(6 - i) * 70}ms"><span class="sw-name">${names[d.getDay()]}</span><span class="sw-dot">${done ? "🔥" : ""}</span></div>`;
+    }
+    box.innerHTML = html;
+    if ($("streakNum")) $("streakNum").textContent = streak;
+  }
   renderStreak();
+  renderStreakWeek();
 
   // ---------- Tägliche Challenges ----------
   // Pool fester Challenges; 3 pro Tag werden deterministisch aus dem Datum gewählt
@@ -110,7 +132,7 @@
   // ---------- Prestige / Rebirth ----------
   const PRESTIGE_COST = 5000000;
   function renderPrestige() {
-    $("prestigeText").innerHTML = `Ab ${fmt(PRESTIGE_COST)} Coins kannst du Prestigen: Coins werden zurückgesetzt, dafür gibt es dauerhaft <b>+5% Coins</b> pro Stufe (stapelt). Aktuelle Prestige-Stufe: <b>${prestige}</b> (+${prestige * 5}%).`;
+    $("prestigeText").innerHTML = `Ab ${fmt(PRESTIGE_COST)} Coins kannst du Prestigen: Coins werden zurückgesetzt, dafür gibt es dauerhaft <b>+0.5% Coins</b> pro Stufe (stapelt). Aktuelle Prestige-Stufe: <b>${prestige}</b> (+${(prestige * 0.5).toFixed(1)}%).`;
     if (coins >= PRESTIGE_COST) {
       $("prestigeBtn").disabled = false; $("prestigeBtn").textContent = `Prestige (Stufe ${prestige + 1})`;
       $("prestigeInfo").textContent = "Skins, Level, Perks und Achievements bleiben erhalten.";
@@ -121,10 +143,10 @@
   }
   $("prestigeBtn").addEventListener("click", () => {
     if (coins < PRESTIGE_COST) return;
-    if (!confirm(`Wirklich prestigen? Deine ${fmt(coins)} Coins werden auf 100 zurückgesetzt. Du bekommst dauerhaft +5% Coins (neue Stufe ${prestige + 1}).`)) return;
+    if (!confirm(`Wirklich prestigen? Deine ${fmt(coins)} Coins werden auf 100 zurückgesetzt. Du bekommst dauerhaft +0.5% Coins (neue Stufe ${prestige + 1}).`)) return;
     prestige++; store.set("prestige", prestige);
     setCoins(100); sfx.win(); confetti(140); rain("♻️", "#a855f7", 50);
-    toast(`Prestige ${prestige}! Dauerhaft +${prestige * 5}% Coins.`);
+    toast(`Prestige ${prestige}! Dauerhaft +${(prestige * 0.5).toFixed(1)}% Coins.`);
     renderPrestige(); applyTitle();
   });
   renderPrestige();

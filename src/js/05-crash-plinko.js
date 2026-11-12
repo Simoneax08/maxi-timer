@@ -45,7 +45,7 @@
     if (bet > coins) { $("crashResult").style.color = ""; $("crashResult").textContent = "So viele Coins hast du nicht."; return; }
     setCoins(coins - bet); sfx.click(); addXPbet(bet); bump("crashPlayed");
     crashBet = bet; crashActive = true; crashCashed = false; crashCur = 1;
-    // Absturzpunkt ziehen (5% Hausvorteil, ~5% Instant-Crash bei 1.00)
+    // Absturzpunkt ziehen (10% Hausvorteil, ~10% Instant-Crash bei 1.00)
     const u = Math.random();
     crashPoint = u < (1 - CRASH_HOUSE) ? 1.00 : Math.min(1000, CRASH_HOUSE / (1 - u));
     $("crashStart").classList.add("hidden"); $("crashGame").classList.remove("hidden");
@@ -93,7 +93,7 @@
 
   // ---------- Plinko ----------
   const PLINKO_ROWS = 8;
-  const PLINKO_MULTS = [20, 3, 1, 0.6, 0.3, 0.6, 1, 3, 20]; // ca. 9.3% Hausvorteil (Binomial 8 Reihen)
+  const PLINKO_MULTS = [20, 3, 2, 0.2, 0.12, 0.2, 2, 3, 20]; // ca. 9.8% Hausvorteil (Binomial 8 Reihen)
   const PLINKO_COLORS = ["#f43f5e", "#a855f7", "#3b82f6", "#334155", "#1e293b", "#334155", "#3b82f6", "#a855f7", "#f43f5e"];
   let plinkoDropping = false;
   function buildPlinko() {
@@ -263,8 +263,27 @@
     document.body.classList.toggle("skin-anim", !!s.anim);
     equipped = s.id; store.set("equipped", s.id); renderInventory();
   }
+  // Alle Loot-Items auf einmal verkaufen (ausgerüsteter Skin bleibt)
+  function sellAllLoot() {
+    let total = 0, n = 0;
+    Object.keys(inv).forEach((id) => {
+      if (id === "standard" || id === equipped || !(inv[id] > 0)) return;
+      const r = RARITIES[skinById(id).rarity];
+      total += r.sell * inv[id]; n += inv[id];
+      delete inv[id];
+    });
+    if (!n) { toast("Keine Loot-Items zum Verkaufen."); return; }
+    saveInv(); setCoins(coins + total); sfx.coin();
+    $("caseResult").style.color = "#22c55e";
+    $("caseResult").textContent = `${n} Items verkauft für +${fmt(total)} Coins.`;
+    renderInventory();
+  }
   function renderInventory() {
     $("inventory").innerHTML = "";
+    const sellAllBtn = document.createElement("button");
+    sellAllBtn.className = "sellBtn"; sellAllBtn.textContent = "🗑️ Alle Loot-Items verkaufen";
+    sellAllBtn.style.gridColumn = "1 / -1"; sellAllBtn.addEventListener("click", sellAllLoot);
+    $("inventory").appendChild(sellAllBtn);
     SKINS.filter((s) => (inv[s.id] || 0) > 0).forEach((s) => {
       const r = RARITIES[s.rarity];
       const wrap = document.createElement("div"); wrap.className = "inv-item" + (s.id === equipped ? " equipped" : ""); wrap.style.borderColor = r.color;

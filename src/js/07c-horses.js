@@ -32,8 +32,7 @@
   function hrFinish(winner, bet) {
     hrRacing = false; $("hrGo").disabled = false;
     if (winner === hrPick) {
-      const win = Math.floor(bet * HORSES[winner].odds);
-      setCoins(coins + win); sfx.win(); rain("🏆", "#f59e0b", 24);
+      const win = addWin(bet * HORSES[winner].odds); sfx.win(); rain("🏆", "#f59e0b", 24);
       $("hrResult").textContent = `${HORSES[winner].name} gewinnt! +${fmt(win)} Coins`;
     } else {
       sfx.lose();

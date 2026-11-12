@@ -13,7 +13,7 @@
   }
   function crRender() {
     const risk = Math.round((1 - CR_SURVIVE(crStep + 1)) * 100);
-    const cash = Math.floor(crBet * crMult);
+    const cash = Math.floor(crBet * crMult * coinMult());
     $("crInfo").textContent = `Schritt ${crStep} · x${crMult.toFixed(2)} · nächster Schritt: ${risk} % Risiko`;
     $("crCashBtn").textContent = crStep >= 1 ? `💰 Kassieren (${fmt(cash)} Coins · x${crMult.toFixed(2)})` : "💰 Kassieren";
     $("crCashBtn").disabled = crStep < 1;
@@ -105,8 +105,7 @@
   function crCash() {
     if (!crLive || crBusy) return;
     if (crStep < 1) { toast("Erst mindestens einen Schritt gehen."); return; }
-    const win = Math.floor(crBet * crMult);
-    setCoins(coins + win); crLive = false;
+    const win = addWin(crBet * crMult); crLive = false;
     sfx.win(); rain("🪙", "#f59e0b", 20);
     const msg = `Kassiert: +${fmt(win)} Coins bei x${crMult.toFixed(2)} (Einsatz ${fmt(crBet)})`;
     $("crResult").textContent = msg; toast(msg);
