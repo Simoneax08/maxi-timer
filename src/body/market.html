@@ -33,6 +33,7 @@
         <button class="gtab" data-game="horses">🐎 Pferderennen</button>
         <button class="gtab" data-game="scratch">🎟️ Rubbellos</button>
         <button class="gtab" data-game="ssp">✂️ Schere Stein Papier</button>
+        <button class="gtab" data-game="slots">🎰 Slots</button>
       </div>
 
       <div class="game-panel hidden" id="game-hl">
@@ -75,8 +76,8 @@
           <button id="crStartBtn" style="background:#0ea5e9;color:#fff;margin-top:6px;">Losgehen</button>
         </div>
         <div id="crBtns" class="bet-row hidden" style="align-items:center;">
-          <button id="crWalkBtn" style="flex:1;background:#22c55e;color:#052e16;">🐔 Weiter</button>
-          <button id="crCashBtn" style="flex:0 0 auto;padding:6px 10px;font-size:13px;background:#f59e0b;color:#1f1300;">💰 Kassieren</button>
+          <button id="crWalkBtn" class="cr-walk">🐔 Weiter</button>
+          <button id="crCashBtn" class="cr-cash">💰 Kassieren</button>
         </div>
         <div id="crResult"></div>
       </div>
@@ -89,6 +90,15 @@
         <div id="hrTrack" class="horse-track"></div>
         <button id="hrGo" style="background:#0ea5e9;color:#fff;">Wetten und Rennen starten</button>
         <div id="hrResult"></div>
+      </div>
+
+      <div class="game-panel hidden" id="game-slots">
+        <p class="hint">Drei gleiche Symbole gewinnen: 🍒 x6, 🍋 x11, 🔔 x25, 💎 x60, 7️⃣ x300.</p>
+        <div class="field" style="align-items:center;margin:0 auto;"><label>Einsatz (Coins)</label><input id="slBet" type="number" min="1" value="10" style="width:140px;text-align:center;"></div>
+        <div class="bet-row"><button class="betMul" data-target="slBet" data-mul="half">÷2</button><button class="betMul" data-target="slBet" data-mul="double">×2</button><button class="maxBet" data-target="slBet">Max</button></div>
+        <div id="slReels" class="sl-reels"><div class="sl-reel">❔</div><div class="sl-reel">❔</div><div class="sl-reel">❔</div></div>
+        <button id="slSpinBtn" style="background:#dc2626;color:#fff;">🎰 Drehen</button>
+        <div id="slResult"></div>
       </div>
 
       <div class="game-panel hidden" id="game-scratch">
@@ -208,6 +218,7 @@
       <div class="game-panel hidden" id="game-crash">
         <p class="hint">Der Multiplikator steigt live. Cashe aus, bevor die Rakete abstürzt. Stürzt sie vor deinem Cashout ab, ist der Einsatz weg. ~10% Hausvorteil.</p>
         <div id="crashStart">
+          <div id="crashHist" class="crash-hist"></div>
           <div class="bet-row">
             <div class="field"><label>Einsatz (Coins)</label><input id="crashBet" type="number" min="1" value="10" style="width:130px;text-align:center;"></div>
             <button class="maxBet" data-target="crashBet">Max</button>

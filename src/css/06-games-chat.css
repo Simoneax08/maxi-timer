@@ -59,3 +59,32 @@
 
 /* ===== Rangliste: Preis neben dem Platz ===== */
 .lb-prize{margin-left:auto;color:#f59e0b;font-size:12px;font-weight:700;padding-left:8px}
+
+/* ===== Crash: letzte Runden ===== */
+.crash-hist{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:8px}
+.crash-chip{font-weight:700;font-size:13px;padding:3px 8px;border-radius:999px;background:#1e293b}
+
+/* ===== Crash / Chicken: Kassieren-Button ===== */
+.cr-walk { flex: 1; background: linear-gradient(135deg, #4ade80, #16a34a); color: #052e16; box-shadow: 0 6px 18px rgba(34,197,94,.3); }
+.cr-cash { flex: 0 0 auto; max-width: 46%; min-width: 130px; padding: 10px 14px; font-size: 13px; line-height: 1.25; border-radius: 999px; background: linear-gradient(135deg, #fde047, #f59e0b); color: #1f1300; box-shadow: 0 0 16px rgba(250,204,21,.55); white-space: normal; }
+.cr-cash:disabled { box-shadow: none; }
+
+/* ===== Pferderennen: Bahn ===== */
+.hr-lane { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
+.hr-name { width: 84px; text-align: left; font-size: 13px; font-weight: 700; }
+.hr-lane-track { position: relative; flex: 1; height: 36px; border-radius: 18px; overflow: hidden; background: repeating-linear-gradient(90deg, rgba(255,255,255,.07) 0 14px, transparent 14px 28px), #14532d; border: 1px solid rgba(255,255,255,.08); }
+.hr-finish { position: absolute; right: 0; top: 0; bottom: 0; width: 10px; background: repeating-linear-gradient(0deg, #fff 0 6px, #111 6px 12px); }
+.hr-horse { position: absolute; left: 0; top: 50%; font-size: 24px; line-height: 1; transform: translate(0, -50%); transition: left .05s linear, transform .05s linear; }
+.hr-horse.run { animation: hrGallop .22s ease-in-out infinite alternate; }
+@keyframes hrGallop { from { margin-top: 0; } to { margin-top: -4px; } }
+.hr-lane.win .hr-lane-track { box-shadow: 0 0 0 2px #fde047, 0 0 18px rgba(250,204,21,.6); }
+.hr-lane.win .hr-name { color: #fde047; }
+
+/* ===== Slots ===== */
+.sl-reels { display: flex; gap: 10px; justify-content: center; margin: 14px 0; }
+.sl-reel { width: 92px; height: 110px; display: flex; align-items: center; justify-content: center; font-size: 52px; border-radius: 16px; background: linear-gradient(180deg, #f8fafc, #cbd5e1); box-shadow: inset 0 -6px 0 rgba(0,0,0,.15), 0 8px 18px rgba(0,0,0,.35); transition: transform .15s; }
+.sl-reel.spinning { filter: blur(1.5px); }
+.sl-reel.stop { animation: slStop .3s ease-out; }
+.sl-reel.win { animation: slWin .5s ease-in-out 3; }
+@keyframes slStop { 0% { transform: translateY(-14px); } 60% { transform: translateY(4px); } 100% { transform: none; } }
+@keyframes slWin { 0%,100% { box-shadow: 0 0 0 #fde047; } 50% { box-shadow: 0 0 26px #fde047; } }

@@ -18,7 +18,7 @@
   // ---------- Achievements ----------
   let achDone = store.get("achDone", {}); // id -> true (abgeschlossen)
   let achClaimed = store.get("achClaimed", {}); // id -> true (Belohnung abgeholt, via auto)
-  let allAchBonus = store.get("allAchBonus", false); // 1.02x Dauer-Multiplier bei allen 12
+  let allAchBonus = store.get("allAchBonus", false); // 1.01x Dauer-Multiplier bei allen 12
   const ACHIEVEMENTS = [
     { id: "first_spin", icon: "🎡", name: "Erster Dreh", desc: "Dreh das Wheel einmal.", reward: 50, check: () => (stats.spins || 0) >= 1 },
     { id: "first_box", icon: "📦", name: "Erste Lootbox", desc: "Öffne eine Lootbox.", reward: 50, check: () => (stats.boxes || 0) >= 1 },
@@ -43,7 +43,7 @@
       }
     });
     if (changed) { store.set("achDone", achDone); }
-    // Alle 12 erreicht: exklusiver Skin + 1.02x Dauer-Multiplier
+    // Alle 12 erreicht: exklusiver Skin + 1.01x Dauer-Multiplier
     const total = ACHIEVEMENTS.length;
     const have = ACHIEVEMENTS.filter((a) => achDone[a.id]).length;
     if (have >= total && !allAchBonus) {
@@ -51,7 +51,7 @@
       inv["platin"] = (inv["platin"] || 0) + 1; if (typeof saveInv === "function") saveInv();
       if (typeof renderInventory === "function") renderInventory();
       rain("💎", "#e0e7ff", 60); sfx.win();
-      toast("ALLE Achievements! Platin-Skin + dauerhaft 1.02x Coins freigeschaltet!");
+      toast("ALLE Achievements! Platin-Skin + dauerhaft 1.01x Coins freigeschaltet!");
     }
     if (typeof renderAch === "function") renderAch();
   }
@@ -59,7 +59,7 @@
   // Level
   // Shop-/Booster-State früh deklariert (von Level & addXP genutzt)
   let xpBoostUntil = store.get("xpBoostUntil", 0);
-  let nextWinMult = store.get("nextWinMult", 1); // einmaliger Coins-Booster: nächster Gewinn x2/x10
+  let nextWinMult = 1; // Coins-Booster entfernt (stapelt sonst auf den Deckel) // einmaliger Coins-Booster: nächster Gewinn x2/x10
   let perks = store.get("perks", {});
   let ownedTitles = store.get("titles", []);
   let activeTitle = store.get("activeTitle", "");
@@ -69,8 +69,8 @@
   const bonusPerMin = () => perks.bonus5 ? 50 : perks.bonus ? 20 : 10;
   // Dauerhafter Coin-Multiplikator aus Perks + Platin + Prestige (bewusst moderat)
   function coinMult() {
-    // Gesamtbonus gedeckelt auf 1.11 (~ fair bei 90 % Auszahlung): Perks + Achievements + Rebirths ergeben nie einen Vorteil
-    return Math.min(1.11, (perks.coins ? 1.03 : 1) * (perks.coins15 ? 1.02 : 1) * (allAchBonus ? 1.02 : 1) * (1 + prestige * 0.005));
+    // Gesamtbonus gedeckelt auf 1.10 (fair waere 1.111 bei 90 % Auszahlung): alles zusammen bleibt minimal unter fair
+    return Math.min(1.10, (perks.coins ? 1.02 : 1) * (perks.coins15 ? 1.03 : 1) * (allAchBonus ? 1.01 : 1) * (1 + prestige * 0.005));
   }
   // Gewinn-Coins gutschreiben (nur bei echtem Gewinn aufrufen, nicht bei Push)
   function addWin(base) {

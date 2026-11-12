@@ -309,6 +309,63 @@
 
 /* ===== Rangliste: Preis neben dem Platz ===== */
 .lb-prize{margin-left:auto;color:#f59e0b;font-size:12px;font-weight:700;padding-left:8px}
+
+/* ===== Crash: letzte Runden ===== */
+.crash-hist{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:8px}
+.crash-chip{font-weight:700;font-size:13px;padding:3px 8px;border-radius:999px;background:#1e293b}
+
+/* ===== Crash / Chicken: Kassieren-Button ===== */
+.cr-walk { flex: 1; background: linear-gradient(135deg, #4ade80, #16a34a); color: #052e16; box-shadow: 0 6px 18px rgba(34,197,94,.3); }
+.cr-cash { flex: 0 0 auto; max-width: 46%; min-width: 130px; padding: 10px 14px; font-size: 13px; line-height: 1.25; border-radius: 999px; background: linear-gradient(135deg, #fde047, #f59e0b); color: #1f1300; box-shadow: 0 0 16px rgba(250,204,21,.55); white-space: normal; }
+.cr-cash:disabled { box-shadow: none; }
+
+/* ===== Pferderennen: Bahn ===== */
+.hr-lane { display: flex; align-items: center; gap: 8px; margin: 8px 0; }
+.hr-name { width: 84px; text-align: left; font-size: 13px; font-weight: 700; }
+.hr-lane-track { position: relative; flex: 1; height: 36px; border-radius: 18px; overflow: hidden; background: repeating-linear-gradient(90deg, rgba(255,255,255,.07) 0 14px, transparent 14px 28px), #14532d; border: 1px solid rgba(255,255,255,.08); }
+.hr-finish { position: absolute; right: 0; top: 0; bottom: 0; width: 10px; background: repeating-linear-gradient(0deg, #fff 0 6px, #111 6px 12px); }
+.hr-horse { position: absolute; left: 0; top: 50%; font-size: 24px; line-height: 1; transform: translate(0, -50%); transition: left .05s linear, transform .05s linear; }
+.hr-horse.run { animation: hrGallop .22s ease-in-out infinite alternate; }
+@keyframes hrGallop { from { margin-top: 0; } to { margin-top: -4px; } }
+.hr-lane.win .hr-lane-track { box-shadow: 0 0 0 2px #fde047, 0 0 18px rgba(250,204,21,.6); }
+.hr-lane.win .hr-name { color: #fde047; }
+
+/* ===== Slots ===== */
+.sl-reels { display: flex; gap: 10px; justify-content: center; margin: 14px 0; }
+.sl-reel { width: 92px; height: 110px; display: flex; align-items: center; justify-content: center; font-size: 52px; border-radius: 16px; background: linear-gradient(180deg, #f8fafc, #cbd5e1); box-shadow: inset 0 -6px 0 rgba(0,0,0,.15), 0 8px 18px rgba(0,0,0,.35); transition: transform .15s; }
+.sl-reel.spinning { filter: blur(1.5px); }
+.sl-reel.stop { animation: slStop .3s ease-out; }
+.sl-reel.win { animation: slWin .5s ease-in-out 3; }
+@keyframes slStop { 0% { transform: translateY(-14px); } 60% { transform: translateY(4px); } 100% { transform: none; } }
+@keyframes slWin { 0%,100% { box-shadow: 0 0 0 #fde047; } 50% { box-shadow: 0 0 26px #fde047; } }
+/* ===== Weihnachtsedition: Farben, Glanz, Animationen (lädt nach den Spiel-Styles) ===== */
+:root {
+  --bg: radial-gradient(ellipse at 50% -10%, #166534 0%, #0b2e1c 42%, #07110c 100%);
+  --card: rgba(12, 38, 26, .82);
+  --border: rgba(250, 204, 21, .22);
+  --accent: #f59e0b;
+}
+body { background: var(--bg) fixed; }
+h1 {
+  background: linear-gradient(90deg, #fca5a5, #fde047, #86efac, #fde047, #fca5a5);
+  background-size: 300% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: xmasShimmer 6s linear infinite;
+}
+@keyframes xmasShimmer { to { background-position: 300% 0; } }
+.card { box-shadow: 0 10px 34px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.06); transition: transform .2s, box-shadow .2s; }
+.card:hover { transform: translateY(-2px); box-shadow: 0 14px 40px rgba(0,0,0,.45), 0 0 0 1px rgba(250,204,21,.35); }
+button:not(:disabled):hover { box-shadow: 0 6px 18px rgba(250,204,21,.25); }
+#coins { animation: xmasCoinGlow 2.4s ease-in-out infinite; }
+@keyframes xmasCoinGlow { 0%,100% { box-shadow: 0 4px 16px rgba(245,158,11,.45); } 50% { box-shadow: 0 4px 26px rgba(250,204,21,.9); } }
+.game-panel { animation: xmasFadeUp .35s both; }
+@keyframes xmasFadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.snow-canvas { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; opacity: .7; }
+body::before {
+  content: "🎄 ❄️ 🎁 ⭐ 🔔 ❄️ 🎄 ❄️ 🎁 ⭐ 🔔 ❄️ 🎄";
+  position: fixed; top: 0; left: 0; right: 0; height: 22px; line-height: 22px; font-size: 14px; letter-spacing: 10px;
+  text-align: center; pointer-events: none; opacity: .55; z-index: 19; white-space: nowrap; overflow: hidden;
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 </head>
@@ -389,6 +446,7 @@
         <button class="gtab" data-game="horses">🐎 Pferderennen</button>
         <button class="gtab" data-game="scratch">🎟️ Rubbellos</button>
         <button class="gtab" data-game="ssp">✂️ Schere Stein Papier</button>
+        <button class="gtab" data-game="slots">🎰 Slots</button>
       </div>
 
       <div class="game-panel hidden" id="game-hl">
@@ -431,8 +489,8 @@
           <button id="crStartBtn" style="background:#0ea5e9;color:#fff;margin-top:6px;">Losgehen</button>
         </div>
         <div id="crBtns" class="bet-row hidden" style="align-items:center;">
-          <button id="crWalkBtn" style="flex:1;background:#22c55e;color:#052e16;">🐔 Weiter</button>
-          <button id="crCashBtn" style="flex:0 0 auto;padding:6px 10px;font-size:13px;background:#f59e0b;color:#1f1300;">💰 Kassieren</button>
+          <button id="crWalkBtn" class="cr-walk">🐔 Weiter</button>
+          <button id="crCashBtn" class="cr-cash">💰 Kassieren</button>
         </div>
         <div id="crResult"></div>
       </div>
@@ -445,6 +503,15 @@
         <div id="hrTrack" class="horse-track"></div>
         <button id="hrGo" style="background:#0ea5e9;color:#fff;">Wetten und Rennen starten</button>
         <div id="hrResult"></div>
+      </div>
+
+      <div class="game-panel hidden" id="game-slots">
+        <p class="hint">Drei gleiche Symbole gewinnen: 🍒 x6, 🍋 x11, 🔔 x25, 💎 x60, 7️⃣ x300.</p>
+        <div class="field" style="align-items:center;margin:0 auto;"><label>Einsatz (Coins)</label><input id="slBet" type="number" min="1" value="10" style="width:140px;text-align:center;"></div>
+        <div class="bet-row"><button class="betMul" data-target="slBet" data-mul="half">÷2</button><button class="betMul" data-target="slBet" data-mul="double">×2</button><button class="maxBet" data-target="slBet">Max</button></div>
+        <div id="slReels" class="sl-reels"><div class="sl-reel">❔</div><div class="sl-reel">❔</div><div class="sl-reel">❔</div></div>
+        <button id="slSpinBtn" style="background:#dc2626;color:#fff;">🎰 Drehen</button>
+        <div id="slResult"></div>
       </div>
 
       <div class="game-panel hidden" id="game-scratch">
@@ -564,6 +631,7 @@
       <div class="game-panel hidden" id="game-crash">
         <p class="hint">Der Multiplikator steigt live. Cashe aus, bevor die Rakete abstürzt. Stürzt sie vor deinem Cashout ab, ist der Einsatz weg. ~10% Hausvorteil.</p>
         <div id="crashStart">
+          <div id="crashHist" class="crash-hist"></div>
           <div class="bet-row">
             <div class="field"><label>Einsatz (Coins)</label><input id="crashBet" type="number" min="1" value="10" style="width:130px;text-align:center;"></div>
             <button class="maxBet" data-target="crashBet">Max</button>
@@ -862,7 +930,7 @@
     document.querySelectorAll(".gtab").forEach((x) => x.classList.remove("active"));
     t.classList.add("active");
     const g = t.dataset.game;
-    ["hl", "wheel", "flip", "guess", "bj", "mines", "crash", "plinko", "chicken", "horses", "scratch", "ssp"].forEach((name) => $("game-" + name).classList.toggle("hidden", name !== g));
+    ["hl", "wheel", "flip", "guess", "bj", "mines", "crash", "plinko", "chicken", "horses", "scratch", "ssp", "slots"].forEach((name) => $("game-" + name).classList.toggle("hidden", name !== g));
     if (g === "plinko") buildPlinko();
   }));
 
@@ -918,7 +986,7 @@
   // ---------- Achievements ----------
   let achDone = store.get("achDone", {}); // id -> true (abgeschlossen)
   let achClaimed = store.get("achClaimed", {}); // id -> true (Belohnung abgeholt, via auto)
-  let allAchBonus = store.get("allAchBonus", false); // 1.02x Dauer-Multiplier bei allen 12
+  let allAchBonus = store.get("allAchBonus", false); // 1.01x Dauer-Multiplier bei allen 12
   const ACHIEVEMENTS = [
     { id: "first_spin", icon: "🎡", name: "Erster Dreh", desc: "Dreh das Wheel einmal.", reward: 50, check: () => (stats.spins || 0) >= 1 },
     { id: "first_box", icon: "📦", name: "Erste Lootbox", desc: "Öffne eine Lootbox.", reward: 50, check: () => (stats.boxes || 0) >= 1 },
@@ -943,7 +1011,7 @@
       }
     });
     if (changed) { store.set("achDone", achDone); }
-    // Alle 12 erreicht: exklusiver Skin + 1.02x Dauer-Multiplier
+    // Alle 12 erreicht: exklusiver Skin + 1.01x Dauer-Multiplier
     const total = ACHIEVEMENTS.length;
     const have = ACHIEVEMENTS.filter((a) => achDone[a.id]).length;
     if (have >= total && !allAchBonus) {
@@ -951,7 +1019,7 @@
       inv["platin"] = (inv["platin"] || 0) + 1; if (typeof saveInv === "function") saveInv();
       if (typeof renderInventory === "function") renderInventory();
       rain("💎", "#e0e7ff", 60); sfx.win();
-      toast("ALLE Achievements! Platin-Skin + dauerhaft 1.02x Coins freigeschaltet!");
+      toast("ALLE Achievements! Platin-Skin + dauerhaft 1.01x Coins freigeschaltet!");
     }
     if (typeof renderAch === "function") renderAch();
   }
@@ -959,7 +1027,7 @@
   // Level
   // Shop-/Booster-State früh deklariert (von Level & addXP genutzt)
   let xpBoostUntil = store.get("xpBoostUntil", 0);
-  let nextWinMult = store.get("nextWinMult", 1); // einmaliger Coins-Booster: nächster Gewinn x2/x10
+  let nextWinMult = 1; // Coins-Booster entfernt (stapelt sonst auf den Deckel) // einmaliger Coins-Booster: nächster Gewinn x2/x10
   let perks = store.get("perks", {});
   let ownedTitles = store.get("titles", []);
   let activeTitle = store.get("activeTitle", "");
@@ -969,8 +1037,8 @@
   const bonusPerMin = () => perks.bonus5 ? 50 : perks.bonus ? 20 : 10;
   // Dauerhafter Coin-Multiplikator aus Perks + Platin + Prestige (bewusst moderat)
   function coinMult() {
-    // Gesamtbonus gedeckelt auf 1.11 (~ fair bei 90 % Auszahlung): Perks + Achievements + Rebirths ergeben nie einen Vorteil
-    return Math.min(1.11, (perks.coins ? 1.03 : 1) * (perks.coins15 ? 1.02 : 1) * (allAchBonus ? 1.02 : 1) * (1 + prestige * 0.005));
+    // Gesamtbonus gedeckelt auf 1.10 (fair waere 1.111 bei 90 % Auszahlung): alles zusammen bleibt minimal unter fair
+    return Math.min(1.10, (perks.coins ? 1.02 : 1) * (perks.coins15 ? 1.03 : 1) * (allAchBonus ? 1.01 : 1) * (1 + prestige * 0.005));
   }
   // Gewinn-Coins gutschreiben (nur bei echtem Gewinn aufrufen, nicht bei Push)
   function addWin(base) {
@@ -1793,6 +1861,15 @@
     ctx.beginPath(); ctx.arc(X(last.t), Y(last.m), crashed ? 6 : 5, 0, Math.PI * 2);
     ctx.fillStyle = crashed ? "#ef4444" : "#fff"; ctx.fill();
   }
+  // Letzte 5 Absturzpunkte (nur diese Sitzung)
+  let crashPast = [];
+  function renderCrashHist() {
+    const box = $("crashHist"); if (!box) return;
+    box.innerHTML = crashPast.length
+      ? crashPast.slice(-5).map((m) => `<span class="crash-chip" style="color:${m < 2 ? "#ef4444" : "#22c55e"}">${m.toFixed(2)}x</span>`).join("")
+      : `<span class="hint">Noch keine Runde</span>`;
+  }
+  renderCrashHist();
   $("crashStartBtn").addEventListener("click", () => {
     if (crashActive) return;
     const bet = Math.floor(Number($("crashBet").value));
@@ -1814,6 +1891,7 @@
       if (crashCur >= crashPoint) {
         crashCur = crashPoint; clearInterval(crashTimer); crashTimer = null;
         crashHist.push({ t: el, m: crashPoint }); drawCrash(true);
+        crashPast.push(crashPoint); renderCrashHist();
         $("crashMult").textContent = crashPoint.toFixed(2) + "x"; $("crashMult").style.color = "#ef4444";
         $("crashRocket").classList.remove("fly");
         crashActive = false;
@@ -2108,15 +2186,14 @@
   const SHOP = {
     "⚡ Booster": [
       { id: "xp5", icon: "⚡", title: "XP-Booster", desc: "Doppelte XP für 5 Minuten.", price: 300, buy: () => { xpBoostUntil = Date.now() + 5*60000; store.set("xpBoostUntil", xpBoostUntil); updateBoostBar(); toast("XP-Booster aktiv für 5 Min!"); } },
-      { id: "coins13", icon: "💰", title: "Coins-Booster x1.3", desc: "Erhöht deinen nächsten echten Gewinn um das 1.3-fache. Push zählt nicht. Einmalig.", price: 5000, buy: () => { nextWinMult = 1.3; store.set("nextWinMult", 1.3); updateWinBoost(); toast("Nächster Gewinn x1.3!"); } }
     ],
     "💎 Perks (dauerhaft, sehr teuer)": [
-      { id: "p_coins", icon: "📈", title: "Perk: +3% Coins für immer", desc: "Dauerhaft 3% mehr Coins aus allen Spielen.", price: 20000, perk: "coins" },
+      { id: "p_coins", icon: "📈", title: "Perk: +2% Coins für immer", desc: "Dauerhaft 2% mehr Coins aus allen Spielen.", price: 20000, perk: "coins" },
       { id: "p_box", icon: "📦", title: "Perk: Lootbox günstiger", desc: "Lootbox kostet dauerhaft nur noch 34 statt 38.", price: 15000, perk: "box" },
       { id: "p_bonus", icon: "⏰", title: "Perk: Minuten-Bonus x2", desc: "Dauerhaft 20 statt 10 Coins pro Minute.", price: 25000, perk: "bonus" }
     ],
     "🐋 High Roller (für die Reichen)": [
-      { id: "p_coins15", icon: "📊", title: "Perk: +2% Coins", desc: "Dauerhaft 2% mehr Coins. Stapelt mit den anderen Coin-Perks.", price: 150000, perk: "coins15" },
+      { id: "p_coins15", icon: "📊", title: "Perk: +3% Coins", desc: "Dauerhaft 3% mehr Coins. Stapelt mit den anderen Coin-Perks.", price: 150000, perk: "coins15" },
       { id: "p_bonus5", icon: "⏱️", title: "Perk: Minuten-Bonus x5", desc: "Dauerhaft 50 statt 10 Coins pro Minute.", price: 400000, perk: "bonus5" },
       { id: "cash1m", icon: "💸", title: "1 Mio Coins", desc: "Direkt 1.000.000 Coins. Kostet 1.25 Mio. Der Shop gewinnt immer.", price: 1250000, repeat: true, buy: () => { setCoins(coins + 1000000); toast("+1.000.000 Coins!"); } }
     ],
@@ -2541,7 +2618,7 @@
   let hrPick = 0, hrRacing = false;
   function hrBuildUI() {
     $("hrPick").innerHTML = HORSES.map((h, i) => `<button class="hrPickBtn${i === hrPick ? " picked" : ""}" data-i="${i}">🐎 ${h.name} x${h.odds.toFixed(2)}</button>`).join("");
-    $("hrTrack").innerHTML = HORSES.map((h, i) => `<div class="horse-row"><span class="horse-name">🐎 ${h.name}</span><div class="horse-bar"><i id="hrBar${i}"></i></div></div>`).join("");
+    $("hrTrack").innerHTML = HORSES.map((h, i) => `<div class="hr-lane"><span class="hr-name">${h.name}</span><div class="hr-lane-track"><span class="hr-horse" id="hrH${i}">🐎</span><span class="hr-finish"></span></div></div>`).join("");
   }
   function hrStart() {
     if (hrRacing) return;
@@ -2556,17 +2633,19 @@
     const finish = HORSES.map((_, i) => i === winner ? T : T + 200 + Math.random() * 1200);
     const end = Math.max(...finish);
     hrRacing = true; $("hrGo").disabled = true; $("hrResult").textContent = "Rennen läuft...";
-    HORSES.forEach((_, i) => { $("hrBar" + i).style.width = "0%"; });
+    HORSES.forEach((_, i) => { const hz = $("hrH" + i); hz.style.left = "0%"; hz.style.transform = "translate(0,-50%)"; hz.classList.add("run"); hz.parentElement.parentElement.classList.remove("win"); });
     const t0 = performance.now();
     const tick = () => {
       const t = performance.now() - t0;
-      HORSES.forEach((_, i) => { $("hrBar" + i).style.width = Math.min(100, (t / finish[i]) * 100) + "%"; });
+      HORSES.forEach((_, i) => { const p = Math.min(100, (t / finish[i]) * 100); const hz = $("hrH" + i); hz.style.left = p + "%"; hz.style.transform = `translate(-${p}%,-50%)`; });
       if (t < end) requestAnimationFrame(tick); else hrFinish(winner, bet);
     };
     requestAnimationFrame(tick);
   }
   function hrFinish(winner, bet) {
     hrRacing = false; $("hrGo").disabled = false;
+    HORSES.forEach((_, i) => $("hrH" + i).classList.remove("run"));
+    $("hrH" + winner).parentElement.parentElement.classList.add("win");
     if (winner === hrPick) {
       const win = addWin(bet * HORSES[winner].odds); sfx.win(); rain("🏆", "#f59e0b", 24);
       $("hrResult").textContent = `${HORSES[winner].name} gewinnt! +${fmt(win)} Coins`;
@@ -2657,6 +2736,68 @@
     }, 700);
   }
   document.querySelectorAll(".sspPick").forEach((b) => b.addEventListener("click", () => sspPlay(Number(b.dataset.i))));
+  // ---------- Slots: 3 Walzen, 3 gleiche gewinnen ----------
+  // Erwarteter Wert: 0.064x6 + 0.0156x11 + 0.0034x25 + 0.0017x60 + 0.0005x300 = 0.8975 (ca. 10 % Hausvorteil)
+  const SL_SYMS = [
+    { ic: "🍒", p: 0.40, pay: 6 }, { ic: "🍋", p: 0.25, pay: 11 }, { ic: "🔔", p: 0.15, pay: 25 },
+    { ic: "💎", p: 0.12, pay: 60 }, { ic: "7️⃣", p: 0.08, pay: 300 }
+  ];
+  let slBusy = false;
+  function slPick() { const r = Math.random(); let acc = 0; for (const s of SL_SYMS) { acc += s.p; if (r < acc) return s; } return SL_SYMS[SL_SYMS.length - 1]; }
+  function slSpin() {
+    if (slBusy) return;
+    const bet = Math.floor(Number($("slBet").value) || 0);
+    if (bet < 1) { toast("Mindestens 1 Coin."); return; }
+    if (bet > coins) { toast("Zu wenig Coins."); return; }
+    slBusy = true; $("slSpinBtn").disabled = true; $("slResult").textContent = "";
+    setCoins(coins - bet); addXPbet(bet); sfx.click();
+    const finals = [slPick(), slPick(), slPick()];
+    const reels = [...document.querySelectorAll(".sl-reel")];
+    reels.forEach((r) => r.classList.remove("win"));
+    const timers = reels.map((reel) => {
+      reel.classList.add("spinning");
+      return setInterval(() => { reel.textContent = SL_SYMS[Math.floor(Math.random() * SL_SYMS.length)].ic; }, 70);
+    });
+    finals.forEach((sym, i) => {
+      setTimeout(() => {
+        clearInterval(timers[i]); reels[i].classList.remove("spinning");
+        reels[i].textContent = sym.ic; reels[i].classList.add("stop");
+        setTimeout(() => reels[i].classList.remove("stop"), 300);
+        sfx.click();
+        if (i === 2) slFinish(finals, bet);
+      }, 900 + i * 450);
+    });
+  }
+  function slFinish(finals, bet) {
+    slBusy = false; $("slSpinBtn").disabled = false;
+    const [a, b, c] = finals;
+    if (a === b && b === c) {
+      const won = addWin(bet * a.pay); sfx.win(); rain(a.ic, "#f59e0b", 28);
+      document.querySelectorAll(".sl-reel").forEach((r) => r.classList.add("win"));
+      $("slResult").textContent = `${a.ic} ${a.ic} ${a.ic}! +${fmt(won)} Coins (x${a.pay})`;
+    } else {
+      sfx.lose(); $("slResult").textContent = `Kein Gewinn. ${fmt(bet)} Coins weg.`;
+    }
+  }
+  if ($("slSpinBtn")) $("slSpinBtn").addEventListener("click", slSpin);
+  // ---------- Weihnachts-Deko: Schneefall im Hintergrund ----------
+  (function () {
+    if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const c = document.createElement("canvas"); c.className = "snow-canvas"; document.body.prepend(c);
+    const ctx = c.getContext("2d"); let W = 0, H = 0, flakes = [];
+    const mk = (first) => ({ x: Math.random() * W, y: first ? Math.random() * H : -10, r: 1 + Math.random() * 2.6, v: 0.4 + Math.random(), dx: Math.random() * 0.6 - 0.3, o: 0.5 + Math.random() * 0.5 });
+    function size() { W = c.width = innerWidth; H = c.height = innerHeight; flakes = Array.from({ length: Math.min(120, Math.floor(W / 11)) }, () => mk(true)); }
+    function frame() {
+      ctx.clearRect(0, 0, W, H); ctx.fillStyle = "#fff";
+      for (const f of flakes) {
+        f.y += f.v; f.x += f.dx;
+        if (f.y > H + 10 || f.x < -10 || f.x > W + 10) Object.assign(f, mk(false));
+        ctx.globalAlpha = f.o; ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.globalAlpha = 1; requestAnimationFrame(frame);
+    }
+    addEventListener("resize", size); size(); frame();
+  })();
   // ================= Supabase: Konto, Belohnungen, Tagesrangliste =================
   // Alle Kontostände und Belohnungen kommen vom Server (RPC-Funktionen aus supabase/schema.sql).
   // Der Browser darf nicht direkt in die Tabellen schreiben.

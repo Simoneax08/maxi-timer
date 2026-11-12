@@ -38,6 +38,15 @@
     ctx.beginPath(); ctx.arc(X(last.t), Y(last.m), crashed ? 6 : 5, 0, Math.PI * 2);
     ctx.fillStyle = crashed ? "#ef4444" : "#fff"; ctx.fill();
   }
+  // Letzte 5 Absturzpunkte (nur diese Sitzung)
+  let crashPast = [];
+  function renderCrashHist() {
+    const box = $("crashHist"); if (!box) return;
+    box.innerHTML = crashPast.length
+      ? crashPast.slice(-5).map((m) => `<span class="crash-chip" style="color:${m < 2 ? "#ef4444" : "#22c55e"}">${m.toFixed(2)}x</span>`).join("")
+      : `<span class="hint">Noch keine Runde</span>`;
+  }
+  renderCrashHist();
   $("crashStartBtn").addEventListener("click", () => {
     if (crashActive) return;
     const bet = Math.floor(Number($("crashBet").value));
@@ -59,6 +68,7 @@
       if (crashCur >= crashPoint) {
         crashCur = crashPoint; clearInterval(crashTimer); crashTimer = null;
         crashHist.push({ t: el, m: crashPoint }); drawCrash(true);
+        crashPast.push(crashPoint); renderCrashHist();
         $("crashMult").textContent = crashPoint.toFixed(2) + "x"; $("crashMult").style.color = "#ef4444";
         $("crashRocket").classList.remove("fly");
         crashActive = false;

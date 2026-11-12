@@ -1,0 +1,28 @@
+/* ===== Weihnachtsedition: Farben, Glanz, Animationen (lädt nach den Spiel-Styles) ===== */
+:root {
+  --bg: radial-gradient(ellipse at 50% -10%, #166534 0%, #0b2e1c 42%, #07110c 100%);
+  --card: rgba(12, 38, 26, .82);
+  --border: rgba(250, 204, 21, .22);
+  --accent: #f59e0b;
+}
+body { background: var(--bg) fixed; }
+h1 {
+  background: linear-gradient(90deg, #fca5a5, #fde047, #86efac, #fde047, #fca5a5);
+  background-size: 300% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: xmasShimmer 6s linear infinite;
+}
+@keyframes xmasShimmer { to { background-position: 300% 0; } }
+.card { box-shadow: 0 10px 34px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.06); transition: transform .2s, box-shadow .2s; }
+.card:hover { transform: translateY(-2px); box-shadow: 0 14px 40px rgba(0,0,0,.45), 0 0 0 1px rgba(250,204,21,.35); }
+button:not(:disabled):hover { box-shadow: 0 6px 18px rgba(250,204,21,.25); }
+#coins { animation: xmasCoinGlow 2.4s ease-in-out infinite; }
+@keyframes xmasCoinGlow { 0%,100% { box-shadow: 0 4px 16px rgba(245,158,11,.45); } 50% { box-shadow: 0 4px 26px rgba(250,204,21,.9); } }
+.game-panel { animation: xmasFadeUp .35s both; }
+@keyframes xmasFadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.snow-canvas { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; opacity: .7; }
+body::before {
+  content: "🎄 ❄️ 🎁 ⭐ 🔔 ❄️ 🎄 ❄️ 🎁 ⭐ 🔔 ❄️ 🎄";
+  position: fixed; top: 0; left: 0; right: 0; height: 22px; line-height: 22px; font-size: 14px; letter-spacing: 10px;
+  text-align: center; pointer-events: none; opacity: .55; z-index: 19; white-space: nowrap; overflow: hidden;
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
