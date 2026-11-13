@@ -4,7 +4,11 @@
   const SUPA_URL = "https://pknlztebsrhesoqdltkk.supabase.co";
   const SUPA_KEY = "sb_publishable_CBl9B4dl5ko3A17XBoIUVg_CJ1SDQaA";
   let sb = null;
-  try { if (window.supabase && window.supabase.createClient) sb = window.supabase.createClient(SUPA_URL, SUPA_KEY); } catch (e) {}
+  try {
+    if (window.supabase && window.supabase.createClient) sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+  } catch (e) {}
+  // Die Bibliothek nicht mehr global verfuegbar machen (kein window.supabase.createClient in der Konsole)
+  try { delete window.supabase; } catch (e) { window.supabase = undefined; }
   let authUserId = null, authUsername = null;
   const emailFor = (u) => u.toLowerCase().replace(/[^a-z0-9_]/g, "") + "@maxi-timer.local";
   function escapeHtml(s) { return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
