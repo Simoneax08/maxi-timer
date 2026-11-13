@@ -114,8 +114,8 @@
     const info = $("authInfo");
     if (!sb) { setInfo(info, false, "Keine Verbindung zum Server."); return; }
     const u = ($("authUser").value || "").trim(), p = $("authPass").value || "";
-    if (u.length < 3) { setInfo(info, false, "Name mind. 3 Zeichen."); return; }
-    if (p.length < 6) { setInfo(info, false, "Passwort mind. 6 Zeichen."); return; }
+    if (!/^[A-Za-z0-9_]{3,16}$/.test(u)) { setInfo(info, false, "Name: 3 bis 16 Zeichen, nur Buchstaben, Zahlen und _."); return; }
+    if (p.length < 8) { setInfo(info, false, "Passwort mind. 8 Zeichen."); return; }
     setInfo(info, null, "Erstelle Account...");
     try {
       const { data, error } = await sb.auth.signUp({ email: emailFor(u), password: p });

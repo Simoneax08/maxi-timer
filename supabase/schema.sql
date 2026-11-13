@@ -73,7 +73,7 @@ returns bigint language plpgsql security definer set search_path = public as $$
 declare uid uuid := auth.uid(); c bigint;
 begin
   if uid is null then raise exception 'not_logged_in'; end if;
-  if p_username is null or length(trim(p_username)) < 3 or length(trim(p_username)) > 16 then
+  if p_username is null or p_username !~ '^[A-Za-z0-9_]{3,16}$' then
     raise exception 'bad_username';
   end if;
   insert into profiles (id, username, coins) values (uid, trim(p_username), 2000)
@@ -191,12 +191,16 @@ language sql stable security definer set search_path = public as $$
 $$;
 
 -- 11) Startcodes (Beispiel, hier neue Codes eintragen) ------------------
-insert into redeem_codes (code, coins, active) values ('MAXIREICH50K', 50000, true)
-  on conflict (code) do nothing;
+-- Startcodes gehoeren NICHT ins oeffentliche Repo. Codes nur im SQL-Editor einfuegen.
+-- Der alte Code aus frueheren Versionen wird hier deaktiviert:
+update redeem_codes set active = false where code = 'MAXIREICH50K';
 
 -- 12) Rechte: Browser darf nur lesen, Schreiben nur über die Funktionen ----
 revoke all on all tables in schema public from anon, authenticated;
-grant select on public.profiles, public.daily_stats, public.daily_prizes to anon, authenticated;
+grant select on public.daily_stats, public.daily_prizes to anon, authenticated;
+-- profiles nur mit den Spalten lesbar, die die Seite braucht (keine internen Rain-/Limit-Werte)
+revoke select on public.profiles from anon, authenticated;
+grant select (id, username, coins, level, prestige, best_win, updated_at) on public.profiles to anon, authenticated;
 grant execute on function public.init_account(text) to authenticated;
 grant execute on function public.apply_delta(bigint, bigint) to authenticated;
 grant execute on function public.save_progress(int, int, bigint) to authenticated;
@@ -252,6 +256,9 @@ do $$ begin
 exception when others then
   raise notice 'Realtime-Publikation: %', sqlerrm;
 end $$;
+
+-- Benutzernamen eindeutig auch ohne Gross-/Kleinschreibung
+create unique index if not exists profiles_username_lower on public.profiles (lower(username));
 
 -- 15) Rakeback Rain: alle 10 Min (Wiener Zeit :00, :10, ...) 3 Min zum Joinen.
 --     Pot = Spenden der Spieler. Auszahlung anteilig nach den Einsaetzen seit dem letzten Join.
