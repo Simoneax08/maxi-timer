@@ -15,6 +15,9 @@ create table if not exists public.profiles (
 );
 alter table public.profiles add column if not exists last_login_day date;
 alter table public.profiles add column if not exists wagered_since_rain bigint not null default 0;
+alter table public.profiles add column if not exists rl_start timestamptz not null default now();
+alter table public.profiles add column if not exists rl_wager bigint not null default 0;
+alter table public.profiles add column if not exists rl_won bigint not null default 0;
 
 create table if not exists public.daily_stats (
   user_id uuid not null references auth.users(id) on delete cascade,
@@ -86,16 +89,23 @@ end $$;
 create or replace function public.apply_delta(p_wagered bigint, p_won bigint)
 returns bigint language plpgsql security definer set search_path = public as $$
 declare uid uuid := auth.uid(); c bigint; today date := public.vienna_today();
+  rs timestamptz; rw bigint; rv bigint; allowed bigint; won_eff bigint;
 begin
   if uid is null then raise exception 'not_logged_in'; end if;
   if p_wagered < 0 or p_won < 0 or p_wagered > 1000000000000 or p_won > 1000000000000 then
     raise exception 'bad_values';
   end if;
-  select coins into c from profiles where id = uid for update;
+  select coins, rl_start, rl_wager, rl_won into c, rs, rw, rv from profiles where id = uid for update;
   if c is null then raise exception 'no_account'; end if;
-  if c - p_wagered + p_won < 0 then raise exception 'insufficient'; end if;
-  update profiles set coins = c - p_wagered + p_won, updated_at = now(),
-    wagered_since_rain = wagered_since_rain + p_wagered
+  -- Gewinn-Limit pro 60 Sekunden: hoechstens 500x der Einsaetze dieser Minute + 500 Basis.
+  -- Ueberschuss wird abgeschnitten (kein Fehler), damit ehrliche Spieler nicht haengen bleiben.
+  if now() - rs > interval '60 seconds' then rs := now(); rw := 0; rv := 0; end if;
+  allowed := greatest(0, 500 * (rw + p_wagered) + 500 - rv);
+  won_eff := least(p_won, allowed);
+  if c - p_wagered + won_eff < 0 then raise exception 'insufficient'; end if;
+  update profiles set coins = c - p_wagered + won_eff, updated_at = now(),
+    wagered_since_rain = wagered_since_rain + p_wagered,
+    rl_start = rs, rl_wager = rw + p_wagered, rl_won = rv + won_eff
     where id = uid returning coins into c;
   if p_wagered > 0 then
     insert into daily_stats (user_id, day, wagered) values (uid, today, p_wagered)
